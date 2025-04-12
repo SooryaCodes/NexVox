@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "name": "Alex Chen",
+    "isSpeaking": false
+  },
+  {
+    "id": 2,
+    "name": "Jamie Taylor",
+    "isSpeaking": true
+  },
+  {
+    "id": 3,
+    "name": "Morgan Smith",
+    "isSpeaking": false
+  },
+  {
+    "id": 4,
+    "name": "Riley Johnson",
+    "isSpeaking": false
+  },
+  {
+    "id": 5,
+    "name": "Casey Wilson",
+    "isSpeaking": true
+  }
+]
