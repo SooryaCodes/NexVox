@@ -2,21 +2,25 @@
   {
     "id": 1,
     "name": "Cyber Lounge",
-    "participantCount": 12
+    "participantCount": 12,
+    "type": "music"
   },
   {
     "id": 2,
     "name": "Neon Dojo",
-    "participantCount": 8
+    "participantCount": 8,
+    "type": "gaming"
   },
   {
     "id": 3,
     "name": "Virtual Nexus",
-    "participantCount": 15
+    "participantCount": 15,
+    "type": "conversation"
   },
   {
     "id": 4,
     "name": "Digital Oasis",
-    "participantCount": 5
+    "participantCount": 5,
+    "type": "chill"
   }
 ] 

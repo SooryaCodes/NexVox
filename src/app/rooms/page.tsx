@@ -1,6 +1,6 @@
 // src/app/rooms/page.tsx
 // Enhanced room card based on AmbientRoom component
-
+"use client"
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { m, motion, AnimatePresence } from "framer-motion";
@@ -166,13 +166,14 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
   const isNew = room.id % 3 === 0;
   const isPopular = room.participantCount > 10;
   
-  // Get room type colors
+  // Get room type colors and label
   const getRoomTypeDetails = () => {
     switch (room.type) {
       case 'music':
         return {
           primaryColor: '#FF00E6', // pink
           secondaryColor: '#9D00FF', // purple
+          label: 'MUSIC',
           icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
@@ -183,6 +184,7 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
         return {
           primaryColor: '#00FFFF', // cyan
           secondaryColor: '#0088FF', // blue
+          label: 'CONVERSATION',
           icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8-1.174 0-2.298-.222-3.335-.624C8.665 19.376 7.976 20 7 20c-1.5 0-2.5-1.5-2.5-1.5S2 14 2 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -193,6 +195,7 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
         return {
           primaryColor: '#9D00FF', // purple
           secondaryColor: '#FF00E6', // pink
+          label: 'GAMING',
           icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 8v.01M15 12v.01M14 16v.01M9 8h1v2h2v1h-2v2H9v-2H7v-1h2V8z" />
@@ -204,6 +207,7 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
         return {
           primaryColor: '#00FFFF', // cyan
           secondaryColor: '#FF00E6', // pink
+          label: 'CHILL',
           icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -214,6 +218,7 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
         return {
           primaryColor: '#00FFFF', // cyan
           secondaryColor: '#9D00FF', // purple
+          label: 'ROOM',
           icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -265,60 +270,27 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
     setIsHovered(false);
   };
   
-  // GSAP animation for particles
-  useEffect(() => {
-    if (!visualizerRef.current) return;
-    
-    const visualizer = visualizerRef.current;
-    const particles = 15;
-    
-    // Remove any existing particles
-    while (visualizer.firstChild) {
-      visualizer.removeChild(visualizer.firstChild);
+  // Create waveform bars
+  const renderWaveformBars = () => {
+    // Create an array of 18 bars with alternating heights
+    const bars = [];
+    for (let i = 0; i < 18; i++) {
+      const height = 10 + Math.random() * 20; // Random height between 10 and 30px
+      const color = i % 2 === 0 ? roomDetails.primaryColor : roomDetails.secondaryColor;
+      
+      bars.push(
+        <div 
+          key={i}
+          className="inline-block w-1 mx-0.5 rounded-sm"
+          style={{ 
+            height: `${height}px`,
+            backgroundColor: color
+          }}
+        />
+      );
     }
-    
-    // Create particles
-    for (let i = 0; i < particles; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'absolute rounded-full';
-      
-      // Randomize size
-      const size = 2 + Math.random() * 3;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      
-      // Set position
-      particle.style.left = `${Math.random() * 100}%`;
-      particle.style.top = `${Math.random() * 100}%`;
-      
-      // Set color
-      const isAlternateColor = Math.random() > 0.5;
-      particle.style.backgroundColor = isAlternateColor 
-        ? roomDetails.secondaryColor 
-        : roomDetails.primaryColor;
-      
-      // Set opacity
-      particle.style.opacity = (0.3 + Math.random() * 0.5).toString();
-      
-      visualizer.appendChild(particle);
-      
-      // Animate particle
-      gsap.to(particle, {
-        x: () => -20 + Math.random() * 40,
-        y: () => -20 + Math.random() * 40,
-        opacity: () => 0.1 + Math.random() * 0.5,
-        duration: 2 + Math.random() * 3,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: Math.random() * 2
-      });
-    }
-    
-    return () => {
-      gsap.killTweensOf(visualizer.childNodes);
-    };
-  }, [roomDetails.primaryColor, roomDetails.secondaryColor]);
+    return bars;
+  };
 
   return (
     <m.div
@@ -364,6 +336,19 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
           boxShadow: isHovered ? `0 10px 30px -5px ${roomDetails.primaryColor}30` : 'none'
         }}
       >
+        {/* Room type label */}
+        <div className="absolute top-2 right-2">
+          <div 
+            className="px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ 
+              backgroundColor: `${roomDetails.primaryColor}20`,
+              color: roomDetails.primaryColor
+            }}
+          >
+            {roomDetails.label}
+          </div>
+        </div>
+        
         {/* Room header */}
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -424,16 +409,11 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
           {room.description || "Join this room to connect with others in a voice-based chat experience!"}
         </p>
         
-        {/* Audio visualizer */}
-        <div className="mt-2 mb-4">
-          <AudioWaveform 
-            width={240} 
-            height={30} 
-            bars={15} 
-            color={roomDetails.primaryColor}
-            activeColor={roomDetails.secondaryColor}
-            className="opacity-60"
-          />
+        {/* New Audio waveform with vertical bars */}
+        <div className="mt-2 mb-4 flex items-center justify-center h-10">
+          <div className="flex items-end justify-center w-full h-full">
+            {renderWaveformBars()}
+          </div>
         </div>
         
         {/* User avatars */}
@@ -977,7 +957,7 @@ export default function RoomsPage() {
               {filteredRooms.map((room, index) => (
                 <EnhancedRoomCard
                   key={room.id}
-                  room={room}
+                  room={room as Room}
                   index={index}
                   activeCategory={activeCategory}
                 />
