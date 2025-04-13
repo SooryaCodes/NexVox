@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import AnimatedTitle from "@/components/AnimatedTitle";
@@ -13,22 +14,42 @@ import Header from "@/components/Header";
 import AudioWaveform from "@/components/AudioWaveform";
 import HyperspeedEffect from "@/components/HyperspeedEffect";
 import ScrollingText from "@/components/ScrollingText";
+import NeonGrid from "@/components/NeonGrid";
+import GlassmorphicCard from "@/components/GlassmorphicCard";
+import ShimmeringText from "@/components/ShimmeringText";
+import FeatureCard from "@/components/FeatureCard";
+import AppMockup from "@/components/AppMockup";
+import GlitchText from "@/components/GlitchText";
+import CyberMarquee from "@/components/CyberMarquee";
+import HolographicCard from "@/components/HolographicCard";
+
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
-    icon: "🔊",
+    iconPath: "/assets/voice-icon.svg",
     title: "Live Voice Rooms",
-    description: "Join pre-defined rooms populated with global participants. Engage in lively discussions across cultures and time zones."
+    description: "Join pre-defined rooms populated with global participants. Engage in lively discussions across cultures and time zones.",
+    color: "cyan"
   },
   {
-    icon: "🎧",
+    iconPath: "/assets/spatial-icon.svg",
     title: "Spatial Audio",
-    description: "Experience immersive conversations with spatial audio. Voices pan left and right based on virtual position in the room."
+    description: "Experience immersive conversations with spatial audio. Voices pan left and right based on virtual position in the room.",
+    color: "purple"
   },
   {
-    icon: "✨",
+    iconPath: "/assets/vibe-icon.svg",
     title: "Vibe Toasts",
-    description: "Random positive messages pop up to boost energy and personality. Experience a dynamic, vibrant communication environment."
+    description: "Random positive messages pop up to boost energy and personality. Experience a dynamic, vibrant communication environment.",
+    color: "pink"
+  },
+  {
+    iconPath: "/assets/avatar-icon.svg",
+    title: "Animated Avatars",
+    description: "Express yourself with reactive avatars that animate based on your voice input and selected reactions.",
+    color: "gradient"
   }
 ];
 
@@ -56,16 +77,19 @@ const testimonials = [
 export default function Home() {
   const [hyperspeedActive, setHyperspeedActive] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const scrollOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
   
   const headlines = [
     "Connect Globally with NexVox",
-    "Next-Level Experience",
-    "Future Is Here",
+    "Experience the Future of Voice",
+    "Join the Cybernetic Revolution",
     "Connect Like Never Before"
   ];
 
+  // Initialize animations and effects
   useEffect(() => {
     // Trigger hyperspeed effect on initial load
     setTimeout(() => {
@@ -76,12 +100,58 @@ export default function Home() {
         setHyperspeedActive(false);
       }, 3000);
     }, 1000);
+
+    // GSAP ScrollTrigger setup
+    if (!mainRef.current) return;
+
+    // Hero parallax effect
+    if (heroRef.current) {
+      const heroElements = heroRef.current.querySelectorAll('.hero-parallax');
+      
+      heroElements.forEach((element, index) => {
+        const depth = index * 0.2;
+        
+        ScrollTrigger.create({
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.to(element, {
+              y: self.progress * 100 * depth,
+              ease: 'none',
+              overwrite: 'auto'
+            });
+          }
+        });
+      });
+    }
+
+    // Features section animations
+    if (featuresRef.current) {
+      const featureCards = featuresRef.current.querySelectorAll('.feature-card');
+      
+      featureCards.forEach((card, index) => {
+        ScrollTrigger.create({
+          trigger: card,
+          start: 'top bottom-=100',
+          toggleClass: { targets: card, className: 'active' },
+          once: true
+        });
+      });
+    }
+
+    // Clean up
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
   }, []);
 
   return (
     <div ref={mainRef} className="min-h-screen bg-black text-white">
-      {/* Particle Background */}
+      {/* Enhanced backgrounds */}
       <ParticlesBackground />
+      <NeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.1} />
       
       {/* Hyperspeed effect overlay */}
       <AnimatePresence>
@@ -92,38 +162,39 @@ export default function Home() {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen p-8 grid place-items-center overflow-hidden">
+      <section ref={heroRef} className="relative min-h-screen p-8 grid place-items-center overflow-hidden">
         <div className="max-w-7xl mx-auto text-center z-10 pt-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-12"
+            className="mb-12 hero-parallax"
           >
             <AnimatedTitle 
               titles={headlines} 
-              className="text-5xl md:text-7xl font-bold text-[#0ff] font-orbitron glow mb-6"
+              className="text-5xl md:text-7xl font-bold text-[#00FFFF] font-orbitron glow mb-6"
             />
-            <motion.p 
-              className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto opacity-80"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 0.8, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-            >
-              The next-generation voice platform where the world meets in real-time
-            </motion.p>
+            <ShimmeringText
+              text="The next-generation voice platform where the world meets in real-time"
+              className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto"
+              variant="gradient"
+              as="p"
+            />
           </motion.div>
           
           <div className="flex flex-wrap gap-6 justify-center">
             <FuturisticButton 
-              text="View Rooms" 
-              type="primary"
-              icon={<span>🚀</span>}
+              text="Explore Rooms" 
+              type="neon"
+              glitchEffect={true}
+              rippleEffect={true}
+              accessibilityLabel="Explore NexVox voice rooms"
               onClick={() => setHyperspeedActive(true)}
             />
             <FuturisticButton 
               text="Learn More" 
               type="secondary"
+              accessibilityLabel="Learn more about NexVox features"
             />
           </div>
           
@@ -132,7 +203,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="mt-16"
+            className="mt-16 hero-parallax"
           >
             <p className="text-sm mb-2 opacity-60">Live global audio activity</p>
             <div className="flex justify-center">
@@ -140,8 +211,8 @@ export default function Home() {
                 width={500} 
                 height={80} 
                 bars={100} 
-                color="#0ff" 
-                activeColor="#FF00FF" 
+                color="#00FFFF" 
+                activeColor="#FF00E6" 
                 className="transform scale-75 md:scale-100"
               />
             </div>
@@ -175,47 +246,52 @@ export default function Home() {
                   ease: "easeInOut",
                   delay: 0.2
                 }}
-                className="w-2 h-2 bg-[#0ff] rounded-full mt-1"
+                className="w-2 h-2 bg-[#00FFFF] rounded-full mt-1"
               />
             </div>
           </motion.div>
         </motion.div>
         
-        {/* Decorative elements */}
-        <div className="absolute left-0 top-1/4 w-40 h-40 bg-gradient-to-r from-cyan-500/20 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute right-0 bottom-1/4 w-60 h-60 bg-gradient-to-l from-purple-500/20 to-transparent rounded-full blur-3xl"></div>
+        {/* Enhanced decorative elements */}
+        <div className="absolute left-0 top-1/4 w-40 h-40 bg-gradient-to-r from-[#00FFFF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
+        <div className="absolute right-0 bottom-1/4 w-60 h-60 bg-gradient-to-l from-[#9D00FF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
+        <div className="absolute left-1/4 bottom-1/3 w-20 h-20 bg-gradient-to-tr from-[#FF00E6]/20 to-transparent rounded-full blur-2xl hero-parallax"></div>
       </section>
 
-      {/* Scrolling text band */}
-      <ScrollingText 
+      {/* Enhanced Scrolling text band */}
+      <CyberMarquee 
         text="NEXT-GEN VOICE COMMUNICATION • SPATIAL AUDIO • GLOBAL CONNECTIONS • CYBERPUNK EXPERIENCE"
-        className="py-4 text-[#0ff] font-orbitron text-lg"
-        speed={1.5}
+        className="py-4 font-orbitron text-lg"
+        speed={50}
+        color="cyan"
       />
 
       {/* Features Section */}
-      <section id="features" className="py-24 px-8 relative bg-grid">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/20 to-black"></div>
+      <section ref={featuresRef} id="features" className="py-24 px-8 relative bg-grid">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#9D00FF]/10 to-black"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
           <ScrollReveal>
-            <h2 className="text-4xl font-orbitron text-center mb-16 text-[#0ff] glow">Experience the Future of Voice</h2>
+            <GlitchText
+              text="Experience the Future of Voice"
+              className="text-4xl font-orbitron text-center mb-16"
+              color="cyan"
+              intensity="medium"
+              activeOnView={true}
+            />
           </ScrollReveal>
           
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
             {features.map((feature, index) => (
-              <ScrollReveal key={feature.title} delay={index * 0.2} direction="up">
-                <div className="gradient-border h-full">
-                  <HeroCard
-                    title={feature.title}
-                    description={feature.description}
-                  >
-                    <div className="bg-gradient-to-br from-cyan-500 to-purple-500 w-16 h-16 rounded-full grid place-items-center mb-6 text-2xl">
-                      {feature.icon}
-                    </div>
-                  </HeroCard>
-                </div>
-              </ScrollReveal>
+              <div key={feature.title} className="feature-card">
+                <FeatureCard
+                  title={feature.title}
+                  description={feature.description}
+                  bgColor={feature.color as any}
+                  iconPath={feature.iconPath}
+                  className="h-full"
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -225,13 +301,24 @@ export default function Home() {
       <section id="rooms" className="py-24 px-8 relative scanlines">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
-            <h2 className="text-4xl font-orbitron text-center mb-16 text-[#0ff] glow glitch" data-text="Experience NexVox">Experience NexVox</h2>
+            <GlitchText
+              text="Experience NexVox"
+              className="text-4xl font-orbitron text-center mb-16"
+              color="cyan"
+              intensity="high"
+              activeOnView={true}
+            />
           </ScrollReveal>
           
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <ScrollReveal direction="left">
               <div className="space-y-8">
-                <h3 className="text-3xl font-orbitron text-[#0ff] mb-4">Intuitive Interface</h3>
+                <ShimmeringText
+                  text="Intuitive Interface"
+                  className="text-3xl font-orbitron mb-4"
+                  variant="cyan"
+                  as="h3"
+                />
                 <p className="text-lg opacity-80">Our interface is designed for seamless interaction. Experience a platform that responds to your needs with minimal learning curve.</p>
                 <ul className="space-y-4">
                   <motion.li 
@@ -239,7 +326,7 @@ export default function Home() {
                     whileHover={{ x: 10, color: "#00FFFF" }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
-                    <span className="text-[#0ff]">✓</span>
+                    <span className="text-[#00FFFF]">✓</span>
                     <span>Simple room navigation</span>
                   </motion.li>
                   <motion.li 
@@ -247,7 +334,7 @@ export default function Home() {
                     whileHover={{ x: 10, color: "#00FFFF" }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
-                    <span className="text-[#0ff]">✓</span>
+                    <span className="text-[#00FFFF]">✓</span>
                     <span>One-click microphone controls</span>
                   </motion.li>
                   <motion.li 
@@ -255,7 +342,7 @@ export default function Home() {
                     whileHover={{ x: 10, color: "#00FFFF" }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
-                    <span className="text-[#0ff]">✓</span>
+                    <span className="text-[#00FFFF]">✓</span>
                     <span>Responsive audio indicators</span>
                   </motion.li>
                 </ul>
@@ -267,121 +354,25 @@ export default function Home() {
                     width={300} 
                     height={40} 
                     bars={30} 
-                    color="#0ff" 
-                    activeColor="#FF00FF" 
+                    color="#00FFFF" 
+                    activeColor="#FF00E6" 
                   />
                 </div>
               </div>
             </ScrollReveal>
             
             <ScrollReveal direction="right">
-              <div className="bg-gradient-to-br from-cyan-500/10 to-purple-500/10 p-1 rounded-2xl">
-                <div className="bg-black/80 backdrop-blur-sm rounded-2xl border border-[#0ff]/30 p-4 relative group">
-                  {/* App mockup */}
-                  <div className="w-full aspect-[9/16] max-w-xs mx-auto bg-gradient-to-br from-gray-900 to-black rounded-xl overflow-hidden border border-white/10 relative">
-                    {/* App header */}
-                    <div className="bg-gradient-to-r from-cyan-900 to-purple-900 p-4">
-                      <h4 className="font-orbitron text-sm text-white">Cyber Lounge</h4>
-                    </div>
-                    
-                    {/* User avatars */}
-                    <div className="p-6">
-                      <div className="flex flex-wrap gap-4 justify-center">
-                        {[1, 2, 3, 4, 5, 6].map(idx => (
-                          <motion.div 
-                            key={idx} 
-                            className="relative group/avatar"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-xl border-2 border-black">
-                              {idx % 2 === 0 ? '👤' : '👩'}
-                            </div>
-                            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-xs text-white p-1 rounded opacity-0 group-hover/avatar:opacity-100 pointer-events-none transition-all duration-300 w-24 text-center border border-[#0ff]/30">
-                              {idx % 2 === 0 ? 'Speaking...' : 'Tap to interact'}
-                            </div>
-                            {idx % 3 === 0 && (
-                              <motion.div 
-                                className="absolute inset-0 rounded-full bg-[#0ff] opacity-40"
-                                animate={{ 
-                                  scale: [1, 1.2, 1],
-                                  opacity: [0.4, 0.2, 0.4]
-                                }}
-                                transition={{
-                                  duration: 2,
-                                  repeat: Infinity,
-                                  ease: "easeInOut"
-                                }}
-                              />
-                            )}
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Controls */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 backdrop-blur-sm border-t border-white/10">
-                      <div className="flex justify-around">
-                        <motion.button 
-                          className="w-12 h-12 rounded-full bg-[#0ff]/20 hover:bg-[#0ff]/40 transition-colors flex items-center justify-center"
-                          whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 255, 255, 0.4)" }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <span className="text-xl">🎤</span>
-                        </motion.button>
-                        <motion.button 
-                          className="w-12 h-12 rounded-full bg-[#0ff]/20 hover:bg-[#0ff]/40 transition-colors flex items-center justify-center"
-                          whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 255, 255, 0.4)" }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <span className="text-xl">👋</span>
-                        </motion.button>
-                        <motion.button 
-                          className="w-12 h-12 rounded-full bg-red-500/20 hover:bg-red-500/40 transition-colors flex items-center justify-center"
-                          whileHover={{ scale: 1.1, backgroundColor: "rgba(239, 68, 68, 0.4)" }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <span className="text-xl">✕</span>
-                        </motion.button>
-                      </div>
-                    </div>
-                    
-                    {/* Vibe toast */}
-                    <motion.div 
-                      className="absolute top-16 right-4 bg-gradient-to-r from-cyan-500 to-purple-500 px-3 py-1 rounded-full text-xs"
-                      animate={{ 
-                        y: [0, -10, 0],
-                        opacity: [1, 0.8, 1]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      Vibe: Epic!
-                    </motion.div>
-                  </div>
-                  
-                  {/* Floating indicators */}
-                  <motion.div 
-                    className="absolute -right-6 top-1/4 bg-[#0ff] text-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    Spatial Audio
-                  </motion.div>
-                  <motion.div 
-                    className="absolute -left-6 top-1/2 bg-purple-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 }}
-                  >
-                    Active Speaker
-                  </motion.div>
-                </div>
-              </div>
+              <GlassmorphicCard
+                gradient="cyan-purple"
+                glowOnHover={true}
+                className="p-4"
+              >
+                <AppMockup
+                  roomName="Cyber Lounge"
+                  className="mx-auto"
+                  showTooltips={true}
+                />
+              </GlassmorphicCard>
             </ScrollReveal>
           </div>
         </div>
@@ -389,11 +380,16 @@ export default function Home() {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-24 px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-purple-950/30 to-black"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-[#9D00FF]/10 to-black"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
           <ScrollReveal>
-            <h2 className="text-4xl font-orbitron text-center mb-16 text-[#0ff] glow">How NexVox Works</h2>
+            <ShimmeringText
+              text="How NexVox Works"
+              className="text-4xl font-orbitron text-center mb-16"
+              variant="gradient"
+              as="h2"
+            />
           </ScrollReveal>
           
           <div className="grid md:grid-cols-2 gap-16 items-center">
@@ -405,9 +401,9 @@ export default function Home() {
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
                   >
-                    <div className="bg-gradient-to-r from-cyan-500 to-purple-500 text-black rounded-full w-10 h-10 grid place-items-center flex-shrink-0 font-bold shadow-[0_0_15px_rgba(0,255,255,0.7)]">1</div>
+                    <div className="bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-black rounded-full w-10 h-10 grid place-items-center flex-shrink-0 font-bold shadow-[0_0_15px_rgba(0,255,255,0.7)]">1</div>
                     <div>
-                      <h3 className="text-xl font-orbitron mb-2 text-[#0ff]">Create Your Profile</h3>
+                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Create Your Profile</h3>
                       <p className="opacity-80">Choose your username and customize your animated avatar to represent you in voice rooms.</p>
                     </div>
                   </motion.div>
@@ -419,9 +415,9 @@ export default function Home() {
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
                   >
-                    <div className="bg-gradient-to-r from-cyan-500 to-purple-500 text-black rounded-full w-10 h-10 grid place-items-center flex-shrink-0 font-bold shadow-[0_0_15px_rgba(0,255,255,0.7)]">2</div>
+                    <div className="bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-black rounded-full w-10 h-10 grid place-items-center flex-shrink-0 font-bold shadow-[0_0_15px_rgba(0,255,255,0.7)]">2</div>
                     <div>
-                      <h3 className="text-xl font-orbitron mb-2 text-[#0ff]">Browse Active Rooms</h3>
+                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Browse Active Rooms</h3>
                       <p className="opacity-80">Explore a variety of voice rooms organized by topic, language, or vibe.</p>
                     </div>
                   </motion.div>
@@ -433,9 +429,9 @@ export default function Home() {
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
                   >
-                    <div className="bg-gradient-to-r from-cyan-500 to-purple-500 text-black rounded-full w-10 h-10 grid place-items-center flex-shrink-0 font-bold shadow-[0_0_15px_rgba(0,255,255,0.7)]">3</div>
+                    <div className="bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-black rounded-full w-10 h-10 grid place-items-center flex-shrink-0 font-bold shadow-[0_0_15px_rgba(0,255,255,0.7)]">3</div>
                     <div>
-                      <h3 className="text-xl font-orbitron mb-2 text-[#0ff]">Join the Conversation</h3>
+                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Join the Conversation</h3>
                       <p className="opacity-80">Drop into any room and start connecting with people from around the world in real-time.</p>
                     </div>
                   </motion.div>
@@ -444,33 +440,29 @@ export default function Home() {
             </div>
             
             <ScrollReveal direction="right" className="order-1 md:order-2">
-              <div className="relative">
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 rounded-2xl blur-3xl opacity-30"></div>
-                <div className="bg-black rounded-2xl h-96 border border-[#0ff]/30 grid place-items-center relative overflow-hidden group p-8">
-                  <motion.img 
+              <GlassmorphicCard
+                gradient="purple-pink"
+                glowOnHover={true}
+                className="h-96"
+              >
+                <div className="h-full w-full relative overflow-hidden rounded-xl">
+                  <Image 
                     src="https://cdn.midjourney.com/c1b39f04-3a3b-48e7-9200-d11aabd33448/0_1.webp" 
                     alt="Global Connection Visualization" 
-                    className="w-full h-full object-cover object-center rounded-xl opacity-70"
-                    initial={{ scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 1.5 }}
+                    fill
+                    className="object-cover object-center opacity-70 transition-transform duration-1500 hover:scale-105"
                   />
-                  <motion.div 
-                    className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"
-                    initial={{ opacity: 0.7 }}
-                    whileHover={{ opacity: 0.4 }}
-                    transition={{ duration: 0.5 }}
-                  ></motion.div>
-                  <motion.div 
-                    className="absolute bottom-6 left-0 right-0 text-center"
-                    initial={{ y: 20, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <span className="font-orbitron text-2xl text-[#0ff] glow">Global Connections</span>
-                  </motion.div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute bottom-6 left-0 right-0 text-center">
+                    <GlitchText
+                      text="Global Connections"
+                      className="text-2xl font-orbitron"
+                      color="cyan"
+                      activeOnHover={true}
+                    />
+                  </div>
                 </div>
-              </div>
+              </GlassmorphicCard>
             </ScrollReveal>
           </div>
         </div>
@@ -479,7 +471,12 @@ export default function Home() {
       {/* Testimonials */}
       <section id="testimonials" className="py-24 px-8 relative">
         <ScrollReveal>
-          <h2 className="text-4xl font-orbitron text-center mb-4 text-[#0ff] glow">What Users Say</h2>
+          <GlitchText
+            text="What Users Say"
+            className="text-4xl font-orbitron text-center mb-4"
+            color="pink"
+            activeOnView={true}
+          />
           <p className="text-center opacity-80 mb-16 max-w-3xl mx-auto">Join the global community already experiencing the next level of voice communication</p>
         </ScrollReveal>
         
@@ -487,27 +484,15 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <ScrollReveal key={testimonial.name} delay={index * 0.2}>
-                <motion.div 
-                  className="bg-gradient-to-br from-black to-purple-950/30 p-6 rounded-xl border border-purple-500/20 hover:border-purple-500 transition-all duration-300"
-                  whileHover={{ y: -10, boxShadow: "0 20px 25px -5px rgba(157, 0, 255, 0.1), 0 10px 10px -5px rgba(157, 0, 255, 0.04)" }}
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="w-14 h-14 rounded-full mr-4 overflow-hidden border-2 border-purple-500/50">
-                      <Image 
-                        src={testimonial.avatar} 
-                        alt={testimonial.name} 
-                        width={56} 
-                        height={56} 
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-orbitron text-[#0ff]">{testimonial.name}</h4>
-                      <p className="text-sm opacity-60">{testimonial.location}</p>
-                    </div>
-                  </div>
-                  <p className="opacity-80 italic">&ldquo;{testimonial.quote}&rdquo;</p>
-                </motion.div>
+                <HolographicCard
+                  name={testimonial.name}
+                  location={testimonial.location}
+                  quote={testimonial.quote}
+                  avatar={testimonial.avatar}
+                  color={index === 0 ? "cyan" : index === 1 ? "purple" : "pink"}
+                  glowIntensity="medium"
+                  className="h-full"
+                />
               </ScrollReveal>
             ))}
           </div>
@@ -515,16 +500,17 @@ export default function Home() {
       </section>
 
       {/* Scrolling text band - reverse direction */}
-      <ScrollingText 
+      <CyberMarquee 
         text="IMMERSIVE AUDIO • FUTURISTIC DESIGN • CONNECT GLOBALLY • NEXT-GEN EXPERIENCE"
-        className="py-4 text-purple-400 font-orbitron text-lg"
-        speed={1.5}
+        className="py-4 font-orbitron text-lg"
+        speed={50}
         direction="right"
+        color="purple"
       />
 
       {/* CTA Section */}
       <section className="py-24 px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-900/50 via-black to-purple-900/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <ScrollReveal>
@@ -534,7 +520,12 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="mb-10"
             >
-              <h2 className="text-4xl md:text-5xl font-orbitron mb-6 text-[#0ff] glow">Ready to Connect Globally?</h2>
+              <ShimmeringText
+                text="Ready to Connect Globally?"
+                className="text-4xl md:text-5xl font-orbitron mb-6"
+                variant="gradient"
+                as="h2"
+              />
               <p className="text-xl opacity-80 mb-10 max-w-3xl mx-auto">Join thousands of users already experiencing the future of voice communication</p>
             </motion.div>
           </ScrollReveal>
@@ -542,20 +533,53 @@ export default function Home() {
           <div className="mb-12 flex justify-center">
             <FuturisticButton 
               text="Start for Free" 
-              type="primary"
+              type="neon"
               className="px-10 py-4 text-lg"
+              glitchEffect={true}
+              rippleEffect={true}
               onClick={() => setHyperspeedActive(true)}
             />
           </div>
           
+          {/* Email subscription */}
+          <ScrollReveal direction="up">
+            <GlassmorphicCard
+              gradient="cyan-purple"
+              className="py-6 px-8 max-w-md mx-auto"
+            >
+              <ShimmeringText
+                text="Stay Updated"
+                className="text-xl mb-4 font-orbitron"
+                variant="cyan"
+                as="h3"
+              />
+              <div className="relative mt-4">
+                <input 
+                  type="email" 
+                  placeholder="Your email" 
+                  className="w-full bg-black/60 border border-[#00FFFF]/30 rounded-md px-4 py-3 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] transition-all"
+                  aria-label="Email subscription"
+                />
+                <motion.button 
+                  className="mt-3 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-3 w-full hover:opacity-90 font-orbitron" 
+                  aria-label="Subscribe"
+                  whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)" }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Subscribe
+                </motion.button>
+              </div>
+            </GlassmorphicCard>
+          </ScrollReveal>
+          
           {/* Waveform effect for CTA */}
-          <div className="max-w-xl mx-auto">
+          <div className="max-w-xl mx-auto mt-12">
             <AudioWaveform 
               width={600} 
               height={100} 
               bars={150} 
               color="#9D00FF" 
-              activeColor="#0ff" 
+              activeColor="#00FFFF" 
               className="transform scale-90 md:scale-100"
             />
           </div>
@@ -563,18 +587,28 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-8 bg-black border-t border-[#0ff]/20 relative z-10 bg-grid">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
+      <footer className="py-12 px-8 bg-black border-t border-[#00FFFF]/20 relative z-10">
+        <div className="absolute inset-0 opacity-10">
+          <NeonGrid color="#9D00FF" secondaryColor="#00FFFF" density={40} opacity={0.1} />
+        </div>
+        
+        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 relative z-10">
           <div>
-            <h3 className="font-orbitron text-[#0ff] text-xl mb-4">NexVox</h3>
+            <GlitchText
+              text="NexVox"
+              className="font-orbitron text-xl mb-4"
+              color="cyan"
+              intensity="low"
+              activeOnHover={true}
+            />
             <p className="opacity-70">Your next-generation voice communication platform.</p>
             
             <div className="mt-6 flex gap-4">
-              {['𝕏', 'ⓕ', 'ⓘ'].map((icon, index) => (
+              {['X', 'F', 'I'].map((icon, index) => (
                 <motion.a 
                   key={index}
                   href="#" 
-                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#0ff] hover:text-[#0ff]"
+                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#00FFFF] hover:text-[#00FFFF]"
                   whileHover={{ 
                     scale: 1.1, 
                     boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
@@ -616,11 +650,11 @@ export default function Home() {
               <input 
                 type="email" 
                 placeholder="Your email" 
-                className="w-full bg-black border border-[#0ff]/30 rounded-md px-4 py-2 focus:outline-none focus:border-[#0ff] focus:ring-1 focus:ring-[#0ff] transition-all"
+                className="w-full bg-black border border-[#00FFFF]/30 rounded-md px-4 py-2 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] transition-all"
                 aria-label="Email subscription"
               />
               <motion.button 
-                className="mt-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-md px-4 py-2 w-full hover:opacity-90 font-orbitron" 
+                className="mt-2 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-2 w-full hover:opacity-90 font-orbitron" 
                 aria-label="Subscribe"
                 whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)" }}
                 whileTap={{ scale: 0.98 }}
