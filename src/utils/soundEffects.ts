@@ -9,27 +9,29 @@ class SoundEffects {
   private debounceTimers: Map<string, NodeJS.Timeout> = new Map();
   private lastPlayed: Map<string, number> = new Map();
   private firstInteraction: boolean = false;
+  private isClient: boolean = typeof window !== 'undefined';
 
   private constructor() {
-    // Pre-load common sounds
-    this.preloadSound('click', '/audios/digital-click.mp3');
-    this.preloadSound('hover', '/audios/digital-blip.mp3');
-    this.preloadSound('error', '/audios/error.mp3');
-    this.preloadSound('success', '/audios/process-request-accept.mp3');
-    this.preloadSound('scroll', '/audios/gear-scroll.mp3');
-    this.preloadSound('transition', '/audios/whoosh2.mp3');
-    this.preloadSound('loading', '/audios/digital-load2.mp3');
-    this.preloadSound('complete', '/audios/final-accept.mp3');
-    this.preloadSound('whoosh', '/audios/flabby-whoosh.mp3');
-    this.preloadSound('splash', '/audios/hit-splash.mp3');
-    this.preloadSound('bap', '/audios/bap.mp3');
-    this.preloadSound('beep', '/audios/beep-beep.mp3');
-    this.preloadSound('big-transition', '/audios/resonance.mp3');
-    this.preloadSound('oscillation', '/audios/oscillation.mp3');
-    this.preloadSound('ignite', '/audios/ignite.mp3');
+    // Only initialize audio on client-side
+    if (this.isClient) {
+      // Pre-load common sounds
+      this.preloadSound('click', '/audios/digital-click.mp3');
+      this.preloadSound('hover', '/audios/digital-blip.mp3');
+      this.preloadSound('error', '/audios/error.mp3');
+      this.preloadSound('success', '/audios/process-request-accept.mp3');
+      this.preloadSound('scroll', '/audios/gear-scroll.mp3');
+      this.preloadSound('transition', '/audios/whoosh2.mp3');
+      this.preloadSound('loading', '/audios/digital-load2.mp3');
+      this.preloadSound('complete', '/audios/final-accept.mp3');
+      this.preloadSound('whoosh', '/audios/flabby-whoosh.mp3');
+      this.preloadSound('splash', '/audios/hit-splash.mp3');
+      this.preloadSound('bap', '/audios/bap.mp3');
+      this.preloadSound('beep', '/audios/beep-beep.mp3');
+      this.preloadSound('big-transition', '/audios/resonance.mp3');
+      this.preloadSound('oscillation', '/audios/oscillation.mp3');
+      this.preloadSound('ignite', '/audios/ignite.mp3');
 
-    // Set up first interaction listener to handle autoplay restrictions
-    if (typeof window !== 'undefined') {
+      // Set up first interaction listener to handle autoplay restrictions
       const handleFirstInteraction = () => {
         this.firstInteraction = true;
         // Try to play a silent sound to unlock audio
@@ -65,24 +67,26 @@ class SoundEffects {
   public setVolume(volume: number): void {
     this.volume = Math.max(0, Math.min(1, volume));
     // Update volume for all loaded sounds
-    this.sounds.forEach(sound => {
-      sound.volume = this.volume;
-    });
+    if (this.isClient) {
+      this.sounds.forEach(sound => {
+        sound.volume = this.volume;
+      });
+    }
   }
 
   // Preload a sound for later use
   public preloadSound(name: string, path: string): void {
-    if (!this.sounds.has(name)) {
-      const audio = new Audio(path);
-      audio.volume = this.volume;
-      audio.load();
-      this.sounds.set(name, audio);
-    }
+    if (!this.isClient || this.sounds.has(name)) return;
+    
+    const audio = new Audio(path);
+    audio.volume = this.volume;
+    audio.load();
+    this.sounds.set(name, audio);
   }
 
   // Play a sound by name with debounce protection
   public play(name: string, debounceMs: number = 50): void {
-    if (!this.enabled) return;
+    if (!this.isClient || !this.enabled) return;
     
     const now = Date.now();
     const lastPlayed = this.lastPlayed.get(name) || 0;
