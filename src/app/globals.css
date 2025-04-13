@@ -486,3 +486,102 @@ canvas.particle-canvas {
   from { left: -100%; }
   to { left: 100%; }
 }
+
+/* Additional utility classes for neon-cyberpunk theme */
+
+/* Neon gradients */
+.bg-neon-gradient {
+  background: linear-gradient(to right, rgba(var(--neon-cyan), 1), rgba(var(--neon-purple), 1));
+}
+
+.bg-neon-gradient-subtle {
+  background: linear-gradient(to right, rgba(var(--neon-cyan), 0.2), rgba(var(--neon-purple), 0.2));
+}
+
+.text-neon-gradient {
+  background: linear-gradient(to right, rgba(var(--neon-cyan), 1), rgba(var(--neon-purple), 1));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glassmorphism - Aceternity UI style */
+.glass-panel {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-panel-dark {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Glowing borders - Magic UI style */
+.neon-border {
+  position: relative;
+  border: 1px solid rgba(var(--neon-cyan), 0.3);
+  box-shadow: 0 0 10px rgba(var(--neon-cyan), 0.5),
+              inset 0 0 10px rgba(var(--neon-cyan), 0.2);
+}
+
+.neon-border-purple {
+  position: relative;
+  border: 1px solid rgba(var(--neon-purple), 0.3);
+  box-shadow: 0 0 10px rgba(var(--neon-purple), 0.5),
+              inset 0 0 10px rgba(var(--neon-purple), 0.2);
+}
+
+.neon-border-pulse {
+  position: relative;
+}
+
+.neon-border-pulse::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(var(--neon-cyan), 0.5);
+  box-shadow: 0 0 15px rgba(var(--neon-cyan), 0.5);
+  animation: pulseBorder 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulseBorder {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+/* Interactive hover card */
+.hover-card {
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.hover-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 0 20px rgba(var(--neon-cyan), 0.5);
+}

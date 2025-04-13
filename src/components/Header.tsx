@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import soundEffects from '@/utils/soundEffects';
+import { SoundToggle } from '@/components/SoundProvider';
 
 const Header = () => {
   const pathname = usePathname();
@@ -21,10 +22,10 @@ const Header = () => {
   }, []);
 
   const navItems = [
-    { name: 'Features', href: '#features' },
-    { name: 'Rooms', href: '#rooms' },
-    { name: 'How It Works', href: '#how-it-works' },
-    { name: 'Testimonials', href: '#testimonials' },
+    { name: 'Features', href: '/#features' },
+    { name: 'Rooms', href: '/#rooms' },
+    { name: 'How It Works', href: '/#how-it-works' },
+    { name: 'Testimonials', href: '/#testimonials' },
   ];
 
   const headerVariants = {
@@ -133,11 +134,11 @@ const Header = () => {
     // Play click sound
     soundEffects.playClick();
     
-    // Handle smooth scrolling for hash links
+    // Handle smooth scrolling for hash links on the homepage
     const href = e.currentTarget.getAttribute('href');
-    if (href && href.startsWith('#')) {
+    if (href && href.includes('#') && (pathname === '/' || href.startsWith('/#'))) {
       e.preventDefault();
-      const targetId = href.substring(1);
+      const targetId = href.includes('/#') ? href.split('/#')[1] : href.substring(1);
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
@@ -188,7 +189,11 @@ const Header = () => {
               >
                 <Link 
                   href={item.href} 
-                  className={`text-white/80 hover:text-[#0ff] transition-colors duration-300 ${pathname === item.href ? 'text-[#0ff]' : ''}`}
+                  className={`text-white/80 hover:text-[#0ff] transition-colors duration-300 ${
+                    pathname === item.href || 
+                    (item.href.includes('#') && pathname === '/' && window.location.hash === item.href.replace('/', '')) 
+                      ? 'text-[#0ff]' : ''
+                  }`}
                   onClick={handleNavClick}
                   onMouseEnter={() => soundEffects.playHover()}
                 >
@@ -198,21 +203,49 @@ const Header = () => {
             ))}
           </nav>
           
-          <div className="hidden md:flex items-center">
-            <motion.button
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Sound Toggle */}
+            <div className="mr-4">
+              <SoundToggle />
+            </div>
+            
+            <motion.div
+              variants={navItemVariants}
+              initial="normal"
+              whileHover="hover"
+            >
+              <Link 
+                href="/login" 
+                className={`text-white/80 hover:text-[#0ff] transition-colors duration-300 ${pathname === '/login' ? 'text-[#0ff]' : ''}`}
+                onMouseEnter={() => soundEffects.playHover()}
+              >
+                Log In
+              </Link>
+            </motion.div>
+            
+            <motion.div
               variants={buttonVariants}
               initial="normal"
               whileHover="hover"
               whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-5 py-2 rounded-lg font-orbitron text-sm"
-              onClick={() => soundEffects.play('success')}
             >
-              Get Started
-            </motion.button>
+              <Link 
+                href="/register"
+                className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-5 py-2 rounded-lg font-orbitron text-sm"
+                onClick={() => soundEffects.play('success')}
+              >
+                Register
+              </Link>
+            </motion.div>
           </div>
           
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
+            {/* Sound Toggle for mobile */}
+            <div className="mr-4">
+              <SoundToggle />
+            </div>
+            
             <motion.button
               onClick={toggleMobileMenu}
               className="text-white p-2"
@@ -250,7 +283,7 @@ const Header = () => {
             animate="open"
             exit="closed"
           >
-            <div className="px-4 py-6 space-y-4">
+            <div className="px-4 py-2 space-y-1">
               {navItems.map((item) => (
                 <motion.div
                   key={item.name}
@@ -258,22 +291,52 @@ const Header = () => {
                   className="py-2"
                 >
                   <Link 
-                    href={item.href} 
-                    className={`block text-white/80 hover:text-[#0ff] transition-colors duration-300 font-orbitron ${pathname === item.href ? 'bg-gradient-to-r from-[#00FFFF]/20 to-[#9D00FF]/20 text-[#00FFFF]' : ''}`}
+                    href={item.href}
+                    className={`block text-lg text-white/80 hover:text-[#0ff] ${
+                      pathname === item.href || 
+                      (item.href.includes('#') && pathname === '/' && window.location.hash === item.href.replace('/', '')) 
+                        ? 'text-[#0ff]' : ''
+                    }`}
                     onClick={handleNavClick}
-                    onMouseEnter={() => soundEffects.playHover()}
                   >
                     {item.name}
                   </Link>
                 </motion.div>
               ))}
+              
+              {/* Auth links for mobile */}
+              <motion.hr
+                variants={mobileItemVariants}
+                className="border-t border-[#0ff]/10 my-2"
+              />
+              
               <motion.div
                 variants={mobileItemVariants}
                 className="py-2"
               >
-                <button className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3 rounded-lg font-orbitron text-sm" onClick={() => soundEffects.play('success')}>
-                  Get Started
-                </button>
+                <Link 
+                  href="/login"
+                  className={`block text-lg text-white/80 hover:text-[#0ff] ${pathname === '/login' ? 'text-[#0ff]' : ''}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Log In
+                </Link>
+              </motion.div>
+              
+              <motion.div
+                variants={mobileItemVariants}
+                className="py-2"
+              >
+                <Link 
+                  href="/register"
+                  className="block text-lg text-[#9D00FF] hover:text-[#FF00E6]"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    soundEffects.play('success');
+                  }}
+                >
+                  Register
+                </Link>
               </motion.div>
             </div>
           </motion.div>

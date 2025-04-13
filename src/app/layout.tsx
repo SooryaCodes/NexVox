@@ -1,7 +1,10 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import AnimationProvider from '@/components/AnimationProvider'
+import ScrollTriggerSetup from '@/components/ScrollTriggerSetup'
 import { Inter, Orbitron } from 'next/font/google'
+import Header from '@/components/Header'
+import SoundProvider from '@/components/SoundProvider'
 
 // Initialize the fonts
 const inter = Inter({
@@ -28,10 +31,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${orbitron.variable}`}>
-      <body>
-        <AnimationProvider>
-          {children}
-        </AnimationProvider>
+      <body className="bg-black min-h-screen">
+        <SoundProvider>
+          <ScrollTriggerSetup />
+          
+          {/* Global Header */}
+          <Header />
+          
+          <div className="pt-16"> {/* Add padding to account for fixed header */}
+            <AnimationProvider>
+              {children}
+            </AnimationProvider>
+          </div>
+        </SoundProvider>
       </body>
     </html>
   )

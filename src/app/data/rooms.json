@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Cyber Lounge",
+    "participantCount": 12
+  },
+  {
+    "id": 2,
+    "name": "Neon Dojo",
+    "participantCount": 8
+  },
+  {
+    "id": 3,
+    "name": "Virtual Nexus",
+    "participantCount": 15
+  },
+  {
+    "id": 4,
+    "name": "Digital Oasis",
+    "participantCount": 5
+  }
+] 

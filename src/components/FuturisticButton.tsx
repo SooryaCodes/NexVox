@@ -42,7 +42,6 @@ export default function FuturisticButton({
 
   // Initialize GSAP effects
   useEffect(() => {
-    console.log(isPressed)
     if (!glowRef.current) return;
     
     // Create continuous glow animation
@@ -65,6 +64,7 @@ export default function FuturisticButton({
     };
   }, [type]);
 
+  console.log(isPressed)
   // Update the mouse position relative to the button
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!buttonRef.current) return;

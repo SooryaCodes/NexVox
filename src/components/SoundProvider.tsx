@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import soundEffects from '@/utils/soundEffects';
 

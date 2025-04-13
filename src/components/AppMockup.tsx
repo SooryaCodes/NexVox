@@ -53,18 +53,20 @@ const AppMockup = ({
       const newVibe = vibeOptions[Math.floor(Math.random() * vibeOptions.length)];
       setCurrentVibe(newVibe);
       
-      // Play vibe toast sound
-      soundEffects.loadAndPlay('vibe-toast', '/audios/digital-blip.mp3');
+      // Removed automatic sound playback
+      // Uncomment the line below if you want the sound to play on user interaction only
+      // soundEffects.loadAndPlay('vibe-toast', '/audios/digital-blip.mp3');
       
       setTimeout(() => {
         setShowVibesToast(false);
       }, 3000);
     }, 8000);
     
-    // Show initial vibe after a delay
+    // Show initial vibe after a delay without sound
     const initialTimeout = setTimeout(() => {
       setShowVibesToast(true);
-      soundEffects.loadAndPlay('vibe-initial', '/audios/digital-blip.mp3');
+      // Removed automatic sound playback on initial load
+      // soundEffects.loadAndPlay('vibe-initial', '/audios/digital-blip.mp3');
       setTimeout(() => setShowVibesToast(false), 3000);
     }, 2000);
     
