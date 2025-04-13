@@ -28,7 +28,6 @@ const AppMockup = ({
   const [activeAvatar, setActiveAvatar] = useState<number | null>(null);
   const [showVibesToast, setShowVibesToast] = useState(false);
   const [currentVibe, setCurrentVibe] = useState('Chill');
-  const vibeOptions = ['Chill', 'Epic', 'Focus', 'Energy', 'Relax'];
   
   // Handle avatar click with sound
   const handleAvatarClick = (avatarId: number, status: string) => {
@@ -46,6 +45,9 @@ const AppMockup = ({
   
   // Cycle through vibes with sound
   useEffect(() => {
+    // Define vibeOptions inside the effect to avoid dependency issues
+    const vibeOptions = ['Chill', 'Epic', 'Focus', 'Energy', 'Relax'];
+    
     const vibeInterval = setInterval(() => {
       setShowVibesToast(true);
       const newVibe = vibeOptions[Math.floor(Math.random() * vibeOptions.length)];
@@ -70,7 +72,7 @@ const AppMockup = ({
       clearInterval(vibeInterval);
       clearTimeout(initialTimeout);
     };
-  }, [vibeOptions]);
+  }, []);
 
   // Animate active speakers
   useEffect(() => {
