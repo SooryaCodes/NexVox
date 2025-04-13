@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, ReactNode } from 'react';
 import { gsap } from 'gsap';
-import useSoundEffects from '@/hooks/useSoundEffects';
 
 interface GlassmorphicCardProps {
   children: ReactNode;
@@ -10,7 +9,6 @@ interface GlassmorphicCardProps {
   glowOnHover?: boolean;
   tiltEffect?: boolean;
   borderAnimation?: boolean;
-  playHoverSound?: boolean;
 }
 
 const GlassmorphicCard = ({
@@ -21,13 +19,11 @@ const GlassmorphicCard = ({
   glowOnHover = true,
   tiltEffect = true,
   borderAnimation = true,
-  playHoverSound = true,
 }: GlassmorphicCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [tiltPosition, setTiltPosition] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
   const borderRef = useRef<HTMLDivElement>(null);
-  const { playHover } = useSoundEffects();
   
   // Get gradient class based on prop
   const getGradientClass = () => {

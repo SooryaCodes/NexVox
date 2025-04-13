@@ -97,7 +97,10 @@ export const withSounds = <P extends React.HTMLAttributes<HTMLElement>>(
   }
   
   // Create a new props object
-  const newProps = { ...element.props } as React.JSX.LibraryManagedAttributes<any, P>;
+  const newProps = { ...element.props } as React.JSX.LibraryManagedAttributes<
+    React.ElementType,
+    P
+  >;
   
   if (onClick) {
     const originalOnClick = element.props.onClick as EventHandler<ReactMouseEvent> | undefined;

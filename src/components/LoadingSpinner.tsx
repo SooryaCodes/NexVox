@@ -19,8 +19,6 @@ export default function LoadingSpinner({
   text,
   withSound = true
 }: LoadingSpinnerProps) {
-  const [showLoading, setShowLoading] = useState(true);
-  
   // Determine size in pixels
   const getSizeInPixels = () => {
     switch (size) {

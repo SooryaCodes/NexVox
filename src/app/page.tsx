@@ -4,7 +4,7 @@ import React from 'react';
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import AnimatedTitle from "@/components/AnimatedTitle";
 import FuturisticButton from "@/components/FuturisticButton";
@@ -305,7 +305,7 @@ export default function Home() {
                   <FeatureCard
                     title={feature.title}
                     description={feature.description}
-                    bgColor={feature.color}
+                    bgColor={feature.color as 'cyan' | 'purple' | 'pink' | 'gradient'}
                     iconPath={feature.iconPath}
                     className="h-full"
                   />
@@ -564,8 +564,7 @@ export default function Home() {
                 activeOnView={true}
               />
               <p className="text-center opacity-80 mb-16 max-w-4xl mx-auto text-lg">
-                Discover a universe of voice rooms where you can connect with people from across the globe, 
-                share ideas, and experience conversations like never before.
+                We&apos;re revolutionizing how people connect across the globe.
               </p>
             </ScrollReveal>
             
@@ -594,7 +593,7 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-orbitron mb-4 text-[#9D00FF]">Themed Rooms</h3>
-                  <p className="opacity-80">Discover rooms centered around your interests, from music and gaming to deep conversations and professional networking.</p>
+                  <p className="opacity-80">Explore a universe of &quot;sonic meeting spaces&quot; designed for global collaboration.</p>
                   <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse"></span>
                     <span>543 active rooms</span>
@@ -610,7 +609,7 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-orbitron mb-4 text-[#00FFFF]">24/7 Availability</h3>
-                  <p className="opacity-80">Join conversations any time, day or night. With users across all time zones, there's always an active room waiting for you.</p>
+                  <p className="opacity-80">Join conversations any time, day or night. With users across all time zones, there&apos;s always an active room waiting for you.</p>
                   <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#00FFFF] animate-pulse"></span>
                     <span>Always online</span>

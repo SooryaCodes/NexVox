@@ -40,16 +40,6 @@ const GlitchText = ({
     }
   };
   
-  // Determine intensity of the effect
-  const getIntensityValues = () => {
-    switch (intensity) {
-      case 'low': return { glitchFrequency: 3000, glitchDuration: 200, glitchIntensity: 5 };
-      case 'medium': return { glitchFrequency: 2000, glitchDuration: 400, glitchIntensity: 10 };
-      case 'high': return { glitchFrequency: 1000, glitchDuration: 500, glitchIntensity: 20 };
-      default: return { glitchFrequency: 2000, glitchDuration: 400, glitchIntensity: 10 };
-    }
-  };
-  
   // Use IntersectionObserver to detect when the text is in view
   useEffect(() => {
     if (!activeOnView || !textRef.current) return;
@@ -67,12 +57,11 @@ const GlitchText = ({
       { threshold: 0.2 }
     );
     
-    observer.observe(textRef.current);
+    const currentTextRef = textRef.current;
+    observer.observe(currentTextRef);
     
     return () => {
-      if (textRef.current) {
-        observer.unobserve(textRef.current);
-      }
+      observer.unobserve(currentTextRef);
     };
   }, [activeOnView]);
   
@@ -84,12 +73,21 @@ const GlitchText = ({
   // Apply glitch animation with GSAP
   useEffect(() => {
     if (!textRef.current) return;
+    const currentTextRef = textRef.current;
+    
+    // Determine intensity values based on prop
+    const getIntensityValues = () => {
+      switch (intensity) {
+        case 'low': return { glitchFrequency: 3000, glitchDuration: 200, glitchIntensity: 5 };
+        case 'medium': return { glitchFrequency: 2000, glitchDuration: 400, glitchIntensity: 10 };
+        case 'high': return { glitchFrequency: 1000, glitchDuration: 500, glitchIntensity: 20 };
+        default: return { glitchFrequency: 2000, glitchDuration: 400, glitchIntensity: 10 };
+      }
+    };
     
     // Initial setup - create pseudo-elements for glitch layers
     if (!isInitialized) {
-      const textElement = textRef.current;
-      const textStyles = window.getComputedStyle(textElement);
-      const textColor = textStyles.color;
+      const textStyles = window.getComputedStyle(currentTextRef);
       
       const createGlitchLayer = (offset: number, color: string) => {
         const layer = document.createElement('div');
@@ -107,9 +105,9 @@ const GlitchText = ({
       const redLayer = createGlitchLayer(2, 'rgba(255, 0, 76, 0.8)');
       const blueLayer = createGlitchLayer(-2, 'rgba(0, 255, 255, 0.8)');
       
-      textElement.style.position = 'relative';
-      textElement.appendChild(redLayer);
-      textElement.appendChild(blueLayer);
+      currentTextRef.style.position = 'relative';
+      currentTextRef.appendChild(redLayer);
+      currentTextRef.appendChild(blueLayer);
       
       setIsInitialized(true);
     }
@@ -118,7 +116,6 @@ const GlitchText = ({
     let glitchInterval: NodeJS.Timeout;
     
     if (isActive) {
-      const currentTextRef = textRef.current;
       const glitchLayers = currentTextRef.querySelectorAll('.glitch-layer');
       
       const applyGlitch = () => {
@@ -172,7 +169,7 @@ const GlitchText = ({
         clearInterval(glitchInterval);
       }
     };
-  }, [isActive, isInitialized, text, intensity, getIntensityValues]);
+  }, [isActive, isInitialized, text, intensity]);
   
   return (
     <div 

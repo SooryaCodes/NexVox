@@ -41,10 +41,6 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       soundEffects.play('transition');
     };
 
-    const handleRouteChangeComplete = () => {
-      setTimeout(() => soundEffects.play('complete'), 300);
-    };
-
     // Initialize with browser history API for SPA
     // This could be integrated with Next.js Router in a real implementation
     window.addEventListener('popstate', handleRouteChangeStart);

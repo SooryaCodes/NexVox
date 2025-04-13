@@ -154,7 +154,7 @@ export default function FuturisticButton({
     }
     
     // Call the onClick handler if provided
-    onClick && onClick();
+    if (onClick) onClick();
   };
 
   // Generate glitch effect on hover
