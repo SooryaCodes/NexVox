@@ -155,12 +155,12 @@ const MiniUserProfile = ({ user, position }: { user: User, position: { x: number
   );
 };
 
-export default function RoomPage({ 
+export default function RoomPage({
   params,
   searchParams
-}: { 
+}: {
   params: { id: string };
-  searchParams?: Record<string, string | string[] | undefined>; 
+  searchParams?: Record<string, string | string[] | undefined>;
 }) {
   const router = useRouter();
   
@@ -843,7 +843,7 @@ export default function RoomPage({
           
           {/* Participants Tab */}
           {activeTab === TABS.PARTICIPANTS && (
-            <ParticipantsTab 
+            <ParticipantsTab
               users={usersData.map((user, index) => ({
                 ...user,
                 isSpeaking: activeSpeakers.includes(index)
@@ -857,7 +857,7 @@ export default function RoomPage({
           
           {/* Settings Tab */}
           {activeTab === TABS.SETTINGS && (
-            <SettingsTab 
+            <SettingsTab
               currentUser={currentUser}
             />
           )}
