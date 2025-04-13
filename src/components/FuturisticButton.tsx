@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
+import soundEffects from '@/utils/soundEffects';
 
 interface FuturisticButtonProps {
   text: string;
@@ -14,6 +15,8 @@ interface FuturisticButtonProps {
   glitchEffect?: boolean;
   accessibilityLabel?: string;
   disabled?: boolean;
+  soundEffect?: 'default' | 'click' | 'success' | 'error' | 'special' | 'none';
+  hoverSound?: string;
 }
 
 export default function FuturisticButton({ 
@@ -25,7 +28,9 @@ export default function FuturisticButton({
   rippleEffect = true,
   glitchEffect = false,
   accessibilityLabel,
-  disabled = false
+  disabled = false,
+  soundEffect = 'default',
+  hoverSound
 }: FuturisticButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -66,6 +71,33 @@ export default function FuturisticButton({
     });
   };
 
+  // Play hover sound
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    
+    // Play hover sound
+    if (!disabled && soundEffect !== 'none') {
+      if (hoverSound) {
+        soundEffects.loadAndPlay('custom-hover', hoverSound);
+      } else {
+        // Use different hover sounds based on button type
+        switch (type) {
+          case 'neon':
+            soundEffects.loadAndPlay('neon-hover', '/audios/digital-blip.mp3');
+            break;
+          case 'primary':
+            soundEffects.loadAndPlay('primary-hover', '/audios/bap.mp3');
+            break;
+          case 'secondary':
+            soundEffects.playHover();
+            break;
+          default:
+            soundEffects.playHover();
+        }
+      }
+    }
+  };
+
   // Add ripple effect on click
   const addRipple = (e: React.MouseEvent) => {
     if (!rippleEffect || disabled) return;
@@ -89,6 +121,36 @@ export default function FuturisticButton({
     setTimeout(() => {
       setRipples(prev => prev.filter(ripple => ripple.id !== newRipple.id));
     }, 1000);
+  };
+
+  // Handle click with sound effects
+  const handleClick = (e: React.MouseEvent) => {
+    if (disabled) return;
+    
+    addRipple(e);
+    
+    // Play appropriate sound effect
+    if (soundEffect !== 'none') {
+      switch (soundEffect) {
+        case 'success':
+          soundEffects.playSuccess();
+          break;
+        case 'error':
+          soundEffects.playError();
+          break;
+        case 'special':
+          soundEffects.loadAndPlay('special', '/audios/digital-auth-process.mp3');
+          break;
+        case 'default':
+        case 'click':
+        default:
+          soundEffects.playClick();
+          break;
+      }
+    }
+    
+    // Call the onClick handler if provided
+    onClick && onClick();
   };
 
   // Generate glitch effect on hover
@@ -148,13 +210,8 @@ export default function FuturisticButton({
     <motion.button
       ref={buttonRef}
       className={`${getButtonStyles()} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
-      onClick={(e) => {
-        if (!disabled) {
-          addRipple(e);
-          onClick && onClick();
-        }
-      }}
-      onMouseEnter={() => setIsHovered(true)}
+      onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
       onMouseDown={() => setIsPressed(true)}

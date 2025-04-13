@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
+import soundEffects from '@/utils/soundEffects';
 
 const Header = () => {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -121,6 +124,29 @@ const Header = () => {
     }
   };
 
+  const toggleMobileMenu = () => {
+    soundEffects.play(isMobileMenuOpen ? 'digital-click' : 'digital-click2');
+    setIsMobileMenuOpen(prev => !prev);
+  };
+  
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Play click sound
+    soundEffects.playClick();
+    
+    // Handle smooth scrolling for hash links
+    const href = e.currentTarget.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+      // Close mobile menu if open
+      setIsMobileMenuOpen(false);
+    }
+  };
+
   return (
     <motion.header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -162,7 +188,9 @@ const Header = () => {
               >
                 <Link 
                   href={item.href} 
-                  className="text-white/80 hover:text-[#0ff] transition-colors duration-300"
+                  className={`text-white/80 hover:text-[#0ff] transition-colors duration-300 ${pathname === item.href ? 'text-[#0ff]' : ''}`}
+                  onClick={handleNavClick}
+                  onMouseEnter={() => soundEffects.playHover()}
                 >
                   {item.name}
                 </Link>
@@ -177,6 +205,7 @@ const Header = () => {
               whileHover="hover"
               whileTap={{ scale: 0.95 }}
               className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-5 py-2 rounded-lg font-orbitron text-sm"
+              onClick={() => soundEffects.play('success')}
             >
               Get Started
             </motion.button>
@@ -185,7 +214,7 @@ const Header = () => {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <motion.button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
               className="text-white p-2"
               whileTap={{ scale: 0.9 }}
             >
@@ -230,8 +259,9 @@ const Header = () => {
                 >
                   <Link 
                     href={item.href} 
-                    className="block text-white/80 hover:text-[#0ff] transition-colors duration-300 font-orbitron"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`block text-white/80 hover:text-[#0ff] transition-colors duration-300 font-orbitron ${pathname === item.href ? 'bg-gradient-to-r from-[#00FFFF]/20 to-[#9D00FF]/20 text-[#00FFFF]' : ''}`}
+                    onClick={handleNavClick}
+                    onMouseEnter={() => soundEffects.playHover()}
                   >
                     {item.name}
                   </Link>
@@ -241,7 +271,7 @@ const Header = () => {
                 variants={mobileItemVariants}
                 className="py-2"
               >
-                <button className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3 rounded-lg font-orbitron text-sm">
+                <button className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white py-3 rounded-lg font-orbitron text-sm" onClick={() => soundEffects.play('success')}>
                   Get Started
                 </button>
               </motion.div>

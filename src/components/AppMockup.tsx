@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { motion, AnimatePresence } from 'framer-motion';
+import soundEffects from '@/utils/soundEffects';
 
 interface AppMockupProps {
   roomName?: string;
@@ -29,11 +30,29 @@ const AppMockup = ({
   const [currentVibe, setCurrentVibe] = useState('Chill');
   const vibeOptions = ['Chill', 'Epic', 'Focus', 'Energy', 'Relax'];
   
-  // Cycle through vibes
+  // Handle avatar click with sound
+  const handleAvatarClick = (avatarId: number, status: string) => {
+    setActiveAvatar(avatarId);
+    
+    // Play appropriate sound based on avatar status
+    if (status === 'speaking') {
+      soundEffects.loadAndPlay('avatar-speaking', '/audios/digital-click2.mp3');
+    } else if (status === 'muted') {
+      soundEffects.loadAndPlay('avatar-muted', '/audios/error.mp3');
+    } else {
+      soundEffects.loadAndPlay('avatar-idle', '/audios/digital-click.mp3');
+    }
+  };
+  
+  // Cycle through vibes with sound
   useEffect(() => {
     const vibeInterval = setInterval(() => {
       setShowVibesToast(true);
-      setCurrentVibe(vibeOptions[Math.floor(Math.random() * vibeOptions.length)]);
+      const newVibe = vibeOptions[Math.floor(Math.random() * vibeOptions.length)];
+      setCurrentVibe(newVibe);
+      
+      // Play vibe toast sound
+      soundEffects.loadAndPlay('vibe-toast', '/audios/digital-blip.mp3');
       
       setTimeout(() => {
         setShowVibesToast(false);
@@ -43,6 +62,7 @@ const AppMockup = ({
     // Show initial vibe after a delay
     const initialTimeout = setTimeout(() => {
       setShowVibesToast(true);
+      soundEffects.loadAndPlay('vibe-initial', '/audios/digital-blip.mp3');
       setTimeout(() => setShowVibesToast(false), 3000);
     }, 2000);
     
@@ -73,110 +93,94 @@ const AppMockup = ({
   }, []);
 
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
-      {/* Device frame */}
-      <div className="bg-gradient-to-br from-gray-800 to-black p-2 rounded-3xl shadow-[0_0_30px_rgba(0,255,255,0.3)] mx-auto max-w-xs">
-        <div className="bg-black rounded-2xl overflow-hidden border border-[#00FFFF]/20 relative">
-          {/* App header */}
-          <div className="bg-gradient-to-r from-[#00FFFF]/20 to-[#9D00FF]/20 backdrop-blur-md p-4 relative">
-            <div className="absolute inset-0 bg-black/60"></div>
-            <div className="relative z-10 flex items-center justify-between">
-              <h4 className="font-orbitron text-sm text-white flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#00FFFF] animate-pulse"></span>
-                {roomName}
-              </h4>
-              <div className="text-xs px-2 py-0.5 bg-[#00FFFF]/10 rounded-full border border-[#00FFFF]/30 text-[#00FFFF]">
-                6 online
-              </div>
-            </div>
-          </div>
-          
-          {/* Room interface */}
-          <div className="p-6 h-96 flex flex-col">
-            {/* Avatars grid */}
-            <div className="grid grid-cols-3 gap-4 justify-center mb-auto">
-              {avatars.map((avatar) => (
-                <div key={avatar.id} className="relative group" onClick={() => setActiveAvatar(avatar.id)}>
-                  <motion.div 
-                    className={`w-16 h-16 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center text-white font-medium text-lg relative border-2 border-black ${avatar.status === 'speaking' ? 'avatar-speaking' : ''}`}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {avatar.initial}
-                    
-                    {/* Status indicator */}
-                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black ${
-                      avatar.status === 'speaking' ? 'bg-[#00FFFF]' : 
-                      avatar.status === 'muted' ? 'bg-red-500' : 
-                      'bg-gray-400'
-                    }`}></div>
-                  </motion.div>
-                  
-                  {/* Avatar tooltip */}
-                  {(activeAvatar === avatar.id || (showTooltips && avatar.status === 'speaking')) && (
-                    <AnimatePresence>
-                      <motion.div 
-                        className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black px-3 py-1 rounded text-xs font-orbitron text-white border border-[#00FFFF]/30 whitespace-nowrap"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                      >
-                        {avatar.status === 'speaking' ? 'Speaking...' : 
-                         avatar.status === 'muted' ? 'Muted' : 
-                         'Listening'}
-                      </motion.div>
-                    </AnimatePresence>
-                  )}
-                  
-                  {/* Animated ring for speaking */}
-                  {avatar.status === 'speaking' && (
-                    <div className="absolute inset-0 rounded-full">
-                      <div className="absolute inset-0 rounded-full border-2 border-[#00FFFF] animate-ping opacity-50"></div>
-                      <div className="absolute inset-0 rounded-full border border-[#00FFFF]/50"></div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            
-            {/* Controls */}
-            <div className="mt-auto">
-              <div className="bg-black/60 backdrop-blur-md rounded-xl border border-white/10 p-4">
-                <div className="flex justify-around">
-                  <ControlButton icon="mic" tooltip="Microphone" />
-                  <ControlButton icon="wave" tooltip="React" />
-                  <ControlButton icon="leave" tooltip="Leave Room" />
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Vibe toast notification */}
-          <AnimatePresence>
-            {showVibesToast && (
+    <div ref={containerRef} className={`${className} w-full max-w-sm mx-auto bg-black rounded-2xl shadow-xl overflow-hidden border border-white/10`}>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#00FFFF]/20 to-[#9D00FF]/20 p-4 flex justify-between items-center border-b border-white/10">
+        <h3 className="text-lg font-orbitron text-white">{roomName}</h3>
+        <div className="flex items-center text-xs text-white/80 space-x-1">
+          <div className="w-2 h-2 rounded-full bg-[#00FFFF] animate-pulse"></div>
+          <span>Live</span>
+        </div>
+      </div>
+      
+      {/* App content */}
+      <div className="p-6 h-96 flex flex-col">
+        {/* Avatars grid */}
+        <div className="grid grid-cols-3 gap-4 justify-center mb-auto">
+          {avatars.map((avatar) => (
+            <div key={avatar.id} className="relative group" onClick={() => handleAvatarClick(avatar.id, avatar.status)}>
               <motion.div 
-                className="absolute top-16 right-4 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] px-3 py-1 rounded-full text-xs"
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -20, opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                className={`w-16 h-16 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center text-white font-medium text-lg relative border-2 border-black ${avatar.status === 'speaking' ? 'avatar-speaking' : ''}`}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onMouseEnter={() => soundEffects.playHover()}
               >
-                Vibe: {currentVibe}
+                {avatar.initial}
+                
+                {/* Status indicator */}
+                <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black ${
+                  avatar.status === 'speaking' ? 'bg-[#00FFFF]' : 
+                  avatar.status === 'muted' ? 'bg-red-500' : 
+                  'bg-gray-400'
+                }`}></div>
               </motion.div>
-            )}
-          </AnimatePresence>
-          
-          {/* Ambient effects */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#00FFFF]/5 to-transparent opacity-20"></div>
-            <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#9D00FF]/10 to-transparent"></div>
+              
+              {/* Avatar tooltip */}
+              {showTooltips && activeAvatar === avatar.id && (
+                <AnimatePresence>
+                  <motion.div 
+                    className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black px-3 py-1 rounded text-xs font-orbitron text-white border border-[#00FFFF]/30 whitespace-nowrap"
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {avatar.status === 'speaking' ? 'Speaking...' : 
+                     avatar.status === 'muted' ? 'Muted' : 
+                     'Listening'}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+              
+              {/* Animated ring for speaking */}
+              {avatar.status === 'speaking' && (
+                <div className="absolute inset-0 rounded-full">
+                  <div className="absolute inset-0 rounded-full border-2 border-[#00FFFF] animate-ping opacity-50"></div>
+                  <div className="absolute inset-0 rounded-full border border-[#00FFFF]/50"></div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {/* Controls */}
+        <div className="mt-auto">
+          <div className="bg-black/60 backdrop-blur-md rounded-xl border border-white/10 p-4">
+            <div className="flex justify-around">
+              <ControlButton icon="mic" tooltip="Microphone" />
+              <ControlButton icon="wave" tooltip="React" />
+              <ControlButton icon="leave" tooltip="Leave Room" />
+            </div>
           </div>
         </div>
       </div>
       
-      {/* Device glow */}
-      <div className="absolute -inset-4 bg-[#00FFFF]/5 rounded-3xl blur-xl -z-10"></div>
-      <div className="absolute -inset-1 bg-gradient-to-r from-[#00FFFF]/5 to-[#9D00FF]/5 rounded-3xl blur-md -z-10"></div>
+      {/* Vibe toast notification */}
+      <AnimatePresence>
+        {showVibesToast && (
+          <motion.div 
+            className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#00FFFF]/20 to-[#9D00FF]/20 px-4 py-2 rounded-full border border-white/10"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ type: "spring", stiffness: 500, damping: 20 }}
+          >
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-white/70">Current Vibe:</span>
+              <span className="text-sm font-orbitron text-[#00FFFF]">{currentVibe}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -221,13 +225,32 @@ const ControlButton = ({ icon, tooltip }: { icon: 'mic' | 'wave' | 'leave', tool
     }
   };
   
+  const handleButtonClick = () => {
+    // Play appropriate sound based on button type
+    switch (icon) {
+      case 'mic':
+        soundEffects.loadAndPlay('mic-toggle', '/audios/digital-click2.mp3');
+        break;
+      case 'wave':
+        soundEffects.loadAndPlay('wave-reaction', '/audios/digital-blip.mp3');
+        break;
+      case 'leave':
+        soundEffects.loadAndPlay('leave-room', '/audios/error.mp3');
+        break;
+    }
+  };
+  
   return (
     <motion.button 
       className={`w-12 h-12 rounded-full transition-colors flex items-center justify-center relative ${getButtonStyles()}`}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        soundEffects.playHover();
+      }}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleButtonClick}
     >
       {getIcon()}
       
