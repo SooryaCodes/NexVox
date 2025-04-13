@@ -1,5 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
-import { gsap } from 'gsap';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface FeatureCardProps {
@@ -20,27 +19,13 @@ const FeatureCard = ({
   className = ''
 }: FeatureCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [mouseX, setMouseX] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
 
   // Define colors based on the bgColor prop
-  const getGradient = () => {
-    switch (bgColor) {
-      case 'cyan':
-        return 'from-[#00FFFF]/20 to-transparent';
-      case 'purple':
-        return 'from-[#9D00FF]/20 to-transparent';
-      case 'pink':
-        return 'from-[#FF00E6]/20 to-transparent';
-      case 'gradient':
-        return 'from-[#00FFFF]/20 via-[#9D00FF]/20 to-[#FF00E6]/20';
-      default:
-        return 'from-[#00FFFF]/20 to-transparent';
-    }
-  };
-
-  const getBorderColor = () => {
+  const getColor = (): string => {
     switch (bgColor) {
       case 'cyan': return '#00FFFF';
       case 'purple': return '#9D00FF';
@@ -50,74 +35,110 @@ const FeatureCard = ({
     }
   };
 
-  // GSAP animations for icon
-  useEffect(() => {
-    if (!iconRef.current) return;
-    
-    // Floating animation for icon
-    gsap.to(iconRef.current, {
-      y: -10,
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: "power1.inOut"
-    });
-
-    return () => {
-      gsap.killTweensOf(iconRef.current);
-    };
-  }, []);
-
-  // Handle mouse movement for 3D tilt effect
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     
-    const card = cardRef.current;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const rect = cardRef.current.getBoundingClientRect();
     
-    // Calculate percentage positions (-0.5 to 0.5)
-    const xPercent = (x / rect.width - 0.5);
-    const yPercent = (y / rect.height - 0.5);
+    // Calculate mouse position relative to card
+    const cardWidth = rect.width;
+    const cardHeight = rect.height;
+    const mouseXRelative = e.clientX - rect.left;
+    const mouseYRelative = e.clientY - rect.top;
     
-    setPosition({ x: xPercent * 20, y: yPercent * -20 }); // Adjust multiplier for tilt intensity
+    // Calculate rotation (transform mouse position to be between -15 and 15 degrees)
+    const rotX = ((mouseYRelative / cardHeight) * 2 - 1) * -10;
+    const rotY = ((mouseXRelative / cardWidth) * 2 - 1) * 10;
+    
+    // Update state
+    setRotateX(rotX);
+    setRotateY(rotY);
+    
+    // Update mouse position for the glow/spotlight effect
+    const mouseXPercent = (mouseXRelative / cardWidth) * 100;
+    const mouseYPercent = (mouseYRelative / cardHeight) * 100;
+    setMouseX(mouseXPercent);
+    setMouseY(mouseYPercent);
   };
+  
+  const handleMouseLeave = () => {
+    // Reset rotations when mouse leaves
+    setRotateX(0);
+    setRotateY(0);
+  };
+
+  const cardColor = getColor();
+  
+  // Define glow gradient based on mouse position
+  const glowGradient = `radial-gradient(
+    circle at ${mouseX}% ${mouseY}%, 
+    ${cardColor}40 0%, 
+    transparent 50%
+  )`;
 
   return (
     <motion.div 
       ref={cardRef}
-      className={`relative rounded-xl overflow-hidden border border-[${getBorderColor()}]/40 h-full ${className}`}
-      initial={{ opacity: 0, y: 50 }}
+      className={`group relative h-full rounded-xl p-px overflow-hidden ${className}`}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.5 }}
+      viewport={{ once: true }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setPosition({ x: 0, y: 0 });
-      }}
+      onMouseLeave={handleMouseLeave}
       style={{
-        transform: `perspective(1000px) rotateX(${position.y}deg) rotateY(${position.x}deg)`,
-        transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease-out'
+        perspective: '1000px',
+        transformStyle: 'preserve-3d'
       }}
     >
-      {/* Animated border */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#00FFFF]/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+      {/* Border glow */}
+      <div 
+        className="absolute inset-0 rounded-xl z-0 bg-black opacity-80"
+        style={{ 
+          background: `linear-gradient(to bottom right, ${cardColor}20, transparent)`,
+          borderRadius: 'inherit',
+        }} 
+      />
+
+      {/* Magic glow effect that follows cursor */}
+      <div
+        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" 
+        style={{ 
+          background: glowGradient,
+          borderRadius: 'inherit',
+        }}
+      />
       
-      {/* Background */}
-      <div className={`relative z-10 bg-black p-6 h-full`}>
-        {/* Gradient background */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${getGradient()} opacity-50 z-0`} />
-        
+      {/* Moving shine effect */}
+      <div 
+        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500 z-0 overflow-hidden"
+        style={{ borderRadius: 'inherit' }}
+      >
+        <div
+          className="absolute top-0 -left-[100%] w-[250%] h-[200%] -rotate-45 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shine_1.5s_ease-in-out]"
+          style={{ 
+            transform: 'translateX(0) rotate(-45deg)', 
+            animation: 'shine 1.5s ease-in-out' 
+          }}
+        />
+      </div>
+
+      {/* Content container */}
+      <motion.div 
+        className="relative h-full flex flex-col p-6 bg-black/60 backdrop-blur-sm rounded-xl z-10"
+        style={{ 
+          transformStyle: 'preserve-3d',
+          transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+          transition: 'all 0.1s ease-out'
+        }}
+      >
         {/* Icon */}
         <div 
-          ref={iconRef}
-          className="mb-6 relative z-10"
+          className="mb-6 transform transition-transform duration-300 group-hover:scale-110"
+          style={{ transform: 'translateZ(20px)' }}
         >
           {iconPath ? (
-            <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getGradient()} flex items-center justify-center overflow-hidden`}>
+            <div className={`w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-${bgColor === 'cyan' ? '[#00FFFF]' : bgColor === 'purple' ? '[#9D00FF]' : bgColor === 'pink' ? '[#FF00E6]' : '[#00FFFF]'}/20 to-transparent`}>
               <img 
                 src={iconPath} 
                 alt={title} 
@@ -125,41 +146,42 @@ const FeatureCard = ({
               />
             </div>
           ) : icon ? (
-            <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getGradient()} flex items-center justify-center`}>
+            <div className={`w-16 h-16 rounded-xl flex items-center justify-center bg-gradient-to-br from-${bgColor === 'cyan' ? '[#00FFFF]' : bgColor === 'purple' ? '[#9D00FF]' : bgColor === 'pink' ? '[#FF00E6]' : '[#00FFFF]'}/20 to-transparent`}>
               {icon}
             </div>
           ) : (
-            <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getGradient()} flex items-center justify-center`}>
+            <div className={`w-16 h-16 rounded-xl flex items-center justify-center bg-gradient-to-br from-${bgColor === 'cyan' ? '[#00FFFF]' : bgColor === 'purple' ? '[#9D00FF]' : bgColor === 'pink' ? '[#FF00E6]' : '[#00FFFF]'}/20 to-transparent`}>
               <div className="w-8 h-8 bg-white rounded-full opacity-60" />
             </div>
-          )}
-          
-          {/* Glow effect on hover */}
-          {isHovered && (
-            <div className={`absolute inset-0 filter blur-md bg-[${getBorderColor()}]/30 z-0`} />
           )}
         </div>
         
         {/* Content */}
-        <div className="relative z-10">
-          <h3 className={`text-xl md:text-2xl font-orbitron mb-3 text-[${getBorderColor()}]`}>{title}</h3>
+        <div style={{ transform: 'translateZ(10px)' }}>
+          <h3 
+            className="text-xl md:text-2xl font-orbitron mb-3"
+            style={{ color: cardColor }}
+          >
+            {title}
+          </h3>
           <p className="text-gray-300 text-sm md:text-base">{description}</p>
         </div>
         
         {/* Hover indicator */}
-        {isHovered && (
-          <motion.div 
-            className="absolute bottom-3 right-3 text-xs font-orbitron text-white bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full border border-white/20"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-          >
+        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="text-xs font-orbitron text-white bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full border border-white/20">
             Explore
-          </motion.div>
-        )}
-      </div>
+          </div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 };
 
-export default FeatureCard; 
+export default FeatureCard;
+
+// Add this to your global.css file or use a style tag in your layout
+// @keyframes shine {
+//   from { left: -100%; }
+//   to { left: 100%; }
+// } 

@@ -476,3 +476,8 @@ canvas.particle-canvas {
   border-color: #FF00E6;
   mix-blend-mode: normal;
 }
+
+@keyframes shine {
+  from { left: -100%; }
+  to { left: 100%; }
+}
