@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
+import { useEffect, useState, useRef } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -155,24 +156,19 @@ const MiniUserProfile = ({ user, position }: { user: User, position: { x: number
   );
 };
 
-export default function RoomPage({
-  params,
-  searchParams
-}: {
-  params: { id: string };
-  searchParams?: Record<string, string | string[] | undefined>;
-}) {
+export default function RoomPage() {
   const router = useRouter();
+  const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   
-  // Fix params.id direct access with React.use() - use useState instead for client component
   const [roomId, setRoomId] = useState<number>(0);
   
   useEffect(() => {
-    // Parse params.id safely in useEffect
-    if (params.id) {
-      setRoomId(parseInt(params.id));
+    const currentId = params?.id;
+    if (currentId) {
+      setRoomId(parseInt(currentId));
     }
-  }, [params.id]);
+  }, [params?.id]);
   
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
@@ -196,34 +192,27 @@ export default function RoomPage({
     badges: ["Early Adopter", "Spatial Audio Pro", "Night Owl"]
   });
   
-  // Toast notification state
   const [toasts, setToasts] = useState<Array<{id: string, message: string, type: 'success' | 'error' | 'warning'}>>([]);
   
-  // Add a toast notification
   const addToast = React.useCallback((message: string, type: 'success' | 'error' | 'warning' = 'success') => {
     const id = Date.now().toString();
     setToasts(prev => [...prev, { id, message, type }]);
     
-    // Auto remove after 5 seconds
     setTimeout(() => {
       removeToast(id);
     }, 5000);
   }, []);
   
-  // Remove a toast notification
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
   
-  // Hover user profile state
   const [hoveredUser, setHoveredUser] = useState<{user: User | null, position: {x: number, y: number}}>(
     {user: null, position: {x: 0, y: 0}}
   );
   
-  // Manage active speakers
   const [activeSpeakers, setActiveSpeakers] = useState<number[]>([]);
   
-  // Set sidebar default based on screen size
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -233,20 +222,15 @@ export default function RoomPage({
       }
     };
     
-    // Initial check
     handleResize();
     
-    // Add event listener
     window.addEventListener('resize', handleResize);
     
-    // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  // Simulate random active speakers
   useEffect(() => {
     const intervalId = setInterval(() => {
-      // Randomly select 1-3 users to be speaking
       const speakerCount = Math.floor(Math.random() * 3) + 1;
       const newActiveSpeakers: number[] = [];
       
@@ -263,17 +247,14 @@ export default function RoomPage({
     return () => clearInterval(intervalId);
   }, [usersData.length]);
   
-  // Calculate avatar positions in a circle with spatial awareness
   const calculateAvatarPositions = (containerWidth: number, containerHeight: number, userCount: number) => {
     const centerX = containerWidth / 2;
     const centerY = containerHeight / 2;
     const radius = Math.min(containerWidth, containerHeight) * 0.35;
     
     return usersData.slice(0, 5).map((user, index) => {
-      // Distribute users in a circle (or slightly elliptical for more natural feel)
       const angle = (index / userCount) * Math.PI * 2;
-      // Add slight randomness to positions for more natural feeling
-      const randomOffset = Math.random() * 20 - 10; // -10 to +10 pixels
+      const randomOffset = Math.random() * 20 - 10;
       return {
         x: centerX + radius * Math.cos(angle) + randomOffset,
         y: centerY + radius * Math.sin(angle) + randomOffset,
@@ -282,21 +263,18 @@ export default function RoomPage({
     });
   };
   
-  // Toggle microphone
   const toggleMicrophone = () => {
     const newMutedState = !muted;
     setMuted(newMutedState);
     addToast(newMutedState ? "Microphone muted" : "Microphone activated", newMutedState ? 'warning' : 'success');
   };
   
-  // Toggle hand raised
   const toggleHandRaised = () => {
     const newHandRaisedState = !handRaised;
     setHandRaised(newHandRaisedState);
     addToast(newHandRaisedState ? "Hand raised" : "Hand lowered", 'success');
   };
   
-  // Send message handler
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (chatInput.trim() === '') return;
@@ -305,11 +283,9 @@ export default function RoomPage({
     setMessages([...messages, { message: userMessage, isUser: true }]);
     setChatInput('');
     
-    // If AI assistant is active, process the message with AI
     if (isAiAssistantActive) {
       handleAiAssistant(userMessage);
     } else {
-      // Simulate a regular user response
       setTimeout(() => {
         const responses = [
           "That's interesting!",
@@ -324,7 +300,6 @@ export default function RoomPage({
     }
   };
   
-  // Quick reply handler
   const handleQuickReply = (reply: string) => {
     setMessages([...messages, { message: reply, isUser: true }]);
     setShowQuickReplies(false);
