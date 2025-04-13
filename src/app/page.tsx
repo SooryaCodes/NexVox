@@ -4,7 +4,7 @@ import React from 'react';
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import AnimatedTitle from "@/components/AnimatedTitle";
 import FuturisticButton from "@/components/FuturisticButton";
@@ -33,25 +33,25 @@ const features = [
     iconPath: "/assets/voice-icon.svg",
     title: "Live Voice Rooms",
     description: "Join pre-defined rooms populated with global participants. Engage in lively discussions across cultures and time zones.",
-    color: "cyan"
+    color: "cyan" as const
   },
   {
     iconPath: "/assets/spatial-icon.svg",
     title: "Spatial Audio",
     description: "Experience immersive conversations with spatial audio. Voices pan left and right based on virtual position in the room.",
-    color: "purple"
+    color: "purple" as const
   },
   {
     iconPath: "/assets/vibe-icon.svg",
     title: "Vibe Toasts",
     description: "Random positive messages pop up to boost energy and personality. Experience a dynamic, vibrant communication environment.",
-    color: "pink"
+    color: "pink" as const
   },
   {
     iconPath: "/assets/avatar-icon.svg",
     title: "Animated Avatars",
     description: "Express yourself with reactive avatars that animate based on your voice input and selected reactions.",
-    color: "gradient"
+    color: "gradient" as const
   }
 ];
 
@@ -301,16 +301,15 @@ export default function Home() {
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
               {features.map((feature) => (
-              
                 <div key={feature.title} className="feature-card">
                   <FeatureCard
-                      title={feature.title}
-                      description={feature.description}
-                    bgColor={feature.color as any}
+                    title={feature.title}
+                    description={feature.description}
+                    bgColor={feature.color}
                     iconPath={feature.iconPath}
                     className="h-full"
                   />
-                      </div>
+                </div>
               ))}
             </div>
           </div>
@@ -505,8 +504,8 @@ export default function Home() {
           </ScrollReveal>
           
             <div className="grid md:grid-cols-3 gap-10">
-              {testimonials.map((testimonial, index) => (
-                <ScrollReveal key={index} delay={index * 0.1}>
+              {testimonials.map((testimonial) => (
+                <ScrollReveal key={testimonial.name} delay={0.1}>
                   <HolographicCard className="p-6 h-full">
                     <div className="flex flex-col h-full">
                       <div className="mb-4">
@@ -671,7 +670,7 @@ export default function Home() {
                       </div>
                       <div>
                         <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Room Positioning</h3>
-                        <p className="opacity-80">Voices are positioned in a virtual space, so you can hear where people are "sitting" in the room, making group conversations more natural.</p>
+                        <p className="opacity-80">Voices are positioned in a virtual space, so you can hear where people are &quot;sitting&quot; in the room, making group conversations more natural.</p>
                       </div>
                     </motion.div>
                     
@@ -689,7 +688,7 @@ export default function Home() {
                       </div>
                       <div>
                         <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Directional Sound</h3>
-                        <p className="opacity-80">Experience audio that pans left and right based on a speaker's virtual position, creating an immersive soundscape that mimics real-world acoustics.</p>
+                        <p className="opacity-80">Experience audio that pans left and right based on a speaker&apos;s virtual position, creating an immersive soundscape that mimics real-world acoustics.</p>
                       </div>
                     </motion.div>
                     

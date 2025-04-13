@@ -70,7 +70,7 @@ const AppMockup = ({
       clearInterval(vibeInterval);
       clearTimeout(initialTimeout);
     };
-  }, []);
+  }, [vibeOptions]);
 
   // Animate active speakers
   useEffect(() => {

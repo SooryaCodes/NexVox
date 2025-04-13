@@ -18,9 +18,9 @@ if (typeof window !== 'undefined') {
 }
 
 // Debounce function to prevent excessive updates
-const debounce = (fn: Function, ms = 100) => {
+const debounce = (fn: (...args: unknown[]) => void, ms = 100) => {
   let timeoutId: ReturnType<typeof setTimeout>;
-  return function(this: any, ...args: any[]) {
+  return function(this: unknown, ...args: unknown[]) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => fn.apply(this, args), ms);
   };

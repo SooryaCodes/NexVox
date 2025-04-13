@@ -159,7 +159,7 @@ const HyperspeedEffect = ({
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [active, intensity, colorScheme]);
+  }, [active, intensity, colorScheme, getColors, getStarsCount]);
   
   if (!active) return null;
   

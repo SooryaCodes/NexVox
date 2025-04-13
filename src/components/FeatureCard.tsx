@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface FeatureCardProps {
   title: string;
@@ -139,9 +140,11 @@ const FeatureCard = ({
         >
           {iconPath ? (
             <div className={`w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-${bgColor === 'cyan' ? '[#00FFFF]' : bgColor === 'purple' ? '[#9D00FF]' : bgColor === 'pink' ? '[#FF00E6]' : '[#00FFFF]'}/20 to-transparent`}>
-              <img 
+              <Image 
                 src={iconPath} 
                 alt={title} 
+                width={32}
+                height={32}
                 className="w-8 h-8 object-contain"
               />
             </div>

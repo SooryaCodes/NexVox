@@ -56,7 +56,6 @@ const HolographicCard = ({
     if (!hologramRef.current || !cardRef.current) return;
     
     const hologram = hologramRef.current;
-    const card = cardRef.current;
     
     // Initial horizontal scan line animation
     const scanLine = document.createElement('div');
@@ -194,7 +193,7 @@ const HolographicCard = ({
             
             {/* Quote */}
             {quote && (
-              <p className="opacity-80 italic text-white">"{quote}"</p>
+              <p className="opacity-80 italic text-white">&quot;{quote}&quot;</p>
             )}
           </>
         )}

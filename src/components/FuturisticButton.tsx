@@ -55,8 +55,12 @@ export default function FuturisticButton({
       });
     }
     
+    // Store a reference to the current glowRef for cleanup
+    const currentGlowRef = glowRef.current;
+    
     return () => {
-      gsap.killTweensOf(glowRef.current);
+      // Use the stored reference in cleanup
+      gsap.killTweensOf(currentGlowRef);
     };
   }, [type]);
 
@@ -157,29 +161,24 @@ export default function FuturisticButton({
   useEffect(() => {
     if (!glitchEffect || !isHovered || !buttonRef.current) return;
     
-    let glitchInterval: NodeJS.Timeout;
-    
-    const runGlitch = () => {
-      const glitchText = buttonRef.current?.querySelector('.glitch-text');
-      if (!glitchText) return;
-      
-      gsap.to(glitchText, {
-        skewX: () => Math.random() * 10 - 5,
-        skewY: () => Math.random() * 10 - 5,
-        duration: 0.1,
-        onComplete: () => {
-          gsap.to(glitchText, {
-            skewX: 0,
-            skewY: 0,
-            duration: 0.1
-          });
-        }
-      });
-    };
-    
-    glitchInterval = setInterval(() => {
+    const glitchInterval = setInterval(() => {
       if (Math.random() > 0.7) {
-        runGlitch();
+        // Run glitch effect
+        const glitchText = buttonRef.current?.querySelector('.glitch-text');
+        if (!glitchText) return;
+        
+        gsap.to(glitchText, {
+          skewX: () => Math.random() * 10 - 5,
+          skewY: () => Math.random() * 10 - 5,
+          duration: 0.1,
+          onComplete: () => {
+            gsap.to(glitchText, {
+              skewX: 0,
+              skewY: 0,
+              duration: 0.1
+            });
+          }
+        });
       }
     }, 500);
     

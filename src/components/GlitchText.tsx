@@ -118,14 +118,15 @@ const GlitchText = ({
     let glitchInterval: NodeJS.Timeout;
     
     if (isActive) {
-      const glitchLayers = textRef.current.querySelectorAll('.glitch-layer');
+      const currentTextRef = textRef.current;
+      const glitchLayers = currentTextRef.querySelectorAll('.glitch-layer');
       
       const applyGlitch = () => {
         // Create timeline for coordinated animation
         const tl = gsap.timeline();
         
         // Random offset for main text
-        tl.to(textRef.current, {
+        tl.to(currentTextRef, {
           skewX: () => Math.random() * intensityValues.glitchIntensity - intensityValues.glitchIntensity/2,
           skewY: () => Math.random() * intensityValues.glitchIntensity/4 - intensityValues.glitchIntensity/8,
           x: () => Math.random() * 4 - 2,
@@ -133,8 +134,8 @@ const GlitchText = ({
         });
         
         // Animate each glitch layer with slightly different values
-        glitchLayers.forEach((layer, index) => {
-          const direction = index === 0 ? 1 : -1;
+        glitchLayers.forEach((layer) => {
+          const direction = 1;
           tl.to(layer, {
             x: () => direction * (Math.random() * intensityValues.glitchIntensity - intensityValues.glitchIntensity/2),
             skewX: () => direction * Math.random() * intensityValues.glitchIntensity,
@@ -144,7 +145,7 @@ const GlitchText = ({
         });
         
         // Reset everything after the glitch
-        tl.to([textRef.current, ...glitchLayers], {
+        tl.to([currentTextRef, ...glitchLayers], {
           skewX: 0,
           skewY: 0,
           x: 0,
@@ -171,7 +172,7 @@ const GlitchText = ({
         clearInterval(glitchInterval);
       }
     };
-  }, [isActive, isInitialized, text, intensity]);
+  }, [isActive, isInitialized, text, intensity, getIntensityValues]);
   
   return (
     <div 
