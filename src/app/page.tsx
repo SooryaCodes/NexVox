@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
@@ -11,7 +12,6 @@ import FuturisticButton from "@/components/FuturisticButton";
 import ScrollReveal from "@/components/ScrollReveal";
 import Header from "@/components/Header";
 import AudioWaveform from "@/components/AudioWaveform";
-import HyperspeedEffect from "@/components/HyperspeedEffect";
 import NeonGrid from "@/components/NeonGrid";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import ShimmeringText from "@/components/ShimmeringText";
@@ -20,6 +20,7 @@ import AppMockup from "@/components/AppMockup";
 import GlitchText from "@/components/GlitchText";
 import CyberMarquee from "@/components/CyberMarquee";
 import HolographicCard from "@/components/HolographicCard";
+import AmbientRoom from "@/components/AmbientRoom";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -73,7 +74,6 @@ const testimonials = [
 ];
 
 export default function Home() {
-  const [hyperspeedActive, setHyperspeedActive] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -89,16 +89,6 @@ export default function Home() {
 
   // Initialize animations and effects
   useEffect(() => {
-    // Trigger hyperspeed effect on initial load
-    setTimeout(() => {
-      setHyperspeedActive(true);
-      
-      // Turn it off after animation
-      setTimeout(() => {
-        setHyperspeedActive(false);
-      }, 3000);
-    }, 1000);
-
     // GSAP ScrollTrigger setup
     if (!mainRef.current) return;
 
@@ -151,16 +141,14 @@ export default function Home() {
       <ParticlesBackground />
       <NeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.1} />
       
-      {/* Hyperspeed effect overlay */}
-      <AnimatePresence>
-        {hyperspeedActive && <HyperspeedEffect active={hyperspeedActive} />}
-      </AnimatePresence>
-      
       {/* Header */}
       <Header />
       
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen p-8 grid place-items-center overflow-hidden">
+        {/* Radial gradient background */}
+        <div className="absolute inset-0 bg-black radial-gradient"></div>
+        
         <div className="max-w-7xl mx-auto text-center z-10 pt-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -187,7 +175,6 @@ export default function Home() {
               glitchEffect={true}
               rippleEffect={true}
               accessibilityLabel="Explore NexVox voice rooms"
-              onClick={() => setHyperspeedActive(true)}
             />
             <FuturisticButton 
               text="Learn More" 
@@ -251,9 +238,11 @@ export default function Home() {
         </motion.div>
         
         {/* Enhanced decorative elements */}
-        <div className="absolute left-0 top-1/4 w-40 h-40 bg-gradient-to-r from-[#00FFFF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
-        <div className="absolute right-0 bottom-1/4 w-60 h-60 bg-gradient-to-l from-[#9D00FF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
-        <div className="absolute left-1/4 bottom-1/3 w-20 h-20 bg-gradient-to-tr from-[#FF00E6]/20 to-transparent rounded-full blur-2xl hero-parallax"></div>
+        <div className="absolute left-0 top-1/4 w-72 h-72 bg-gradient-to-r from-[#00FFFF]/30 to-transparent rounded-full blur-3xl hero-parallax"></div>
+        <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-gradient-to-l from-[#9D00FF]/30 to-transparent rounded-full blur-3xl hero-parallax"></div>
+        <div className="absolute left-1/4 bottom-1/3 w-40 h-40 bg-gradient-to-tr from-[#FF00E6]/30 to-transparent rounded-full blur-2xl hero-parallax"></div>
+        <div className="absolute right-1/4 top-1/3 w-56 h-56 bg-gradient-to-bl from-[#00FFFF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
+        <div className="absolute left-1/3 top-1/4 w-48 h-48 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
       </section>
 
       {/* Enhanced Scrolling text band */}
@@ -283,13 +272,13 @@ export default function Home() {
             {features.map((feature, index) => (
               <div key={feature.title} className="feature-card">
                 <FeatureCard
-                  title={feature.title}
-                  description={feature.description}
+                    title={feature.title}
+                    description={feature.description}
                   bgColor={feature.color as any}
                   iconPath={feature.iconPath}
                   className="h-full"
                 />
-              </div>
+                    </div>
             ))}
           </div>
         </div>
@@ -438,29 +427,32 @@ export default function Home() {
             </div>
             
             <ScrollReveal direction="right" className="order-1 md:order-2">
-              <GlassmorphicCard
-                gradient="purple-pink"
-                glowOnHover={true}
-                className="h-96"
-              >
-                <div className="h-full w-full relative overflow-hidden rounded-xl">
-                  <Image 
-                    src="https://cdn.midjourney.com/c1b39f04-3a3b-48e7-9200-d11aabd33448/0_1.webp" 
-                    alt="Global Connection Visualization" 
-                    fill
-                    className="object-cover object-center opacity-70 transition-transform duration-1500 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                  <div className="absolute bottom-6 left-0 right-0 text-center">
-                    <GlitchText
-                      text="Global Connections"
-                      className="text-2xl font-orbitron"
-                      color="cyan"
-                      activeOnHover={true}
-                    />
-                  </div>
-                </div>
-              </GlassmorphicCard>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+                <AmbientRoom 
+                  roomName="Synthwave Dreams" 
+                  participantCount={128} 
+                  roomType="music" 
+                  className="h-48"
+                />
+                <AmbientRoom 
+                  roomName="Global Chat" 
+                  participantCount={245} 
+                  roomType="conversation" 
+                  className="h-48"
+                />
+                <AmbientRoom 
+                  roomName="Gaming Lobby" 
+                  participantCount={87} 
+                  roomType="gaming" 
+                  className="h-48"
+                />
+                <AmbientRoom 
+                  roomName="Chill Vibes" 
+                  participantCount={164} 
+                  roomType="chill" 
+                  className="h-48"
+                />
+              </div>
             </ScrollReveal>
           </div>
         </div>
@@ -468,29 +460,43 @@ export default function Home() {
 
       {/* Testimonials */}
       <section id="testimonials" className="py-24 px-8 relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-[#FF00E6]/10 to-black"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
         <ScrollReveal>
-          <GlitchText
-            text="What Users Say"
-            className="text-4xl font-orbitron text-center mb-4"
-            color="pink"
-            activeOnView={true}
-          />
-          <p className="text-center opacity-80 mb-16 max-w-3xl mx-auto">Join the global community already experiencing the next level of voice communication</p>
+            <ShimmeringText
+              text="What Users Say"
+              className="text-4xl font-orbitron text-center mb-16"
+              variant="gradient"
+              as="h2"
+            />
         </ScrollReveal>
         
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-10">
             {testimonials.map((testimonial, index) => (
-              <ScrollReveal key={testimonial.name} delay={index * 0.2}>
-                <HolographicCard
-                  name={testimonial.name}
-                  location={testimonial.location}
-                  quote={testimonial.quote}
-                  avatar={testimonial.avatar}
-                  color={index === 0 ? "cyan" : index === 1 ? "purple" : "pink"}
-                  glowIntensity="medium"
-                  className="h-full"
-                />
+              <ScrollReveal key={index} delay={index * 0.1}>
+                <HolographicCard className="p-6 h-full">
+                  <div className="flex flex-col h-full">
+                    <div className="mb-4">
+                      <p className="text-gray-300 mb-6">"{testimonial.quote}"</p>
+                      <div className="flex items-center">
+                        <div className="mr-4">
+                          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#00FFFF]/30">
+                            <img 
+                        src={testimonial.avatar} 
+                              alt="User" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                    </div>
+                    <div>
+                          <p className="font-semibold text-[#00FFFF]">{testimonial.name}</p>
+                          <p className="text-sm text-gray-400">{testimonial.location}</p>
+                    </div>
+                  </div>
+                    </div>
+                  </div>
+                </HolographicCard>
               </ScrollReveal>
             ))}
           </div>
@@ -505,6 +511,335 @@ export default function Home() {
         direction="right"
         color="purple"
       />
+
+      {/* JOIN LIVE ROOMS - NEW SECTION */}
+      <section id="live-rooms" className="py-24 px-8 relative min-h-screen flex items-center">
+        {/* Gradient background effect */}
+        <div className="absolute inset-0 z-0 opacity-40">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FF00E6]/20 via-black to-[#00FFFF]/20"></div>
+        </div>
+        
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <ScrollReveal>
+            <GlitchText
+              text="Join Live Rooms"
+              className="text-5xl font-orbitron text-center mb-6"
+              color="pink"
+              intensity="high"
+              activeOnView={true}
+            />
+            <p className="text-center opacity-80 mb-16 max-w-4xl mx-auto text-lg">
+              Discover a universe of voice rooms where you can connect with people from across the globe, 
+              share ideas, and experience conversations like never before.
+            </p>
+          </ScrollReveal>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ScrollReveal direction="up" delay={0.1}>
+              <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-[#FF00E6]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(255,0,230,0.3)]">
+                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#FF00E6]/20 to-transparent rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#FF00E6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-orbitron mb-4 text-[#FF00E6]">Global Access</h3>
+                <p className="opacity-80">Connect with people from every corner of the world, breaking down geographical barriers in real-time voice conversations.</p>
+                <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#FF00E6] animate-pulse"></span>
+                  <span>12,546 online now</span>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal direction="up" delay={0.2}>
+              <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-[#9D00FF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(157,0,255,0.3)]">
+                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#9D00FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9.663 17h4.673M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-orbitron mb-4 text-[#9D00FF]">Themed Rooms</h3>
+                <p className="opacity-80">Discover rooms centered around your interests, from music and gaming to deep conversations and professional networking.</p>
+                <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse"></span>
+                  <span>543 active rooms</span>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal direction="up" delay={0.3}>
+              <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-[#00FFFF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)]">
+                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-orbitron mb-4 text-[#00FFFF]">24/7 Availability</h3>
+                <p className="opacity-80">Join conversations any time, day or night. With users across all time zones, there's always an active room waiting for you.</p>
+                <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#00FFFF] animate-pulse"></span>
+                  <span>Always online</span>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+          
+          <div className="mt-16 flex justify-center">
+            <FuturisticButton 
+              text="Browse All Rooms" 
+              type="neon"
+              glitchEffect={true}
+              rippleEffect={true}
+              accessibilityLabel="Browse all voice rooms"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* SPATIAL AUDIO EXPERIENCE - NEW SECTION */}
+      <section id="spatial-audio" className="py-24 px-8 relative min-h-screen flex items-center">
+        {/* Gradient background */}
+        <div className="absolute inset-0 z-0 opacity-40">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
+        </div>
+        
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <ScrollReveal direction="left">
+              <div>
+                <GlitchText
+                  text="Spatial Audio Experience"
+                  className="text-4xl font-orbitron mb-6"
+                  color="cyan"
+                  intensity="medium"
+                  activeOnView={true}
+                />
+                
+                <p className="text-lg opacity-80 mb-8">
+                  NexVox brings conversations to life with immersive spatial audio technology that places each voice in a virtual environment, creating a sense of presence that traditional audio cannot match.
+                </p>
+                
+                <div className="space-y-8">
+                  <motion.div 
+                    className="flex gap-6 items-start"
+                    whileHover={{ x: 10 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                  >
+                    <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Room Positioning</h3>
+                      <p className="opacity-80">Voices are positioned in a virtual space, so you can hear where people are "sitting" in the room, making group conversations more natural.</p>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="flex gap-6 items-start"
+                    whileHover={{ x: 10 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                  >
+                    <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Directional Sound</h3>
+                      <p className="opacity-80">Experience audio that pans left and right based on a speaker's virtual position, creating an immersive soundscape that mimics real-world acoustics.</p>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="flex gap-6 items-start"
+                    whileHover={{ x: 10 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                  >
+                    <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Distance Perception</h3>
+                      <p className="opacity-80">Voices naturally fade as virtual distance increases, allowing you to focus on nearby conversations while still being aware of others in the room.</p>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal direction="right">
+              <div className="relative h-96">
+                {/* Spatial audio visualization */}
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl border border-[#00FFFF]/20 overflow-hidden">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative w-64 h-64">
+                      {/* Center user */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#00FFFF] to-[#0088FF] border-4 border-black flex items-center justify-center animate-pulse">
+                          <span className="text-black font-bold">YOU</span>
+                        </div>
+                      </div>
+                      
+                      {/* Surrounding users in a circle */}
+                      {[...Array(8)].map((_, i) => {
+                        const angle = (i * Math.PI * 2) / 8;
+                        const radius = 100;
+                        const x = Math.cos(angle) * radius;
+                        const y = Math.sin(angle) * radius;
+                        const colors = [
+                          'from-[#00FFFF] to-[#0088FF]',
+                          'from-[#9D00FF] to-[#FF00E6]',
+                          'from-[#FF00E6] to-[#FF3300]'
+                        ];
+                        const colorIndex = i % colors.length;
+                        
+                        return (
+                          <motion.div
+                            key={i}
+                            className="absolute w-12 h-12"
+                            animate={{
+                              x: [x - 6 + Math.random() * 5, x + 6 + Math.random() * 5],
+                              y: [y - 6 + Math.random() * 5, y + 6 + Math.random() * 5],
+                            }}
+                            transition={{
+                              duration: 3 + Math.random() * 2,
+                              repeat: Infinity,
+                              repeatType: 'reverse',
+                              ease: 'easeInOut'
+                            }}
+                            style={{ left: 'calc(50% - 24px)', top: 'calc(50% - 24px)' }}
+                          >
+                            <div className={`w-full h-full rounded-full bg-gradient-to-r ${colors[colorIndex]} border-2 border-black flex items-center justify-center`}>
+                              <span className="text-black font-bold text-xs">{String.fromCharCode(65 + i)}</span>
+                            </div>
+                            
+                            {/* Sound waves for active speakers */}
+                            {(i === 2 || i === 5 || i === 7) && (
+                              <div className="absolute inset-0 -z-10">
+                                <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping"></div>
+                                <div className="absolute inset-0 rounded-full border border-white/10 animate-pulse"></div>
+                              </div>
+                            )}
+                          </motion.div>
+                        );
+                      })}
+                      
+                      {/* Connecting lines */}
+                      <svg className="absolute inset-0 w-full h-full z-0">
+                        <circle cx="50%" cy="50%" r="100" fill="none" stroke="#00FFFF" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  {/* Label */}
+                  <div className="absolute bottom-4 left-0 right-0 text-center">
+                    <div className="inline-block bg-black/60 px-4 py-2 rounded-full text-[#00FFFF] text-sm border border-[#00FFFF]/30">
+                      3D Spatial Positioning
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* NEW AMBIENT ROOMS SHOWCASE */}
+      <section id="ambient-rooms" className="py-24 px-8 relative">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#9D00FF]/10 via-black to-[#00FFFF]/10"></div>
+        </div>
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <ScrollReveal>
+            <ShimmeringText
+              text="Discover Ambient Rooms"
+              className="text-4xl font-orbitron text-center mb-6"
+              variant="gradient"
+              as="h2"
+            />
+            <p className="text-center mb-16 max-w-2xl mx-auto">
+              Explore specially designed voice environments with unique visual and audio characteristics
+            </p>
+          </ScrollReveal>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <ScrollReveal direction="up" delay={0.1}>
+              <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
+                <AmbientRoom 
+                  roomName="Neon District"
+                  roomType="music"
+                  className="absolute inset-0 w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                  <h3 className="text-xl font-orbitron text-[#00FFFF] mb-2">Neon District</h3>
+                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    A cyberpunk-themed lounge with ambient city sounds and neon aesthetics.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal direction="up" delay={0.2}>
+              <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
+                <AmbientRoom 
+                  roomName="Quantum Realm"
+                  roomType="conversation"
+                  className="absolute inset-0 w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                  <h3 className="text-xl font-orbitron text-[#9D00FF] mb-2">Quantum Realm</h3>
+                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    An abstract space with quantum visualizations and ethereal audio textures.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal direction="up" delay={0.3}>
+              <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
+                <AmbientRoom 
+                  roomName="Digital Oasis"
+                  roomType="chill"
+                  className="absolute inset-0 w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                  <h3 className="text-xl font-orbitron text-[#FF00E6] mb-2">Digital Oasis</h3>
+                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    A calming digital environment with water elements and relaxing audio.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+          
+          <div className="mt-16 text-center">
+            <FuturisticButton 
+              text="Explore All Rooms" 
+              type="secondary"
+              rippleEffect={true}
+              accessibilityLabel="Explore all ambient rooms"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-24 px-8 relative">
@@ -535,7 +870,7 @@ export default function Home() {
               className="px-10 py-4 text-lg"
               glitchEffect={true}
               rippleEffect={true}
-              onClick={() => setHyperspeedActive(true)}
+              accessibilityLabel="Get started with NexVox"
             />
           </div>
           
@@ -585,7 +920,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-8 bg-black border-t border-[#00FFFF]/20 relative z-10">
+      <footer className="py-16 px-8 relative border-t border-white/10">
         <div className="absolute inset-0 opacity-10">
           <NeonGrid color="#9D00FF" secondaryColor="#00FFFF" density={40} opacity={0.1} />
         </div>

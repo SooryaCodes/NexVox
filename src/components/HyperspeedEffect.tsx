@@ -4,27 +4,48 @@ import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface HyperspeedEffectProps {
-  active?: boolean;
-  starCount?: number;
-  speed?: number;
-  className?: string;
+  active: boolean;
+  intensity?: 'low' | 'medium' | 'high';
+  colorScheme?: 'cyberpunk' | 'neon' | 'rainbow';
 }
 
-const HyperspeedEffect = ({
-  active = true,
-  starCount = 200,
-  speed = 3,
-  className = "",
+const HyperspeedEffect = ({ 
+  active, 
+  intensity = 'medium',
+  colorScheme = 'cyberpunk'
 }: HyperspeedEffectProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stars = useRef<{x: number, y: number, z: number, size: number, color: string}[]>([]);
-  const animationFrame = useRef<number | undefined>(undefined);
+  
+  // Define colors based on color scheme
+  const getColors = () => {
+    switch (colorScheme) {
+      case 'cyberpunk':
+        return ['#00FFFF', '#FF00E6', '#9D00FF', '#FF3300'];
+      case 'neon':
+        return ['#39FF14', '#00FFFF', '#FFFF00', '#FF00E6'];
+      case 'rainbow':
+        return ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF'];
+      default:
+        return ['#00FFFF', '#FF00E6', '#9D00FF', '#FF3300'];
+    }
+  };
+  
+  // Define number of stars based on intensity
+  const getStarsCount = () => {
+    switch (intensity) {
+      case 'low': return 100;
+      case 'medium': return 200;
+      case 'high': return 500;
+      default: return 200;
+    }
+  };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!active || !canvasRef.current) return;
     
+    const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    
     if (!ctx) return;
     
     // Set canvas dimensions
@@ -33,33 +54,42 @@ const HyperspeedEffect = ({
       canvas.height = window.innerHeight;
     };
     
-    window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Stars array
+    const stars: Array<{
+      x: number;
+      y: number;
+      z: number;
+      prevZ: number;
+      color: string;
+      size: number;
+      trail: Array<{ x: number; y: number; z: number }>;
+    }> = [];
     
     // Initialize stars
-    stars.current = [];
-    for (let i = 0; i < starCount; i++) {
-      stars.current.push({
+    const colors = getColors();
+    const starsCount = getStarsCount();
+    
+    for (let i = 0; i < starsCount; i++) {
+      stars.push({
         x: Math.random() * canvas.width - canvas.width / 2,
         y: Math.random() * canvas.height - canvas.height / 2,
-        z: Math.random() * 1000,
-        size: Math.random() * 2 + 0.5,
-        color: getRandomColor()
+        z: Math.random() * 1000 + 1000,
+        prevZ: 0,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: 1 + Math.random() * 2,
+        trail: [] // For trail effect
       });
     }
     
-    function getRandomColor() {
-      const colors = [
-        '#00FFFF', // Cyan
-        '#FF00FF', // Magenta
-        '#FFFFFF', // White
-        '#3366FF', // Blue
-        '#9900FF'  // Purple
-      ];
-      return colors[Math.floor(Math.random() * colors.length)];
-    }
+    // Animation speed
+    const speed = intensity === 'high' ? 25 : intensity === 'medium' ? 15 : 8;
     
     // Animation loop
+    let animationFrameId: number;
+    
     const animate = () => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -68,97 +98,86 @@ const HyperspeedEffect = ({
       const centerY = canvas.height / 2;
       
       // Update and draw stars
-      for (let i = 0; i < stars.current.length; i++) {
-        const star = stars.current[i];
+      stars.forEach(star => {
+        // Store previous position for trail
+        star.prevZ = star.z;
         
-        // Update z position (depth)
-        if (active) {
-          star.z -= speed;
-        }
+        // Update z position (moving towards viewer)
+        star.z -= speed;
         
-        // Reset star if it's too close
+        // Reset if star is too close
         if (star.z <= 0) {
-          star.z = 1000;
           star.x = Math.random() * canvas.width - centerX;
           star.y = Math.random() * canvas.height - centerY;
+          star.z = 1000;
+          star.trail = []; // Reset trail
         }
         
-        // Calculate screen position
-        const screenX = (star.x / star.z) * 500 + centerX;
-        const screenY = (star.y / star.z) * 500 + centerY;
+        // Calculate projected position
+        const factor = 200 / star.z;
+        const x = star.x * factor + centerX;
+        const y = star.y * factor + centerY;
         
-        // Ensure the star is within the canvas
-        if (
-          screenX >= 0 &&
-          screenX <= canvas.width &&
-          screenY >= 0 &&
-          screenY <= canvas.height
-        ) {
-          // Calculate size based on z position
-          const size = (1 - star.z / 1000) * star.size * 5;
+        // Store position for trail
+        star.trail.push({ x, y, z: star.z });
+        
+        // Limit trail length
+        if (star.trail.length > 5) {
+          star.trail.shift();
+        }
+        
+        // Draw trail
+        if (star.trail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(star.trail[0].x, star.trail[0].y);
           
-          // Calculate opacity based on z position
-          const opacity = 1 - star.z / 1000;
-          
-          // Calculate trail length
-          const trailLength = active ? (1 - star.z / 1000) * 50 : 0;
-          
-          // Draw star trail
-          if (active && trailLength > 1) {
-            const gradient = ctx.createLinearGradient(
-              screenX + trailLength, screenY,
-              screenX, screenY
-            );
-            gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-            gradient.addColorStop(1, star.color);
-            
-            ctx.beginPath();
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = size;
-            ctx.moveTo(screenX, screenY);
-            ctx.lineTo(screenX + trailLength, screenY);
-            ctx.stroke();
+          for (let i = 1; i < star.trail.length; i++) {
+            ctx.lineTo(star.trail[i].x, star.trail[i].y);
           }
           
-          // Draw star
-          ctx.beginPath();
-          ctx.fillStyle = star.color;
-          ctx.globalAlpha = opacity;
-          ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.globalAlpha = 1;
+          // Set line style
+          ctx.strokeStyle = star.color;
+          ctx.lineWidth = (star.size * (1 - star.z / 1000)) * 2; // Thicker as it gets closer
+          ctx.stroke();
         }
-      }
+        
+        // Draw star
+        const size = star.size * (1 - star.z / 1000) * 3;
+        ctx.beginPath();
+        ctx.arc(x, y, size > 0 ? size : 0.1, 0, Math.PI * 2);
+        ctx.fillStyle = star.color;
+        ctx.fill();
+      });
       
-      animationFrame.current = requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
     
     animate();
     
+    // Cleanup
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
-      }
+      cancelAnimationFrame(animationFrameId);
     };
-  }, [active, starCount, speed]);
+  }, [active, intensity, colorScheme]);
+  
+  if (!active) return null;
   
   return (
-    <div className={`fixed inset-0 -z-5 w-full h-full overflow-hidden ${className}`}>
-      <canvas 
-        ref={canvasRef} 
-        className="absolute top-0 left-0 w-full h-full"
+    <motion.div
+      className="fixed inset-0 z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0"
+        style={{ background: 'transparent' }}
       />
-      {active && (
-        <motion.div 
-          className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black opacity-70"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.7 }}
-          transition={{ duration: 1 }}
-        />
-      )}
-    </div>
+    </motion.div>
   );
 };
 
-export default HyperspeedEffect; 
+export default HyperspeedEffect;

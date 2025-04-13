@@ -455,6 +455,11 @@ canvas.particle-canvas {
   transform: translateY(0);
 }
 
+/* Radial gradient background for hero */
+.radial-gradient {
+  background: radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,1) 100%);
+}
+
 /* Custom cursor */
 .cyber-cursor {
   position: fixed;
