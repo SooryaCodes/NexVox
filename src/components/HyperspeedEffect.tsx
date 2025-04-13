@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { m } from 'framer-motion';
 
 interface HyperspeedEffectProps {
@@ -16,8 +16,8 @@ const HyperspeedEffect = ({
 }: HyperspeedEffectProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // Define colors based on color scheme
-  const getColors = () => {
+  // Define colors based on color scheme - wrap in useCallback
+  const getColors = useCallback(() => {
     switch (colorScheme) {
       case 'cyberpunk':
         return ['#00FFFF', '#FF00E6', '#9D00FF', '#FF3300'];
@@ -28,17 +28,17 @@ const HyperspeedEffect = ({
       default:
         return ['#00FFFF', '#FF00E6', '#9D00FF', '#FF3300'];
     }
-  };
+  }, [colorScheme]);
   
-  // Define number of stars based on intensity
-  const getStarsCount = () => {
+  // Define number of stars based on intensity - wrap in useCallback
+  const getStarsCount = useCallback(() => {
     switch (intensity) {
       case 'low': return 100;
       case 'medium': return 200;
       case 'high': return 500;
       default: return 200;
     }
-  };
+  }, [intensity]);
 
   useEffect(() => {
     if (!active || !canvasRef.current) return;

@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { m, motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { m } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import SmoothScroll from '@/components/ScrollTriggerSetup';
 import GlassmorphicCard from '@/components/GlassmorphicCard';
 import FuturisticButton from '@/components/FuturisticButton';
-import { useSoundContext } from '@/components/SoundProvider';
 import soundEffects from '@/utils/soundEffects';
 import { gsap } from 'gsap';
 // Custom toast notification component
@@ -422,24 +420,21 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      setIsSubmitting(true);
-      soundEffects.play('processing');
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setLoginSuccess(true);
       
-      // Simulated backend authentication (2 second delay)
+      // Navigate after successful animation
       setTimeout(() => {
-        // Check if user exists in localStorage (mock backend)
-        const savedUser = localStorage.getItem('nexvox_user');
-        
-        // Assume login success for demo purposes, regardless of saved user
-        showToast('Login successful!', 'success');
-        
-        // Trigger success animation
-        setLoginSuccess(true);
-        localStorage.setItem('nexvox_logged_in', 'true');
-        
+        // Replace with actual navigation logic
+        window.location.href = '/rooms';
       }, 2000);
-    }
+    }, 1500);
   };
 
   // Handle input hover for custom cursor
@@ -711,7 +706,7 @@ export default function Login() {
                 {/* Register link */}
                 <div className="text-center mt-4">
                   <p className="text-sm text-gray-300">
-                    Don't have an account?{' '}
+                    Don&apos;t have an account?{' '}
                     <Link 
                       href="/register" 
                       className="text-[#00FFFF] hover:text-[#FF00E6] font-medium animated-underline transition-colors duration-300"

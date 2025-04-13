@@ -1,16 +1,14 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { m, motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { m, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import roomsData from "../../data/rooms.json";
 import usersDataRaw from "../../data/users.json";
 import GlitchText from "@/components/GlitchText";
-import ShimmeringText from "@/components/ShimmeringText";
 import AudioWaveform from "@/components/AudioWaveform";
-import GlassmorphicCard from "@/components/GlassmorphicCard";
 import HolographicCard from "@/components/HolographicCard";
 import NeonGrid from "@/components/NeonGrid";
 import Link from "next/link";
@@ -432,16 +430,16 @@ export default function RoomPage({ params }: { params: { id: string } }) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showQuickReplies, setShowQuickReplies] = useState(false);
+  const [isAiAssistantActive, setIsAiAssistantActive] = useState(false);
+  const [isAiTyping, setIsAiTyping] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isAudioSettingsOpen, setIsAudioSettingsOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User>({
     id: 1,
     name: "You",
     level: 24,
     badges: ["Early Adopter", "Spatial Audio Pro", "Night Owl"]
   });
-  const [isAiAssistantActive, setIsAiAssistantActive] = useState(false);
-  const [isAiTyping, setIsAiTyping] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isAudioSettingsOpen, setIsAudioSettingsOpen] = useState(false);
   
   // Set sidebar default based on screen size
   useEffect(() => {
@@ -1304,7 +1302,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                     <div className="mt-3 flex justify-center">
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-[#00FFFF]/20 to-[#FF00E6]/20 flex items-center justify-center relative">
                         <div className="w-full h-full bg-gradient-to-br from-[#00FFFF]/30 to-[#FF00E6]/30 flex items-center justify-center">
-                          <span className="text-xl font-bold">{currentUser.name.charAt(0)}</span>
+                          <span className="text-xl font-bold">{currentUser?.name?.charAt(0)}</span>
                         </div>
                         <div className="absolute inset-0 rounded-full border-2 border-[#00FFFF] animate-pulse"></div>
                       </div>
@@ -1334,7 +1332,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                 <div className="p-4 flex flex-col items-center">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-[#00FFFF]/20 to-[#FF00E6]/20 flex items-center justify-center mb-4 relative">
                     <div className="w-full h-full bg-gradient-to-br from-[#00FFFF]/30 to-[#FF00E6]/30 flex items-center justify-center">
-                      <span className="text-3xl font-bold">{currentUser.name.charAt(0)}</span>
+                      <span className="text-3xl font-bold">{currentUser?.name?.charAt(0)}</span>
                     </div>
                     
                     {/* Edit avatar button */}
@@ -1350,12 +1348,12 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                     </m.button>
                   </div>
                   
-                  <h3 className="text-xl font-orbitron text-[#9D00FF] mb-1">{currentUser.name}</h3>
+                  <h3 className="text-xl font-orbitron text-[#9D00FF] mb-1">{currentUser?.name}</h3>
                   
                   {/* User level */}
                   <div className="flex items-center gap-2 mb-6">
                     <div className="px-3 py-1 bg-[#9D00FF]/20 rounded-full text-xs border border-[#9D00FF]/30">
-                      Level {currentUser.level}
+                      Level {currentUser?.level}
                     </div>
                   </div>
                   
@@ -1363,7 +1361,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                   <div className="w-full mb-6">
                     <h4 className="text-sm text-white/70 mb-2">Your Badges</h4>
                     <div className="flex flex-wrap gap-2">
-                      {currentUser.badges?.map((badge, index) => (
+                      {currentUser?.badges?.map((badge, index) => (
                         <div key={index} className="px-3 py-1 bg-black/40 rounded-full text-xs border border-[#9D00FF]/30">
                           {badge}
                         </div>
@@ -1377,7 +1375,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                       <label className="block text-sm text-white/70">Display Name</label>
                       <input 
                         type="text"
-                        defaultValue={currentUser.name}
+                        defaultValue={currentUser?.name}
                         className="w-full bg-black/40 border border-white/10 rounded-md px-3 py-2 focus:outline-none focus:border-[#9D00FF] transition-colors"
                       />
                     </div>

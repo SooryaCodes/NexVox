@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useEffect, useRef } from "react";
-import { m, motion, useScroll, useTransform } from "framer-motion";
+import { m, useScroll, useTransform } from "framer-motion";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import AnimatedTitle from "@/components/AnimatedTitle";
 import FuturisticButton from "@/components/FuturisticButton";
@@ -18,11 +18,8 @@ import GlitchText from "@/components/GlitchText";
 import CyberMarquee from "@/components/CyberMarquee";
 import HolographicCard from "@/components/HolographicCard";
 import AmbientRoom from "@/components/AmbientRoom";
-import SoundProvider, { SoundToggle } from "@/components/SoundProvider";
 import useSoundEffects from "@/hooks/useSoundEffects";
 import soundEffects from "@/utils/soundEffects";
-import Image from "next/image";
-import Link from "next/link";
 
 const features = [
   {
@@ -483,11 +480,9 @@ export default function Home() {
                       <div className="flex items-center">
                         <div className="mr-4">
                           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#00FFFF]/30">
-                            <Image 
+                            <img 
                               src={testimonial.avatar} 
                               alt="User" 
-                              width={48} 
-                              height={48}
                               className="w-full h-full object-cover"
                             />
                           </div>

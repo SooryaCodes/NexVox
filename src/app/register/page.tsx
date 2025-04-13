@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { m, motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { m, useAnimation, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import SmoothScroll from '@/components/ScrollTriggerSetup';
 import GlassmorphicCard from '@/components/GlassmorphicCard';
 import FuturisticButton from '@/components/FuturisticButton';

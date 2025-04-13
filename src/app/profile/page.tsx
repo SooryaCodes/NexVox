@@ -3,12 +3,11 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { m, motion } from "framer-motion";
+import { m } from "framer-motion";
 import HolographicCard from "@/components/HolographicCard";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import NeonGrid from "@/components/NeonGrid";
 import AudioWaveform from "@/components/AudioWaveform";
-import ShimmeringText from "@/components/ShimmeringText";
 import { IoSettingsOutline, IoNotificationsOutline, IoChevronBackOutline } from "react-icons/io5";
 
 // Mock user data
