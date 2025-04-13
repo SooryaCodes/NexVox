@@ -3,6 +3,7 @@
 import React from 'react';
 import { useEffect, useRef } from "react";
 import { m, useScroll, useTransform } from "framer-motion";
+import { useRouter } from "next/navigation";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import AnimatedTitle from "@/components/AnimatedTitle";
 import FuturisticButton from "@/components/FuturisticButton";
@@ -20,6 +21,7 @@ import HolographicCard from "@/components/HolographicCard";
 import AmbientRoom from "@/components/AmbientRoom";
 import useSoundEffects from "@/hooks/useSoundEffects";
 import soundEffects from "@/utils/soundEffects";
+import Link from "next/link";
 
 const features = [
   {
@@ -87,6 +89,7 @@ const SoundEffectsController = () => {
 };
 
 export default function Home() {
+  const router = useRouter();
   const mainRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -99,6 +102,28 @@ export default function Home() {
     "Join the Cybernetic Revolution",
     "Connect Like Never Before"
   ];
+
+  // Add these handler functions
+  const handleExploreRooms = () => {
+    router.push("/rooms");
+  };
+  
+  const handleLearnMore = () => {
+    // Smooth scroll to features section
+    document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
+  };
+  
+  const handleBrowseRooms = () => {
+    router.push("/rooms");
+  };
+  
+  const handleExploreAllRooms = () => {
+    router.push("/rooms");
+  };
+  
+  const handleStartForFree = () => {
+    router.push("/register");
+  };
 
   return (
     <div ref={mainRef} className="min-h-screen bg-black text-white">
@@ -144,12 +169,14 @@ export default function Home() {
               rippleEffect={true}
               accessibilityLabel="Explore NexVox voice rooms"
               soundEffect="special"
+              onClick={handleExploreRooms}
             />
             <FuturisticButton 
               text="Learn More" 
               type="secondary"
               accessibilityLabel="Learn more about NexVox features"
               soundEffect="default"
+              onClick={handleLearnMore}
             />
           </div>
           
@@ -590,6 +617,7 @@ export default function Home() {
               glitchEffect={true}
               rippleEffect={true}
               accessibilityLabel="Browse all voice rooms"
+              onClick={handleBrowseRooms}
             />
           </div>
         </div>
@@ -776,54 +804,60 @@ export default function Home() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <ScrollReveal direction="up" delay={0.1}>
-              <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
-                <AmbientRoom 
-                  roomName="Neon District"
-                  roomType="music"
-                  className="absolute inset-0 w-full h-full"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
-                  <h3 className="text-xl font-orbitron text-[#00FFFF] mb-2">Neon District</h3>
-                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    A cyberpunk-themed lounge with ambient city sounds and neon aesthetics.
-                  </p>
+              <Link href="/rooms">
+                <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
+                  <AmbientRoom 
+                    roomName="Neon District"
+                    roomType="music"
+                    className="absolute inset-0 w-full h-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                    <h3 className="text-xl font-orbitron text-[#00FFFF] mb-2">Neon District</h3>
+                    <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      A cyberpunk-themed lounge with ambient city sounds and neon aesthetics.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </ScrollReveal>
             
             <ScrollReveal direction="up" delay={0.2}>
-              <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
-                <AmbientRoom 
-                  roomName="Quantum Realm"
-                  roomType="conversation"
-                  className="absolute inset-0 w-full h-full"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
-                  <h3 className="text-xl font-orbitron text-[#9D00FF] mb-2">Quantum Realm</h3>
-                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    An abstract space with quantum visualizations and ethereal audio textures.
-                  </p>
+              <Link href="/rooms">
+                <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
+                  <AmbientRoom 
+                    roomName="Quantum Realm"
+                    roomType="conversation"
+                    className="absolute inset-0 w-full h-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                    <h3 className="text-xl font-orbitron text-[#9D00FF] mb-2">Quantum Realm</h3>
+                    <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      An abstract space with quantum visualizations and ethereal audio textures.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </ScrollReveal>
             
             <ScrollReveal direction="up" delay={0.3}>
-              <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
-                <AmbientRoom 
-                  roomName="Digital Oasis"
-                  roomType="chill"
-                  className="absolute inset-0 w-full h-full"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
-                  <h3 className="text-xl font-orbitron text-[#FF00E6] mb-2">Digital Oasis</h3>
-                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    A calming digital environment with water elements and relaxing audio.
-                  </p>
+              <Link href="/rooms">
+                <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
+                  <AmbientRoom 
+                    roomName="Digital Oasis"
+                    roomType="chill"
+                    className="absolute inset-0 w-full h-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                    <h3 className="text-xl font-orbitron text-[#FF00E6] mb-2">Digital Oasis</h3>
+                    <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      A calming digital environment with water elements and relaxing audio.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </ScrollReveal>
           </div>
           
@@ -833,6 +867,7 @@ export default function Home() {
               type="secondary"
               rippleEffect={true}
               accessibilityLabel="Explore all ambient rooms"
+              onClick={handleExploreAllRooms}
             />
           </div>
         </div>
@@ -869,6 +904,7 @@ export default function Home() {
               rippleEffect={true}
               accessibilityLabel="Get started with NexVox"
               soundEffect="success"
+              onClick={handleStartForFree}
             />
           </div>
           
@@ -965,16 +1001,24 @@ export default function Home() {
               <h4 className="font-orbitron mb-4">{column.title}</h4>
               <ul className="flex flex-col space-y-2 opacity-70">
                 {column.items.map((item, itemIndex) => (
-                  <m.li 
+                  <Link 
+                    href={item === "Rooms" ? "/rooms" : 
+                         item === "Features" ? "/#features" :
+                         item === "Community" ? "/#testimonials" :
+                         item === "About" ? "/#how-it-works" : 
+                         "#"}
                     key={itemIndex}
-                    className="cursor-pointer animated-underline"
-                    whileHover={{ color: "#00FFFF", x: 5 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    onMouseEnter={() => soundEffects.playHover()}
-                    onClick={() => soundEffects.playClick()}
                   >
-                    {item}
-                  </m.li>
+                    <m.li 
+                      className="cursor-pointer animated-underline"
+                      whileHover={{ color: "#00FFFF", x: 5 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      onMouseEnter={() => soundEffects.playHover()}
+                      onClick={() => soundEffects.playClick()}
+                    >
+                      {item}
+                    </m.li>
+                  </Link>
                 ))}
               </ul>
             </div>

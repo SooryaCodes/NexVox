@@ -419,6 +419,7 @@ export default function RoomPage({
   params 
 }: { 
   params: { id: string } 
+  searchParams: Record<string, string | string[] | undefined>
 }) {
   const router = useRouter();
   const roomId = parseInt(params.id);
