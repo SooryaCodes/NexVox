@@ -87,7 +87,7 @@ const GlitchText = ({
     
     // Initial setup - create pseudo-elements for glitch layers
     if (!isInitialized) {
-      const textStyles = window.getComputedStyle(currentTextRef);
+    //   const textStyles = window.getComputedStyle(currentTextRef);
       
       const createGlitchLayer = (offset: number, color: string) => {
         const layer = document.createElement('div');
