@@ -8,9 +8,10 @@ import { User } from "@/types/room";
 
 interface ParticipantsTabProps {
   users: User[];
+  onUserClick?: (user: User) => void;
 }
 
-const ParticipantsTab: React.FC<ParticipantsTabProps> = ({ users }) => {
+const ParticipantsTab: React.FC<ParticipantsTabProps> = ({ users, onUserClick }) => {
   return (
     <div className="p-4 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
       <div className="mb-6">
@@ -49,6 +50,7 @@ const ParticipantsTab: React.FC<ParticipantsTabProps> = ({ users }) => {
             key={user.id}
             className="flex items-center gap-3 p-3 rounded-lg bg-black/20 border border-white/5 hover:bg-white/5 hover:border-white/10 cursor-pointer"
             whileHover={{ x: 5, boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)" }}
+            onClick={() => onUserClick && onUserClick(user)}
           >
             <div className={`
               w-12 h-12 rounded-full 
