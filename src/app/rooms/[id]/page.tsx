@@ -15,6 +15,7 @@ import HolographicCard from "@/components/HolographicCard";
 import NeonGrid from "@/components/NeonGrid";
 import Link from "next/link";
 import Image from "next/image";
+import { IoSettingsOutline } from "react-icons/io5";
 
 // Register ScrollTrigger with GSAP
 if (typeof window !== "undefined") {
@@ -416,8 +417,7 @@ const UserProfileCard: React.FC<{ user: User; onClose: () => void }> = ({ user, 
   );
 };
 
-export default function RoomPage() {
-  const params = useParams();
+export default function RoomPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const roomId = parseInt(params.id as string);
   const [room, setRoom] = useState<Room | null>(null);
@@ -440,6 +440,8 @@ export default function RoomPage() {
   });
   const [isAiAssistantActive, setIsAiAssistantActive] = useState(false);
   const [isAiTyping, setIsAiTyping] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isAudioSettingsOpen, setIsAudioSettingsOpen] = useState(false);
   
   // Set sidebar default based on screen size
   useEffect(() => {
@@ -639,6 +641,24 @@ export default function RoomPage() {
     }
   }, [loading, isSidebarOpen]);
   
+  // Add scroll detection effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  const toggleAudioSettings = () => {
+    setIsAudioSettingsOpen(!isAudioSettingsOpen);
+  };
+  
+  const toggleUserProfile = () => {
+    setShowUserProfile(!showUserProfile);
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -678,95 +698,51 @@ export default function RoomPage() {
               </m.div>
             </Link>
             
-            <div className="hidden md:flex gap-4 text-sm">
-              <m.a 
-                href="/explore" 
-                className="text-white/70 hover:text-[#00FFFF] transition-colors"
-                whileHover={{ x: 3 }}
-              >
-                Explore
-              </m.a>
-              <m.a 
-                href="/community" 
-                className="text-white/70 hover:text-[#00FFFF] transition-colors"
-                whileHover={{ x: 3 }}
-              >
-                Community
-              </m.a>
-              <m.a 
-                href="/events" 
-                className="text-white/70 hover:text-[#00FFFF] transition-colors"
-                whileHover={{ x: 3 }}
-              >
-                Events
-              </m.a>
-            </div>
+            {/* Room name in header - only displayed on scroll */}
+            <AnimatePresence>
+              {isScrolled && (
+                <m.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="hidden md:block"
+                >
+                  <h3 className="text-lg font-orbitron text-[#00FFFF]">{room?.name}</h3>
+                </m.div>
+              )}
+            </AnimatePresence>
           </div>
           
-          {/* Room Status Pill */}
-          <div className="hidden sm:flex absolute left-1/2 transform -translate-x-1/2">
-            <div className="bg-black/60 backdrop-blur-md rounded-full px-4 py-1.5 text-sm border border-white/10 flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-[#FF00E6] animate-pulse"></span>
-              <span>Live</span>
-              <span className="mx-1 text-white/30">•</span>
-              <span className="text-white/70">{room?.participantCount} participants</span>
-            </div>
-          </div>
-          
-          {/* User & Controls */}
+          {/* User Controls */}
           <div className="flex items-center gap-3">
-            {/* Share */}
             <m.button
-              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 items-center gap-1 text-sm hidden sm:flex"
-              whileHover={{ 
-                scale: 1.05,
-                borderColor: "#00FFFF",
-                color: "#00FFFF" 
-              }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative w-9 h-9 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:border-[#00FFFF]/50 transition-colors"
+              aria-label="Toggle audio settings"
+              onClick={toggleAudioSettings}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-              <span className="hidden md:inline ml-1">Share</span>
+              {isAudioSettingsOpen ? (
+                <IoSettingsOutline className="w-5 h-5 text-[#00FFFF]" />
+              ) : (
+                <IoSettingsOutline className="w-5 h-5" />
+              )}
             </m.button>
             
-            {/* Toggle sidebar button on mobile */}
-            <m.button
-              className="lg:hidden p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 flex items-center gap-2 text-sm"
-              whileHover={{ 
-                scale: 1.05,
-                borderColor: "#00FFFF",
-                color: "#00FFFF" 
-              }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            <button 
+              className="relative p-3 rounded-full hover:bg-white/5 transition-colors"
+              onClick={toggleUserProfile}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </m.button>
-            
-            {/* User Menu */}
-            <div className="relative">
-              <m.button
-                className="flex items-center gap-2 bg-black/40 backdrop-blur-md rounded-full px-2 py-1 border border-white/10"
-                whileHover={{ 
-                  scale: 1.05,
-                  borderColor: "#00FFFF"
-                }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setShowUserProfile(true)}
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00FFFF]/30 to-[#FF00E6]/30 flex items-center justify-center">
-                  <span>{currentUser.name.charAt(0)}</span>
-                </div>
-                <span className="hidden md:inline text-sm">Profile</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </m.button>
-            </div>
+              <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#00FFFF]/50">
+                <Image 
+                  src="/images/user-avatar.jpg" 
+                  alt="Your profile" 
+                  width={32} 
+                  height={32}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </button>
           </div>
         </div>
       </div>

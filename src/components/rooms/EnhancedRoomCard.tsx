@@ -3,12 +3,14 @@ import Link from "next/link";
 import { m, motion } from "framer-motion";
 
 interface Room {
-  id: number;
+  id: number | string;
   name: string;
   description?: string;
   participantCount: number;
   type: 'music' | 'conversation' | 'gaming' | 'chill';
   isPrivate?: boolean;
+  maxParticipants?: number;
+  isPublic?: boolean;
 }
 
 interface RoomCardProps {
@@ -27,7 +29,8 @@ const EnhancedRoomCard: React.FC<RoomCardProps> = ({ room, index }) => {
   const [rotateY, setRotateY] = useState(0);
   const [barHeights, setBarHeights] = useState<number[]>([]);
   
-  const isNew = room.id % 3 === 0;
+  // Check if room is new (string ID means user-created, or numeric ID divisible by 3 for default rooms)
+  const isNew = typeof room.id === 'string' || (typeof room.id === 'number' && room.id % 3 === 0);
   const isPopular = room.participantCount > 10;
   
   // Get room type colors and label
