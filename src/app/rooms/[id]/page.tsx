@@ -415,13 +415,14 @@ const UserProfileCard: React.FC<{ user: User; onClose: () => void }> = ({ user, 
   );
 };
 
-type Props = {
-  params: { id: string }
+interface PageProps {
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default function RoomPage({ params }: Props) {
+export default function RoomPage({ params }: PageProps) {
   const router = useRouter();
-  const roomId = parseInt(params.id as string);
+  const roomId = parseInt(params.id);
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(TABS.CHAT);
