@@ -415,7 +415,11 @@ const UserProfileCard: React.FC<{ user: User; onClose: () => void }> = ({ user, 
   );
 };
 
-export default function RoomPage({ params }: { params: { id: string } }) {
+type Props = {
+  params: { id: string }
+}
+
+export default function RoomPage({ params }: Props) {
   const router = useRouter();
   const roomId = parseInt(params.id as string);
   const [room, setRoom] = useState<Room | null>(null);
