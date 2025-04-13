@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import soundEffects from '@/utils/soundEffects';
 
 interface AppMockupProps {
@@ -113,7 +113,7 @@ const AppMockup = ({
         <div className="grid grid-cols-3 gap-4 justify-center mb-auto">
           {avatars.map((avatar) => (
             <div key={avatar.id} className="relative group" onClick={() => handleAvatarClick(avatar.id, avatar.status)}>
-              <motion.div 
+              <m.div 
                 className={`w-16 h-16 rounded-full bg-gradient-to-br ${avatar.color} flex items-center justify-center text-white font-medium text-lg relative border-2 border-black ${avatar.status === 'speaking' ? 'avatar-speaking' : ''}`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -127,12 +127,12 @@ const AppMockup = ({
                   avatar.status === 'muted' ? 'bg-red-500' : 
                   'bg-gray-400'
                 }`}></div>
-              </motion.div>
+              </m.div>
               
               {/* Avatar tooltip */}
               {showTooltips && activeAvatar === avatar.id && (
                 <AnimatePresence>
-                  <motion.div 
+                  <m.div 
                     className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black px-3 py-1 rounded text-xs font-orbitron text-white border border-[#00FFFF]/30 whitespace-nowrap"
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -141,7 +141,7 @@ const AppMockup = ({
                     {avatar.status === 'speaking' ? 'Speaking...' : 
                      avatar.status === 'muted' ? 'Muted' : 
                      'Listening'}
-                  </motion.div>
+                  </m.div>
                 </AnimatePresence>
               )}
               
@@ -171,7 +171,7 @@ const AppMockup = ({
       {/* Vibe toast notification */}
       <AnimatePresence>
         {showVibesToast && (
-          <motion.div 
+          <m.div 
             className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#00FFFF]/20 to-[#9D00FF]/20 px-4 py-2 rounded-full border border-white/10"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -182,7 +182,7 @@ const AppMockup = ({
               <span className="text-xs text-white/70">Current Vibe:</span>
               <span className="text-sm font-orbitron text-[#00FFFF]">{currentVibe}</span>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -245,7 +245,7 @@ const ControlButton = ({ icon, tooltip }: { icon: 'mic' | 'wave' | 'leave', tool
   };
   
   return (
-    <motion.button 
+    <m.button 
       className={`w-12 h-12 rounded-full transition-colors flex items-center justify-center relative ${getButtonStyles()}`}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
@@ -261,17 +261,17 @@ const ControlButton = ({ icon, tooltip }: { icon: 'mic' | 'wave' | 'leave', tool
       {/* Tooltip */}
       <AnimatePresence>
         {isHovered && (
-          <motion.div 
+          <m.div 
             className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-white/10"
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
           >
             {tooltip}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.button>
+    </m.button>
   );
 };
 

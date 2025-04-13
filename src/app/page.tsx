@@ -2,9 +2,7 @@
 
 import React from 'react';
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { m, motion, useScroll, useTransform } from "framer-motion";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import AnimatedTitle from "@/components/AnimatedTitle";
 import FuturisticButton from "@/components/FuturisticButton";
@@ -25,9 +23,6 @@ import useSoundEffects from "@/hooks/useSoundEffects";
 import soundEffects from "@/utils/soundEffects";
 import Image from "next/image";
 import Link from "next/link";
-
-// Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
@@ -108,56 +103,11 @@ export default function Home() {
     "Connect Like Never Before"
   ];
 
-  // Initialize animations and effects
-  useEffect(() => {
-    // GSAP ScrollTrigger setup
-    if (!mainRef.current) return;
-
-    // Hero parallax effect
-    if (heroRef.current) {
-      const heroElements = heroRef.current.querySelectorAll('.hero-parallax');
-      
-      heroElements.forEach((element) => {
-        const depth = 0.2;
-        
-        ScrollTrigger.create({
-          trigger: heroRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.to(element, {
-              y: self.progress * 100 * depth,
-              ease: 'none',
-              overwrite: 'auto'
-            });
-          }
-        });
-      });
-    }
-
-    // Features section animations
-    if (featuresRef.current) {
-      const featureCards = featuresRef.current.querySelectorAll('.feature-card');
-      
-      featureCards.forEach((card) => {
-        ScrollTrigger.create({
-          trigger: card,
-          start: 'top bottom-=100',
-          toggleClass: { targets: card, className: 'active' },
-          once: true
-        });
-      });
-    }
-
-    // Clean up
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
-
   return (
     <div ref={mainRef} className="min-h-screen bg-black text-white">
+      {/* Add the Header component here */}
+      <Header />
+      
       {/* Sound effects controller (invisible) */}
       <SoundEffectsController />
       
@@ -165,17 +115,17 @@ export default function Home() {
       <ParticlesBackground />
       <NeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.1} />
       
-      {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen p-8 grid place-items-center overflow-hidden">
+      {/* Hero Section - add padding to account for fixed header */}
+      <section ref={heroRef} className="relative min-h-screen p-8 pt-16 grid place-items-center overflow-hidden">
         {/* Radial gradient background */}
         <div className="absolute inset-0 bg-black radial-gradient"></div>
         
         <div className="max-w-7xl mx-auto text-center z-10 pt-16">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-12 hero-parallax"
+            className="mb-12"
           >
             <AnimatedTitle 
               titles={headlines} 
@@ -187,7 +137,7 @@ export default function Home() {
               variant="gradient"
               as="p"
             />
-          </motion.div>
+          </m.div>
           
           <div className="flex flex-wrap gap-6 justify-center">
             <FuturisticButton 
@@ -207,11 +157,11 @@ export default function Home() {
           </div>
           
           {/* Audio waveform visualization */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="mt-16 hero-parallax"
+            className="mt-16"
           >
             <p className="text-sm mb-2 opacity-60">Live global audio activity</p>
             <div className="flex justify-center">
@@ -224,18 +174,18 @@ export default function Home() {
                 className="transform scale-75 md:scale-100"
               />
             </div>
-          </motion.div>
+          </m.div>
         </div>
         
         {/* Scroll indicator */}
-        <motion.div 
+        <m.div 
           className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
           style={{ opacity: scrollOpacity }}
         >
-          <motion.div
+          <m.div
             animate={{ y: [0, 10, 0] }}
             transition={{ 
               duration: 2, 
@@ -246,7 +196,7 @@ export default function Home() {
           >
             <p className="text-sm opacity-60 mb-2">Scroll to explore</p>
             <div className="w-6 h-10 border border-white/20 rounded-full flex justify-center">
-              <motion.div
+              <m.div
                 animate={{ y: [0, 15, 0] }}
                 transition={{ 
                   duration: 2, 
@@ -257,15 +207,40 @@ export default function Home() {
                 className="w-2 h-2 bg-[#00FFFF] rounded-full mt-1"
               />
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
         
-        {/* Enhanced decorative elements */}
-        <div className="absolute left-0 top-1/4 w-72 h-72 bg-gradient-to-r from-[#00FFFF]/30 to-transparent rounded-full blur-3xl hero-parallax"></div>
-        <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-gradient-to-l from-[#9D00FF]/30 to-transparent rounded-full blur-3xl hero-parallax"></div>
-        <div className="absolute left-1/4 bottom-1/3 w-40 h-40 bg-gradient-to-tr from-[#FF00E6]/30 to-transparent rounded-full blur-2xl hero-parallax"></div>
-        <div className="absolute right-1/4 top-1/3 w-56 h-56 bg-gradient-to-bl from-[#00FFFF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
-        <div className="absolute left-1/3 top-1/4 w-48 h-48 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-full blur-3xl hero-parallax"></div>
+        {/* Enhanced decorative elements - replace with framer-motion parallax */}
+        <m.div 
+          style={{
+            y: useTransform(scrollYProgress, [0, 1], [0, 100])
+          }}
+          className="absolute left-0 top-1/4 w-72 h-72 bg-gradient-to-r from-[#00FFFF]/30 to-transparent rounded-full blur-3xl"
+        />
+        <m.div 
+          style={{
+            y: useTransform(scrollYProgress, [0, 1], [0, 150])
+          }}
+          className="absolute right-0 bottom-1/4 w-80 h-80 bg-gradient-to-l from-[#9D00FF]/30 to-transparent rounded-full blur-3xl"
+        />
+        <m.div 
+          style={{
+            y: useTransform(scrollYProgress, [0, 1], [0, 80])
+          }}
+          className="absolute left-1/4 bottom-1/3 w-40 h-40 bg-gradient-to-tr from-[#FF00E6]/30 to-transparent rounded-full blur-2xl"
+        />
+        <m.div 
+          style={{
+            y: useTransform(scrollYProgress, [0, 1], [0, 120])
+          }}
+          className="absolute right-1/4 top-1/3 w-56 h-56 bg-gradient-to-bl from-[#00FFFF]/20 to-transparent rounded-full blur-3xl"
+        />
+        <m.div 
+          style={{
+            y: useTransform(scrollYProgress, [0, 1], [0, 60])
+          }}
+          className="absolute left-1/3 top-1/4 w-48 h-48 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-full blur-3xl"
+        />
       </section>
 
       {/* Enhanced Scrolling text band */}
@@ -292,8 +267,11 @@ export default function Home() {
           </ScrollReveal>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
-            {features.map((feature) => (
-              <div key={feature.title} className="feature-card">
+            {features.map((feature, index) => (
+              <ScrollReveal 
+                key={feature.title} 
+                delay={index * 0.1}
+              >
                 <FeatureCard
                   title={feature.title}
                   description={feature.description}
@@ -301,7 +279,7 @@ export default function Home() {
                   iconPath={feature.iconPath}
                   className="h-full"
                 />
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -331,30 +309,30 @@ export default function Home() {
                 />
                 <p className="text-lg opacity-80">Our interface is designed for seamless interaction. Experience a platform that responds to your needs with minimal learning curve.</p>
                 <ul className="space-y-4">
-                  <motion.li 
+                  <m.li 
                     className="flex items-center gap-3"
                     whileHover={{ x: 10, color: "#00FFFF" }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <span className="text-[#00FFFF]">✓</span>
                     <span>Simple room navigation</span>
-                  </motion.li>
-                  <motion.li 
+                  </m.li>
+                  <m.li 
                     className="flex items-center gap-3"
                     whileHover={{ x: 10, color: "#00FFFF" }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <span className="text-[#00FFFF]">✓</span>
                     <span>One-click microphone controls</span>
-                  </motion.li>
-                  <motion.li 
+                  </m.li>
+                  <m.li 
                     className="flex items-center gap-3"
                     whileHover={{ x: 10, color: "#00FFFF" }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <span className="text-[#00FFFF]">✓</span>
                     <span>Responsive audio indicators</span>
-                  </motion.li>
+                  </m.li>
                 </ul>
                 
                 {/* Audio activity indicator */}
@@ -406,7 +384,7 @@ export default function Home() {
             <div className="order-2 md:order-1">
               <div className="space-y-12">
                 <ScrollReveal direction="left" delay={0.1}>
-                  <motion.div 
+                  <m.div 
                     className="flex gap-4 items-start"
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
@@ -416,11 +394,11 @@ export default function Home() {
                       <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Create Your Profile</h3>
                       <p className="opacity-80">Choose your username and customize your animated avatar to represent you in voice rooms.</p>
                     </div>
-                  </motion.div>
+                  </m.div>
                 </ScrollReveal>
                 
                 <ScrollReveal direction="left" delay={0.3}>
-                  <motion.div 
+                  <m.div 
                     className="flex gap-4 items-start"
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
@@ -430,11 +408,11 @@ export default function Home() {
                       <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Browse Active Rooms</h3>
                       <p className="opacity-80">Explore a variety of voice rooms organized by topic, language, or vibe.</p>
                     </div>
-                  </motion.div>
+                  </m.div>
                 </ScrollReveal>
                 
                 <ScrollReveal direction="left" delay={0.5}>
-                  <motion.div 
+                  <m.div 
                     className="flex gap-4 items-start"
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
@@ -444,7 +422,7 @@ export default function Home() {
                       <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Join the Conversation</h3>
                       <p className="opacity-80">Drop into any room and start connecting with people from around the world in real-time.</p>
                     </div>
-                  </motion.div>
+                  </m.div>
                 </ScrollReveal>
               </div>
             </div>
@@ -648,7 +626,7 @@ export default function Home() {
                 </p>
                 
                 <div className="space-y-8">
-                  <motion.div 
+                  <m.div 
                     className="flex gap-6 items-start"
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
@@ -663,9 +641,9 @@ export default function Home() {
                       <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Room Positioning</h3>
                       <p className="opacity-80">Voices are positioned in a virtual space, so you can hear where people are &quot;sitting&quot; in the room, making group conversations more natural.</p>
                     </div>
-                  </motion.div>
+                  </m.div>
                   
-                  <motion.div 
+                  <m.div 
                     className="flex gap-6 items-start"
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
@@ -681,9 +659,9 @@ export default function Home() {
                       <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Directional Sound</h3>
                       <p className="opacity-80">Experience audio that pans left and right based on a speaker&apos;s virtual position, creating an immersive soundscape that mimics real-world acoustics.</p>
                     </div>
-                  </motion.div>
+                  </m.div>
                   
-                  <motion.div 
+                  <m.div 
                     className="flex gap-6 items-start"
                     whileHover={{ x: 10 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
@@ -698,7 +676,7 @@ export default function Home() {
                       <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Distance Perception</h3>
                       <p className="opacity-80">Voices naturally fade as virtual distance increases, allowing you to focus on nearby conversations while still being aware of others in the room.</p>
                     </div>
-                  </motion.div>
+                  </m.div>
                 </div>
               </div>
             </ScrollReveal>
@@ -730,7 +708,7 @@ export default function Home() {
                         const colorIndex = i % colors.length;
                         
                         return (
-                          <motion.div
+                          <m.div
                             key={i}
                             className="absolute w-12 h-12"
                             animate={{
@@ -756,7 +734,7 @@ export default function Home() {
                                 <div className="absolute inset-0 rounded-full border border-white/10 animate-pulse"></div>
                               </div>
                             )}
-                          </motion.div>
+                          </m.div>
                         );
                       })}
                       
@@ -871,7 +849,7 @@ export default function Home() {
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <ScrollReveal>
-            <motion.div
+            <m.div
               initial={{ scale: 0.9, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
@@ -884,7 +862,7 @@ export default function Home() {
                 as="h2"
               />
               <p className="text-xl opacity-80 mb-10 max-w-3xl mx-auto">Join thousands of users already experiencing the future of voice communication</p>
-            </motion.div>
+            </m.div>
           </ScrollReveal>
           
           <div className="mb-12 flex justify-center">
@@ -918,7 +896,7 @@ export default function Home() {
                   className="w-full bg-black/60 border border-[#00FFFF]/30 rounded-md px-4 py-3 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] transition-all"
                   aria-label="Email subscription"
                 />
-                <motion.button 
+                <m.button 
                   className="mt-3 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-3 w-full hover:opacity-90 font-orbitron" 
                   aria-label="Subscribe"
                   whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)" }}
@@ -926,7 +904,7 @@ export default function Home() {
                   onClick={() => soundEffects.loadAndPlay('subscribe', '/audios/final-accept.mp3')}
                 >
                   Subscribe
-                </motion.button>
+                </m.button>
               </div>
             </GlassmorphicCard>
           </ScrollReveal>
@@ -964,7 +942,7 @@ export default function Home() {
             
             <div className="mt-6 flex gap-4">
               {['X', 'F', 'I'].map((icon, index) => (
-                <motion.a 
+                <m.a 
                   key={index}
                   href="#" 
                   className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#00FFFF] hover:text-[#00FFFF]"
@@ -979,7 +957,7 @@ export default function Home() {
                   onClick={() => soundEffects.playClick()}
                 >
                   <span>{icon}</span>
-                </motion.a>
+                </m.a>
               ))}
             </div>
           </div>
@@ -992,7 +970,7 @@ export default function Home() {
               <h4 className="font-orbitron mb-4">{column.title}</h4>
               <ul className="flex flex-col space-y-2 opacity-70">
                 {column.items.map((item, itemIndex) => (
-                  <motion.li 
+                  <m.li 
                     key={itemIndex}
                     className="cursor-pointer animated-underline"
                     whileHover={{ color: "#00FFFF", x: 5 }}
@@ -1001,7 +979,7 @@ export default function Home() {
                     onClick={() => soundEffects.playClick()}
                   >
                     {item}
-                  </motion.li>
+                  </m.li>
                 ))}
               </ul>
             </div>
@@ -1016,7 +994,7 @@ export default function Home() {
                 className="w-full bg-black border border-[#00FFFF]/30 rounded-md px-4 py-2 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] transition-all"
                 aria-label="Email subscription"
               />
-              <motion.button 
+              <m.button 
                 className="mt-2 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-2 w-full hover:opacity-90 font-orbitron" 
                 aria-label="Subscribe"
                 whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)" }}
@@ -1024,7 +1002,7 @@ export default function Home() {
                 onClick={() => soundEffects.loadAndPlay('subscribe-footer', '/audios/final-accept.mp3')}
               >
                 Subscribe
-              </motion.button>
+              </m.button>
             </div>
           </div>
         </div>

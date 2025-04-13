@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 // Mock components for React Bits
 export const BitButton = ({ 
@@ -29,14 +29,14 @@ export const BitButton = ({
   };
   
   return (
-    <motion.button
+    <m.button
       className={`px-4 py-2 rounded-md ${getStyles()} ${className}`}
       onClick={onClick}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
       {children}
-    </motion.button>
+    </m.button>
   );
 };
 
@@ -50,14 +50,14 @@ export const BitCard = ({
   hoverEffect?: boolean;
 }) => {
   return (
-    <motion.div
+    <m.div
       className={`glass-panel rounded-lg p-6 ${hoverEffect ? 'hover-card' : ''} ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -113,7 +113,7 @@ export const BitToggle = ({
         aria-checked={isChecked}
         role="switch"
       >
-        <motion.div
+        <m.div
           className="bg-white w-4 h-4 rounded-full shadow-md"
           animate={{ x: isChecked ? 24 : 0 }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}

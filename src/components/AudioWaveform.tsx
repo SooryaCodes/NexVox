@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface AudioWaveformProps {
   color?: string;
@@ -88,7 +88,7 @@ const AudioWaveform = ({
     <div className={`flex items-center justify-center ${className}`} style={{ width, height }}>
       <div className="flex items-center" style={{ transform: `scaleX(${scaleFactor})`, transformOrigin: 'center' }}>
         {barHeights.map((barHeight, index) => (
-          <motion.div
+          <m.div
             key={index}
             className="rounded-full"
             style={{

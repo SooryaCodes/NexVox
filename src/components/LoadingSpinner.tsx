@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import soundEffects from '@/utils/soundEffects';
 
 interface LoadingSpinnerProps {
@@ -69,7 +69,7 @@ export default function LoadingSpinner({
         return (
           <div className="flex space-x-2">
             {[0, 1, 2].map((i) => (
-              <motion.div
+              <m.div
                 key={i}
                 style={{
                   width: pixelSize / 4,
@@ -101,7 +101,7 @@ export default function LoadingSpinner({
               borderRadius: pixelSize / 10
             }}
           >
-            <motion.div
+            <m.div
               style={{
                 height: '100%',
                 backgroundColor: colorValue,
@@ -122,7 +122,7 @@ export default function LoadingSpinner({
       case 'circular':
         return (
           <div className="relative" style={{ width: pixelSize, height: pixelSize }}>
-            <motion.span
+            <m.span
               style={{
                 width: pixelSize,
                 height: pixelSize,
@@ -151,7 +151,7 @@ export default function LoadingSpinner({
       default:
         return (
           <div className="relative" style={{ width: pixelSize, height: pixelSize }}>
-            <motion.div
+            <m.div
               style={{
                 width: pixelSize,
                 height: pixelSize,
@@ -169,7 +169,7 @@ export default function LoadingSpinner({
                 ease: 'linear'
               }}
             />
-            <motion.div
+            <m.div
               style={{
                 width: pixelSize * 0.7,
                 height: pixelSize * 0.7,
@@ -199,14 +199,14 @@ export default function LoadingSpinner({
     <div className="flex flex-col items-center justify-center gap-3">
       {renderSpinner()}
       {text && (
-        <motion.p
+        <m.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center font-orbitron text-sm"
           style={{ color: getColor() }}
         >
           {text}
-        </motion.p>
+        </m.p>
       )}
     </div>
   );

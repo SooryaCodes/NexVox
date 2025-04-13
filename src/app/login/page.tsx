@@ -1,21 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { gsap } from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
+import { m, motion, useAnimation, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import ScrollTriggerSetup from '@/components/ScrollTriggerSetup';
+import SmoothScroll from '@/components/ScrollTriggerSetup';
 import GlassmorphicCard from '@/components/GlassmorphicCard';
 import FuturisticButton from '@/components/FuturisticButton';
 import { useSoundContext } from '@/components/SoundProvider';
 import soundEffects from '@/utils/soundEffects';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
+import { gsap } from 'gsap';
 // Custom toast notification component
 const CyberToast = ({ 
   message, 
@@ -26,33 +20,6 @@ const CyberToast = ({
   type?: 'success' | 'error' | 'warning'; 
   onClose: () => void;
 }) => {
-  const toastRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const toast = toastRef.current;
-    if (toast) {
-      // Entrance animation
-      gsap.fromTo(
-        toast,
-        { x: '100%', opacity: 0 },
-        { x: '0%', opacity: 1, duration: 0.3, ease: 'power2.out' }
-      );
-      
-      // Auto-close after 5 seconds
-      const timer = setTimeout(() => {
-        gsap.to(toast, {
-          x: '120%',
-          opacity: 0,
-          duration: 0.3,
-          ease: 'power2.in',
-          onComplete: onClose
-        });
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [onClose]);
-  
   // Set color based on type
   const colors = {
     success: 'border-[#00FFFF] bg-[#00FFFF]/10 text-[#00FFFF]',
@@ -61,18 +28,13 @@ const CyberToast = ({
   };
   
   return (
-    <div 
-      ref={toastRef}
+    <m.div 
+      initial={{ x: '100%', opacity: 0 }}
+      animate={{ x: '0%', opacity: 1 }}
+      exit={{ x: '120%', opacity: 0 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
       className={`fixed top-6 right-6 max-w-sm py-3 px-5 backdrop-blur-md border-l-4 rounded shadow-lg z-50 ${colors[type]}`}
-      onClick={() => {
-        gsap.to(toastRef.current, {
-          x: '120%',
-          opacity: 0,
-          duration: 0.2,
-          ease: 'power2.in',
-          onComplete: onClose
-        });
-      }}
+      onClick={onClose}
     >
       <div className="flex items-center gap-3">
         {type === 'success' && (
@@ -92,8 +54,14 @@ const CyberToast = ({
         )}
         <p className="font-medium text-sm">{message}</p>
       </div>
-      <div className="absolute bottom-0 left-0 h-1 bg-current" style={{ animation: 'shrink 5s linear forwards' }}></div>
-    </div>
+      <m.div 
+        className="absolute bottom-0 left-0 h-1 bg-current" 
+        initial={{ width: "100%" }}
+        animate={{ width: 0 }}
+        transition={{ duration: 5, ease: "linear" }}
+        onAnimationComplete={onClose}
+      />
+    </m.div>
   );
 };
 
@@ -107,64 +75,52 @@ const FeatureCard = ({
   description: string; 
   icon: React.ReactNode;
 }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+  const [hoverState, setHoverState] = useState({ rotateX: 0, rotateY: 0 });
   
-  // Tilt effect on hover
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    const rect = element.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      // Calculate tilt values (max 5 degrees)
-      const tiltX = ((y / rect.height) * 2 - 1) * -5;
-      const tiltY = ((x / rect.width) * 2 - 1) * 5;
-      
-      gsap.to(card, {
-        rotationX: tiltX,
-        rotationY: tiltY,
-        duration: 0.3,
-        ease: 'power2.out',
-        transformPerspective: 1000,
-      });
-    };
+    // Calculate tilt values (max 5 degrees)
+    const tiltX = ((y / rect.height) * 2 - 1) * -5;
+    const tiltY = ((x / rect.width) * 2 - 1) * 5;
     
-    const handleMouseLeave = () => {
-      gsap.to(card, {
-        rotationX: 0,
-        rotationY: 0,
-        duration: 0.5,
-        ease: 'power2.out',
-      });
-    };
-    
-    card.addEventListener('mousemove', handleMouseMove);
-    card.addEventListener('mouseleave', handleMouseLeave);
-    
-    return () => {
-      card.removeEventListener('mousemove', handleMouseMove);
-      card.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, []);
+    setHoverState({ rotateX: tiltX, rotateY: tiltY });
+  };
   
   return (
-    <div 
-      ref={cardRef}
+    <m.div 
       className="relative overflow-hidden rounded-xl bg-black/30 backdrop-blur-sm border border-[#00FFFF]/30 p-4 cursor-pointer transition-all duration-300 hover:border-[#00FFFF] group"
+      whileHover={{ scale: 1.02 }}
+      style={{ 
+        rotateX: hoverState.rotateX,
+        rotateY: hoverState.rotateY,
+        transformPerspective: 1000
+      }}
+      transition={{ duration: 0.3 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setHoverState({ rotateX: 0, rotateY: 0 })}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/5 to-transparent opacity-50 z-0"></div>
       <div className="relative z-10">
-        <div className="mb-3 text-[#00FFFF] w-10 h-10 flex items-center justify-center rounded-lg bg-black/50 border border-[#00FFFF]/30 group-hover:scale-110 transition-transform duration-300">
+        <m.div 
+          className="mb-3 text-[#00FFFF] w-10 h-10 flex items-center justify-center rounded-lg bg-black/50 border border-[#00FFFF]/30"
+          whileHover={{ scale: 1.1 }}
+        >
           {icon}
-        </div>
+        </m.div>
         <h3 className="text-lg font-orbitron text-[#00FFFF] mb-2">{title}</h3>
         <p className="text-sm text-gray-300 opacity-80">{description}</p>
       </div>
-      <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] w-0 group-hover:w-full transition-all duration-700 ease-out"></div>
-    </div>
+      <m.div 
+        className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF]"
+        initial={{ width: 0 }}
+        whileHover={{ width: "100%" }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+      />
+    </m.div>
   );
 };
 
@@ -523,7 +479,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <ScrollTriggerSetup />
+      <SmoothScroll />
       
       {/* Toast notification */}
       {toast && (

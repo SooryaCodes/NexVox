@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { m, motion } from 'framer-motion';
 import Image from 'next/image';
 
 interface FeatureCardProps {
@@ -78,7 +78,7 @@ const FeatureCard = ({
   )`;
 
   return (
-    <motion.div 
+    <m.div 
       ref={cardRef}
       className={`group relative h-full rounded-xl p-px overflow-hidden ${className}`}
       initial={{ opacity: 0, y: 20 }}
@@ -125,7 +125,7 @@ const FeatureCard = ({
       </div>
 
       {/* Content container */}
-      <motion.div 
+      <m.div 
         className="relative h-full flex flex-col p-6 bg-black/60 backdrop-blur-sm rounded-xl z-10"
         style={{ 
           transformStyle: 'preserve-3d',
@@ -176,8 +176,8 @@ const FeatureCard = ({
             Explore
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 };
 

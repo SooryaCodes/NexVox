@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { m,motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import soundEffects from '@/utils/soundEffects';
 
@@ -207,7 +207,7 @@ export default function FuturisticButton({
   };
 
   return (
-    <motion.button
+    <m.button
       ref={buttonRef}
       className={`${getButtonStyles()} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
       onClick={handleClick}
@@ -233,7 +233,7 @@ export default function FuturisticButton({
       
       {/* Gradient hover effect */}
       {isHovered && type === 'primary' && (
-        <motion.div
+        <m.div
           className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] opacity-30 blur-xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.3 }}
@@ -251,7 +251,7 @@ export default function FuturisticButton({
       
       {/* Glow border effect for secondary and outline buttons */}
       {isHovered && (type === 'secondary' || type === 'outline') && (
-        <motion.div
+        <m.div
           className={`absolute inset-0 rounded-md ${type === 'secondary' ? 'shadow-[0_0_15px_#00FFFF]' : 'shadow-[0_0_10px_#00FFFF]'}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.6 }}
@@ -261,7 +261,7 @@ export default function FuturisticButton({
 
       {/* Ripple effects */}
       {ripples.map(ripple => (
-        <motion.div
+        <m.div
           key={ripple.id}
           className="absolute bg-white rounded-full pointer-events-none"
           style={{
@@ -286,7 +286,7 @@ export default function FuturisticButton({
         {isHovered ? (
           <span className="relative">
             <span className="relative z-10">{text}</span>
-            <motion.span
+            <m.span
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
               initial={{ left: -100 }}
               animate={{ left: 200 }}
@@ -298,6 +298,6 @@ export default function FuturisticButton({
           text
         )}
       </span>
-    </motion.button>
+    </m.button>
   );
 } 

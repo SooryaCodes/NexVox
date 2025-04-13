@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface HyperspeedEffectProps {
   active: boolean;
@@ -164,7 +164,7 @@ const HyperspeedEffect = ({
   if (!active) return null;
   
   return (
-    <motion.div
+    <m.div
       className="fixed inset-0 z-50"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -176,7 +176,7 @@ const HyperspeedEffect = ({
         className="absolute inset-0"
         style={{ background: 'transparent' }}
       />
-    </motion.div>
+    </m.div>
   );
 };
 

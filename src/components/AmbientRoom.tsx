@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { gsap } from 'gsap';
 
 interface AmbientRoomProps {
@@ -203,7 +203,7 @@ const AmbientRoom = ({
   }, [roomDetails.primaryColor, roomDetails.secondaryColor]);
 
   return (
-    <motion.div
+    <m.div
       ref={containerRef}
       className={`group relative rounded-2xl overflow-hidden ${className}`}
       initial={{ opacity: 0, y: 20 }}
@@ -239,7 +239,7 @@ const AmbientRoom = ({
       />
       
       {/* Content container */}
-      <motion.div 
+      <m.div 
         className="relative h-full flex flex-col p-6 bg-black/60 backdrop-blur-sm rounded-2xl z-10"
         style={{ 
           transformStyle: 'preserve-3d',
@@ -350,7 +350,7 @@ const AmbientRoom = ({
         <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'} transform ${isHovered ? 'translate-y-0' : 'translate-y-8'}`}>
           <p className="text-center text-sm">Press to join this room</p>
         </div>
-      </motion.div>
+      </m.div>
       
       {/* Border */}
       <div 
@@ -362,7 +362,7 @@ const AmbientRoom = ({
           transition: 'box-shadow 0.3s ease'
         }}
       />
-    </motion.div>
+    </m.div>
   );
 };
 

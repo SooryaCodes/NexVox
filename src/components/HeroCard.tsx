@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { m, useAnimation } from 'framer-motion';
 
 interface HeroCardProps {
   title: string;
@@ -92,7 +92,7 @@ const HeroCard = ({ title, description, children, className = "" }: HeroCardProp
   }, [isHovering, rotateX, rotateY]);
 
   return (
-    <motion.div
+    <m.div
       ref={cardRef}
       className={`relative bg-black/70 p-8 rounded-xl border border-[#0ff]/20 hover:border-[#0ff]/40 h-full hardware-accelerated ${className}`}
       style={{
@@ -122,7 +122,7 @@ const HeroCard = ({ title, description, children, className = "" }: HeroCardProp
           background: `radial-gradient(circle at ${isHovering ? (rotateY + 1) * 50 : 50}% ${isHovering ? (rotateX + 1) * 50 : 50}%, rgba(255, 255, 255, 0.8), transparent 60%)`,
         }}
       />
-    </motion.div>
+    </m.div>
   );
 };
 

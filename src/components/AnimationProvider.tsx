@@ -1,21 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { TextPlugin } from 'gsap/TextPlugin';
-
-// Register GSAP plugins outside of component
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, TextPlugin);
-  
-  // Optimize GSAP performance
-  gsap.config({
-    nullTargetWarn: false,
-    autoSleep: 60,
-    force3D: true,
-  });
-}
+import { LazyMotion, domAnimation } from 'framer-motion';
 
 // Debounce function to prevent excessive updates
 const debounce = (fn: (...args: unknown[]) => void, ms = 100) => {
@@ -33,7 +19,7 @@ interface AnimationProviderProps {
 export default function AnimationProvider({ children }: AnimationProviderProps) {
   const initialized = useRef(false);
 
-  // Initialize GSAP when the app loads
+  // Initialize optimizations when the app loads
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
@@ -41,34 +27,33 @@ export default function AnimationProvider({ children }: AnimationProviderProps) 
     // Enable hardware acceleration for body
     document.body.style.transform = 'translateZ(0)';
     document.body.style.backfaceVisibility = 'hidden';
+    document.body.style.willChange = 'transform';
 
-    // Improve scrolling performance
-    ScrollTrigger.config({ 
-      ignoreMobileResize: false,
-      syncInterval: 60,
-      autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
-    });
-
-    // Debounced refresh function
-    const debouncedRefresh = debounce(() => {
-      ScrollTrigger.refresh(true);
+    // Performance optimization for animations
+    const debouncedOptimize = debounce(() => {
+      // Reset hardware acceleration to force GPU recalculation on resize
+      document.body.style.transform = '';
+      setTimeout(() => {
+        document.body.style.transform = 'translateZ(0)';
+      }, 10);
     }, 200);
 
     // Subscribe to resize events with debouncing
-    window.addEventListener('resize', debouncedRefresh);
-    
-    // Force a refresh on load with a delay to ensure everything is rendered
-    setTimeout(() => {
-      ScrollTrigger.refresh(true);
-    }, 300);
+    window.addEventListener('resize', debouncedOptimize);
     
     // Clean up
     return () => {
-      window.removeEventListener('resize', debouncedRefresh);
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-      gsap.killTweensOf("*");
+      window.removeEventListener('resize', debouncedOptimize);
+      document.body.style.transform = '';
+      document.body.style.backfaceVisibility = '';
+      document.body.style.willChange = '';
     };
   }, []);
   
-  return children;
+  // LazyMotion loads animation features only when needed
+  return (
+    <LazyMotion features={domAnimation} strict>
+      {children}
+    </LazyMotion>
+  );
 } 

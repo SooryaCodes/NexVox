@@ -1,19 +1,18 @@
-'use client';
+"use client";
 
 import { useEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-export default function ScrollTriggerSetup() {
+export default function SmoothScroll() {
   useEffect(() => {
-    // Register the ScrollTrigger plugin
-    gsap.registerPlugin(ScrollTrigger);
+    // Set up smooth scrolling
+    document.documentElement.style.scrollBehavior = 'smooth';
     
-    // Clean up ScrollTrigger on component unmount
+    // Clean up function
     return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      // Reset scroll behavior
+      document.documentElement.style.scrollBehavior = '';
     };
   }, []);
   
-  return null; // This component doesn't render anything
+  return null;
 } 

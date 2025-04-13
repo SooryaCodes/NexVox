@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 
@@ -124,7 +124,7 @@ const HolographicCard = ({
   };
   
   return (
-    <motion.div
+    <m.div
       ref={cardRef}
       className={`relative rounded-xl overflow-hidden group ${className}`}
       onMouseMove={handleMouseMove}
@@ -209,7 +209,7 @@ const HolographicCard = ({
       
       {/* Subtle edges */}
       <div className="absolute inset-0 border border-[#00FFFF]/20 rounded-xl pointer-events-none"></div>
-    </motion.div>
+    </m.div>
   );
 };
 

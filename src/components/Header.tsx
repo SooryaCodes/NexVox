@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
@@ -11,6 +11,7 @@ const Header = () => {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentHash, setCurrentHash] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -142,14 +143,20 @@ const Header = () => {
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
+        // Update current hash without using window directly
+        setCurrentHash('#' + targetId);
       }
       // Close mobile menu if open
       setIsMobileMenuOpen(false);
     }
   };
 
+  const isNavItemActive = (href: string) => {
+    return pathname === href || (href.includes('#') && pathname === '/' && currentHash === href);
+  };
+
   return (
-    <motion.header 
+    <m.header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? 'bg-black/80 backdrop-blur-md border-b border-[#0ff]/10' : 'bg-transparent'
       }`}
@@ -160,14 +167,14 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
-            <motion.div 
+            <m.div 
               className="relative"
               variants={logoVariants}
               initial="normal"
               whileHover="hover"
             >
               <Link href="/" className="font-orbitron text-2xl font-bold text-[#0ff] glow flex items-center">
-                <motion.div 
+                <m.div 
                   className="absolute -inset-1 rounded-full bg-[#0ff]"
                   variants={glowCircleVariants}
                   initial="initial"
@@ -175,13 +182,13 @@ const Header = () => {
                 />
                 <span className="relative">Nex<span className="text-purple-400">Vox</span></span>
               </Link>
-            </motion.div>
+            </m.div>
           </div>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-10">
             {navItems.map((item) => (
-              <motion.div
+              <m.div
                 key={item.name}
                 variants={navItemVariants}
                 initial="normal"
@@ -190,16 +197,14 @@ const Header = () => {
                 <Link 
                   href={item.href} 
                   className={`text-white/80 hover:text-[#0ff] transition-colors duration-300 ${
-                    pathname === item.href || 
-                    (item.href.includes('#') && pathname === '/' && window.location.hash === item.href.replace('/', '')) 
-                      ? 'text-[#0ff]' : ''
+                    isNavItemActive(item.href) ? 'text-[#0ff]' : ''
                   }`}
                   onClick={handleNavClick}
                   onMouseEnter={() => soundEffects.playHover()}
                 >
                   {item.name}
                 </Link>
-              </motion.div>
+              </m.div>
             ))}
           </nav>
           
@@ -209,7 +214,7 @@ const Header = () => {
               <SoundToggle />
             </div>
             
-            <motion.div
+            <m.div
               variants={navItemVariants}
               initial="normal"
               whileHover="hover"
@@ -221,9 +226,9 @@ const Header = () => {
               >
                 Log In
               </Link>
-            </motion.div>
+            </m.div>
             
-            <motion.div
+            <m.div
               variants={buttonVariants}
               initial="normal"
               whileHover="hover"
@@ -236,7 +241,7 @@ const Header = () => {
               >
                 Register
               </Link>
-            </motion.div>
+            </m.div>
           </div>
           
           {/* Mobile menu button */}
@@ -246,29 +251,29 @@ const Header = () => {
               <SoundToggle />
             </div>
             
-            <motion.button
+            <m.button
               onClick={toggleMobileMenu}
               className="text-white p-2"
               whileTap={{ scale: 0.9 }}
             >
               <div className="w-6 h-5 flex flex-col justify-between">
-                <motion.span 
+                <m.span 
                   className="h-0.5 w-6 bg-[#0ff] block"
                   animate={isMobileMenuOpen ? { rotate: 45, y: 10 } : { rotate: 0, y: 0 }}
                   transition={{ duration: 0.2 }}
                 />
-                <motion.span 
+                <m.span 
                   className="h-0.5 w-6 bg-[#0ff] block"
                   animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
                   transition={{ duration: 0.2 }}
                 />
-                <motion.span 
+                <m.span 
                   className="h-0.5 w-6 bg-[#0ff] block"
                   animate={isMobileMenuOpen ? { rotate: -45, y: -10 } : { rotate: 0, y: 0 }}
                   transition={{ duration: 0.2 }}
                 />
               </div>
-            </motion.button>
+            </m.button>
           </div>
         </div>
       </div>
@@ -276,7 +281,7 @@ const Header = () => {
       {/* Mobile Navigation Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
+          <m.div
             className="md:hidden bg-black/95 backdrop-blur-lg border-t border-[#0ff]/10 overflow-hidden"
             variants={mobileMenuVariants}
             initial="closed"
@@ -285,7 +290,7 @@ const Header = () => {
           >
             <div className="px-4 py-2 space-y-1">
               {navItems.map((item) => (
-                <motion.div
+                <m.div
                   key={item.name}
                   variants={mobileItemVariants}
                   className="py-2"
@@ -293,24 +298,22 @@ const Header = () => {
                   <Link 
                     href={item.href}
                     className={`block text-lg text-white/80 hover:text-[#0ff] ${
-                      pathname === item.href || 
-                      (item.href.includes('#') && pathname === '/' && window.location.hash === item.href.replace('/', '')) 
-                        ? 'text-[#0ff]' : ''
+                      isNavItemActive(item.href) ? 'text-[#0ff]' : ''
                     }`}
                     onClick={handleNavClick}
                   >
                     {item.name}
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
               
               {/* Auth links for mobile */}
-              <motion.hr
+              <m.hr
                 variants={mobileItemVariants}
                 className="border-t border-[#0ff]/10 my-2"
               />
               
-              <motion.div
+              <m.div
                 variants={mobileItemVariants}
                 className="py-2"
               >
@@ -321,9 +324,9 @@ const Header = () => {
                 >
                   Log In
                 </Link>
-              </motion.div>
+              </m.div>
               
-              <motion.div
+              <m.div
                 variants={mobileItemVariants}
                 className="py-2"
               >
@@ -337,12 +340,12 @@ const Header = () => {
                 >
                   Register
                 </Link>
-              </motion.div>
+              </m.div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </m.header>
   );
 };
 
