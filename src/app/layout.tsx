@@ -1,47 +1,30 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Orbitron } from "next/font/google";
-import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
-  subsets: ["latin"],
-});
+import './globals.css'
+import type { Metadata } from 'next'
+import AnimationProvider from '@/components/AnimationProvider'
 
 export const metadata: Metadata = {
-  title: "NexVox",
-  description: "NexVox application",
-};
+  title: 'NexVox - Next Generation Voice Communication Platform',
+  description: 'Connect globally with live voice rooms, spatial audio, and immersive communication.',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased bg-black text-white min-h-screen`}
-      >
-        <nav className="fixed top-0 left-0 right-0 p-4 flex justify-between items-center bg-black/80 backdrop-blur-sm z-50">
-          <h1 className="font-orbitron text-2xl font-bold text-[#0ff] glow">NexVox</h1>
-          <button className="font-orbitron px-4 py-2 rounded-md border border-[#0ff]/50 text-[#0ff]">
-            Settings
-          </button>
-        </nav>
-        <div className="pt-20">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+      </head>
+      <body>
+        <AnimationProvider>
           {children}
-        </div>
+        </AnimationProvider>
       </body>
     </html>
-  );
+  )
 }
