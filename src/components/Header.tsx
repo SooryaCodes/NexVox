@@ -6,6 +6,7 @@ import { m, motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
+import { IoMenuOutline, IoClose } from "react-icons/io5";
 
 const Header = () => {
   const pathname = usePathname();
@@ -18,13 +19,30 @@ const Header = () => {
       setIsScrolled(window.scrollY > 20);
     };
     
+    // Close mobile menu on resize to desktop
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    window.addEventListener('resize', handleResize); 
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isMobileMenuOpen]); // Add dependency
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const navItems = [
     { name: 'Features', href: '/#features' },
-    { name: 'Rooms', href: '/#rooms' },
+    { name: 'Rooms', href: '/rooms' }, // Direct link to rooms page
+    // Update other links if they are sections on the homepage or separate pages
     { name: 'How It Works', href: '/#how-it-works' },
     { name: 'Testimonials', href: '/#testimonials' },
   ];
@@ -131,28 +149,41 @@ const Header = () => {
     setIsMobileMenuOpen(prev => !prev);
   };
   
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Play click sound
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, isMobile: boolean = false) => {
     soundEffects.playClick();
-    
-    // Handle smooth scrolling for hash links on the homepage
     const href = e.currentTarget.getAttribute('href');
-    if (href && href.includes('#') && (pathname === '/' || href.startsWith('/#'))) {
+    
+    if (href && href.includes('#') && pathname === '/') {
       e.preventDefault();
-      const targetId = href.includes('/#') ? href.split('/#')[1] : href.substring(1);
+        const targetId = href.substring(href.indexOf('#') + 1);
       const element = document.getElementById(targetId);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-        // Update current hash without using window directly
+            // Calculate offset for fixed header
+            const headerOffset = 80; // Adjust as needed based on header height
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+            window.scrollTo({
+                 top: offsetPosition,
+                 behavior: "smooth"
+            });
         setCurrentHash('#' + targetId);
       }
-      // Close mobile menu if open
-      setIsMobileMenuOpen(false);
+    }
+    // No else needed for direct links like /rooms, NextLink handles it
+    
+    if (isMobile) {
+        setIsMobileMenuOpen(false); // Close menu after mobile click
     }
   };
 
   const isNavItemActive = (href: string) => {
-    return pathname === href || (href.includes('#') && pathname === '/' && currentHash === href);
+      if (href.includes('#') && pathname === '/') {
+          // Check hash for homepage sections
+          return currentHash === href.substring(href.indexOf('#'));
+      }
+      // Check base path for other pages
+      return pathname === href || pathname.startsWith(href + '/'); 
   };
 
   return (
@@ -165,28 +196,27 @@ const Header = () => {
       animate="animate"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center">
+        <div className="flex justify-between items-center h-16 md:h-20"> {/* Consistent height */}
+          {/* Logo */}
             <m.div 
               className="relative"
               variants={logoVariants}
               initial="normal"
               whileHover="hover"
             >
-              <Link href="/" className="font-orbitron text-2xl font-bold text-[#0ff] glow flex items-center">
+             <Link href="/" className="font-orbitron text-xl sm:text-2xl font-bold text-[#0ff] glow flex items-center" onClick={(e) => handleNavClick(e)}>
                 <m.div 
                   className="absolute -inset-1 rounded-full bg-[#0ff]"
                   variants={glowCircleVariants}
                   initial="initial"
                   animate="animate"
                 />
-                <span className="relative">Nex<span className="text-purple-400">Vox</span></span>
+               <span className="relative z-10">Nex<span className="text-purple-400">Vox</span></span>
               </Link>
             </m.div>
-          </div>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-10">
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8"> {/* Adjusted spacing */}
             {navItems.map((item) => (
               <m.div
                 key={item.name}
@@ -196,35 +226,35 @@ const Header = () => {
               >
                 <Link 
                   href={item.href} 
-                  className={`text-white/80 hover:text-[#0ff] transition-colors duration-300 ${
-                    isNavItemActive(item.href) ? 'text-[#0ff]' : ''
+                  className={`text-sm lg:text-base transition-colors duration-300 ${ // Adjusted text size
+                    isNavItemActive(item.href) 
+                      ? 'text-[#0ff] font-semibold' 
+                      : 'text-white/80 hover:text-[#0ff]'
                   }`}
-                  onClick={handleNavClick}
-                  onMouseEnter={() => soundEffects.playHover()}
+                  onClick={(e) => handleNavClick(e)}
+                  aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                 >
                   {item.name}
                 </Link>
               </m.div>
             ))}
-          </nav>
           
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Sound Toggle */}
-            <div className="mr-4">
-              <SoundToggle />
-            </div>
+              <div className="mr-2">
+                <SoundToggle />
+              </div>
             
+            <div className="flex items-center space-x-3"> {/* Grouped Auth buttons */}
             <m.div
-              variants={navItemVariants}
+                variants={buttonVariants}
               initial="normal"
               whileHover="hover"
             >
               <Link 
                 href="/login" 
-                className={`text-white/80 hover:text-[#0ff] transition-colors duration-300 ${pathname === '/login' ? 'text-[#0ff]' : ''}`}
-                onMouseEnter={() => soundEffects.playHover()}
+                  className="px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium text-white border border-[#0ff]/50 rounded-md hover:border-[#0ff] hover:text-[#0ff] transition-all"
+                  onClick={(e) => handleNavClick(e)}
               >
-                Log In
+                  Sign In
               </Link>
             </m.div>
             
@@ -232,48 +262,38 @@ const Header = () => {
               variants={buttonVariants}
               initial="normal"
               whileHover="hover"
-              whileTap={{ scale: 0.95 }}
             >
               <Link 
                 href="/register"
-                className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-5 py-2 rounded-lg font-orbitron text-sm"
-                onClick={() => soundEffects.play('success')}
+                  className="px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium text-black bg-[#0ff] rounded-md hover:bg-opacity-90 transition-colors shadow-md hover:shadow-lg shadow-[#0ff]/30"
+                   onClick={(e) => handleNavClick(e)}
               >
-                Register
+                  Sign Up
               </Link>
             </m.div>
           </div>
+          </nav>
           
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            {/* Sound Toggle for mobile */}
-            <div className="mr-4">
-              <SoundToggle />
-            </div>
-            
-            <m.button
-              onClick={toggleMobileMenu}
-              className="text-white p-2"
-              whileTap={{ scale: 0.9 }}
-            >
-              <div className="w-6 h-5 flex flex-col justify-between">
-                <m.span 
-                  className="h-0.5 w-6 bg-[#0ff] block"
-                  animate={isMobileMenuOpen ? { rotate: 45, y: 10 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                />
-                <m.span 
-                  className="h-0.5 w-6 bg-[#0ff] block"
-                  animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                />
-                <m.span 
-                  className="h-0.5 w-6 bg-[#0ff] block"
-                  animate={isMobileMenuOpen ? { rotate: -45, y: -10 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                />
+          <div className="flex md:hidden items-center">
+              <div className="mr-2">
+                <SoundToggle />
               </div>
-            </m.button>
+              <button
+              onClick={toggleMobileMenu}
+                className="inline-flex items-center justify-center p-2 rounded-md text-[#0ff] hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#0ff]"
+                aria-controls="mobile-menu"
+                aria-expanded={isMobileMenuOpen}
+                aria-label={isMobileMenuOpen ? "Close main menu" : "Open main menu"}
+              >
+                <span className="sr-only">{isMobileMenuOpen ? "Close main menu" : "Open main menu"}</span>
+                {/* Correctly toggle icon based on state */}
+                {isMobileMenuOpen ? (
+                  <IoClose className="block h-6 w-6" aria-hidden="true" />
+                ) : (
+                  <IoMenuOutline className="block h-6 w-6" aria-hidden="true" />
+                )}
+              </button>
           </div>
         </div>
       </div>
@@ -282,63 +302,62 @@ const Header = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <m.div
-            className="md:hidden bg-black/95 backdrop-blur-lg border-t border-[#0ff]/10 overflow-hidden"
+            id="mobile-menu"
+            className="fixed inset-0 z-40 pt-16 md:hidden" // Use fixed positioning and ensure it's on top
             variants={mobileMenuVariants}
             initial="closed"
             animate="open"
             exit="closed"
           >
-            <div className="px-4 py-2 space-y-1">
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-lg"></div>
+
+            <div className="relative h-full overflow-y-auto px-5 pb-6 pt-5 space-y-6"> {/* Content container */}
+              {/* Explicit close button at the top right */}
+              <button 
+                onClick={toggleMobileMenu}
+                className="absolute top-2 right-2 p-2 rounded-full bg-[#0ff]/20 text-white hover:bg-[#0ff]/30 hover:text-[#0ff] transition-colors z-50"
+                aria-label="Close menu"
+              >
+                <IoClose className="h-6 w-6" />
+              </button>
+              
               {navItems.map((item) => (
                 <m.div
                   key={item.name}
                   variants={mobileItemVariants}
-                  className="py-2"
+                  className="border-b border-white/10 pb-4"
                 >
                   <Link 
                     href={item.href}
-                    className={`block text-lg text-white/80 hover:text-[#0ff] ${
-                      isNavItemActive(item.href) ? 'text-[#0ff]' : ''
+                    className={`block rounded-md py-2 text-base font-medium transition-colors duration-300 ${
+                      isNavItemActive(item.href) ? 'text-[#0ff]' : 'text-white/80 hover:text-[#0ff]'
                     }`}
-                    onClick={handleNavClick}
+                    // Pass true for isMobile to close menu on click
+                    onClick={(e) => handleNavClick(e, true)} 
+                    aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                   >
                     {item.name}
                   </Link>
                 </m.div>
               ))}
               
-              {/* Auth links for mobile */}
-              <m.hr
-                variants={mobileItemVariants}
-                className="border-t border-[#0ff]/10 my-2"
-              />
-              
-              <m.div
-                variants={mobileItemVariants}
-                className="py-2"
-              >
+              {/* Auth buttons for mobile */}
+              <m.div variants={mobileItemVariants} className="pt-6 flex flex-col space-y-4">
                 <Link 
                   href="/login"
-                  className={`block text-lg text-white/80 hover:text-[#0ff] ${pathname === '/login' ? 'text-[#0ff]' : ''}`}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full px-4 py-3 font-semibold text-white text-center border border-[#0ff] rounded-md"
+                  onClick={(e) => handleNavClick(e, true)}
                 >
-                  Log In
+                  Sign In
                 </Link>
-              </m.div>
               
-              <m.div
-                variants={mobileItemVariants}
-                className="py-2"
-              >
                 <Link 
                   href="/register"
-                  className="block text-lg text-[#9D00FF] hover:text-[#FF00E6]"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    soundEffects.play('success');
-                  }}
+                  className="w-full px-4 py-3 font-semibold text-black text-center bg-[#0ff] rounded-md hover:bg-opacity-90 transition-colors"
+                   onClick={(e) => handleNavClick(e, true)}
                 >
-                  Register
+                  Sign Up
                 </Link>
               </m.div>
             </div>

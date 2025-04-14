@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import roomsData from "../data/rooms.json";
 import NeonGrid from "@/components/NeonGrid";
 import Image from "next/image";
-import { IoSettingsOutline, IoNotificationsOutline, IoAddOutline, IoSearchOutline, IoKeyOutline, IoClose } from "react-icons/io5";
+import { IoSettingsOutline, IoNotificationsOutline, IoAddOutline, IoSearchOutline, IoKeyOutline, IoClose, IoMenuOutline } from "react-icons/io5";
 import { FiMusic, FiUsers } from "react-icons/fi";
 import { RiRobot2Fill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
@@ -67,7 +67,7 @@ export default function RoomsPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(0); // 0 means "All"
   const [view, setView] = useState<'grid' | 'list'>('grid'); // 'grid' or 'list'
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For mobile sidebar toggle
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Initialize closed by default
   const [allRooms, setAllRooms] = useState<RoomDataType[]>([]); // All rooms including user-created ones
   const [isNotificationOpen, setIsNotificationOpen] = useState(false); // For notification panel
   const [searchQuery, setSearchQuery] = useState(''); // For room search
@@ -76,6 +76,7 @@ export default function RoomsPage() {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [isMobileView, setIsMobileView] = useState(false);
   
   // Notifications system
   const { 
@@ -146,12 +147,17 @@ export default function RoomsPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isNotificationOpen, isShortcutsModalOpen]);
 
-  // Set sidebar open by default on desktop
+  // Update mobile detection
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsSidebarOpen(true);
-      } else {
+      const isMobile = window.innerWidth < 768;
+      setIsMobileView(isMobile);
+      
+      // Set sidebar state based on device type
+      if (!isMobile) {
+        setIsSidebarOpen(true); // Always open on desktop
+      } else if (!isSidebarOpen && isMobile) {
+        // Keep it closed on mobile initially
         setIsSidebarOpen(false);
       }
     };
@@ -256,32 +262,35 @@ export default function RoomsPage() {
       );
     });
 
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col bg-black text-white" role="main" aria-label="Voice Rooms Page">
-      {/* Skip to content link for keyboard users */}
-      <a href="#content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-[#00FFFF] text-black p-2 z-50">
-        Skip to content
-      </a>
-      
-      {/* Background effects */}
-      <NeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.05} />
-      
-      {/* Header with search and user controls */}
-      <header 
-        ref={headerRef}
-        className="sticky top-0 z-30 bg-black/40 backdrop-blur-xl border-b border-white/10 px-6 py-4"
-        role="banner"
+    <div className="bg-black text-white min-h-screen overflow-hidden">
+      {/* Header with hamburger menu for mobile */}
+      <div 
+        ref={headerRef} 
+        className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md px-4 py-3 border-b border-[#00FFFF]/20 flex items-center justify-between"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/">
-              <h1 className="text-2xl font-orbitron text-[#00FFFF]">NEXVOX</h1>
-            </Link>
-            <div className="hidden sm:block px-2 py-1 bg-[#00FFFF]/10 text-[#00FFFF] rounded text-xs font-medium">
-              Voice Rooms
-            </div>
-          </div>
-          
+        {/* Hamburger menu for mobile */}
+        <button 
+          onClick={toggleSidebar}
+          className="md:hidden z-50 text-[#00FFFF] hover:text-white transition-colors p-2"
+          aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+          aria-expanded={isSidebarOpen}
+        >
+          {isSidebarOpen ? <IoClose size={24} /> : <IoMenuOutline size={24} />}
+        </button>
+        
+        {/* Logo/Title */}
+        <h1 className="text-xl font-orbitron text-[#00FFFF] glow">
+          <Link href="/">Nex<span className="text-[#FF00E6]">Vox</span></Link> Rooms
+        </h1>
+        
+        {/* Rest of header content */}
+        <div className="flex items-center space-x-3">
           {/* Search Bar */}
           <div className="flex-1 max-w-md mx-4 hidden sm:block">
             <div className="relative">
@@ -380,46 +389,31 @@ export default function RoomsPage() {
             </Link>
           </div>
         </div>
-        
-        {/* Mobile Search Bar */}
-        <div className="mt-2 sm:hidden">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <IoSearchOutline className="h-5 w-5 text-white/50" />
-            </div>
-            <input
-              id="room-search-mobile"
-              type="text"
-              className="bg-black/30 border border-white/10 text-white placeholder-white/50 pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#00FFFF] focus:border-[#00FFFF]/50"
-              placeholder="Search rooms..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search for rooms"
-            />
-            {searchQuery && (
-              <button
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setSearchQuery('')}
-                aria-label="Clear search"
-              >
-                <IoClose className="h-5 w-5 text-white/50 hover:text-white" />
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
+      </div>
       
-      {/* Main content with sidebar */}
-      <div className="flex flex-1 relative">
-        {/* Sidebar */}
+      {/* Main content with responsive sidebar */}
+      <div className="pt-16 flex flex-col md:flex-row min-h-screen">
+        {/* Sidebar - overlay on mobile, fixed on desktop */}
         <aside 
           ref={sidebarRef}
-          className={`fixed md:static top-0 bottom-0 w-72 bg-black/60 backdrop-blur-md z-20 border-r border-white/10 transform transition-transform duration-300 ease-in-out ${
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-          } mt-[73px] md:mt-0 h-[calc(100vh-73px)] md:h-auto overflow-y-auto`}
-          role="navigation"
-          aria-label="Categories and Communities"
+          className={`
+            fixed md:relative top-0 left-0 z-30 
+            h-full md:h-auto w-[280px] 
+            bg-black/95 md:bg-black/40 backdrop-blur-md
+            border-r border-[#00FFFF]/20
+            transform transition-transform duration-300 ease-in-out
+            pt-20 md:pt-4 px-4 pb-6
+            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          `}
         >
+          {/* Close button inside sidebar (mobile only) */}
+          <button
+            onClick={toggleSidebar}
+            className="absolute top-4 right-4 md:hidden p-2 rounded-full bg-[#00FFFF]/20 text-white hover:text-[#00FFFF] transition-colors"
+            aria-label="Close sidebar"
+          >
+            <IoClose size={20} />
+          </button>
           <div className="p-6 flex flex-col gap-6 h-full">
             <div>
               <h2 className="text-lg font-orbitron mb-4 text-[#00FFFF]" id="categories-heading">CATEGORIES</h2>
@@ -472,13 +466,14 @@ export default function RoomsPage() {
           </div>
         </aside>
         
-        {/* Main content */}
+        {/* Main content area - adjust for sidebar */}
         <div 
           ref={contentRef}
-          id="content"
-          className="flex-1 px-4 pb-4 md:pl-6 md:pr-6 md:pb-6 relative"
-          role="region"
-          aria-label={`${activeCategory === 0 ? 'All' : categories.find(cat => cat.id === activeCategory)?.name} Rooms`}
+          className={`
+            flex-1 transition-all duration-300
+            p-4 md:p-6
+            ${isSidebarOpen ? 'md:ml-0' : 'md:ml-0'} 
+          `}
         >
           {/* Header for current category */}
           <div className="sticky top-[73px] z-10 bg-black/60 backdrop-blur-lg py-4 border-b border-white/10 mb-6">
@@ -533,25 +528,6 @@ export default function RoomsPage() {
                     </svg>
                   </button>
                 </div>
-                
-                {/* Mobile view only - sidebar toggle */}
-                <button 
-                  className="md:hidden p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  aria-label="Toggle sidebar"
-                  aria-expanded={isSidebarOpen}
-                  aria-controls="sidebar"
-                >
-                  {isSidebarOpen ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  )}
-                </button>
               </div>
             </div>
           </div>
@@ -714,6 +690,15 @@ export default function RoomsPage() {
         onMarkAllRead={markAllAsRead}
         onMarkAsRead={markAsRead}
       />
-    </main>
+
+      {/* Backdrop for mobile sidebar - ensure it only shows on mobile and disappears when sidebar is closed */}
+      {isSidebarOpen && isMobileView && (
+        <div 
+          className="fixed inset-0 bg-black/70 z-20 md:hidden"
+          onClick={toggleSidebar}
+          aria-hidden="true"
+        />
+      )}
+    </div>
   );
 }

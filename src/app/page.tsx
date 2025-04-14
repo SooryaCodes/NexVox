@@ -22,6 +22,7 @@ import AmbientRoom from "@/components/AmbientRoom";
 import useSoundEffects from "@/hooks/useSoundEffects";
 import soundEffects from "@/utils/soundEffects";
 import Link from "next/link";
+import { IoMenuOutline } from "react-icons/io5";
 
 const features = [
   {
@@ -126,42 +127,90 @@ export default function Home() {
   };
 
   return (
-    <div ref={mainRef} className="min-h-screen bg-black text-white">
-      {/* Add the Header component here */}
+    <div ref={mainRef} className="min-h-screen bg-black text-white overflow-x-hidden">
+      {/* Header is already responsive */}
       <Header />
       
       {/* Sound effects controller (invisible) */}
       <SoundEffectsController />
       
-      {/* Enhanced backgrounds */}
+      {/* Enhanced backgrounds - ensure z-index is proper */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* Particle background with animated dots */}
       <ParticlesBackground />
-      <NeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.1} />
-      
-      {/* Hero Section - add padding to account for fixed header */}
-      <section ref={heroRef} className="relative min-h-screen p-8 pt-16 grid place-items-center overflow-hidden">
-        {/* Radial gradient background */}
-        <div className="absolute inset-0 bg-black radial-gradient"></div>
         
-        <div className="max-w-7xl mx-auto text-center z-10 pt-16">
+        {/* Vibrant grid with proper density and visibility like the first image */}
+        <NeonGrid 
+          color="#00FFFF" 
+          secondaryColor="#9D00FF" 
+          density={40} 
+          opacity={0.1} 
+          animate={true} 
+        />
+        
+        {/* Animated accent dots */}
+        <div className="absolute top-[20%] left-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse"></div>
+        <div className="absolute top-[60%] left-[80%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse-slower"></div>
+        <div className="absolute top-[80%] left-[30%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slow"></div>
+        
+        {/* Gradient overlay for depth */}
+        <div 
+          className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 z-0" 
+          style={{ 
+            background: 'radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.8) 100%)'
+          }}
+        />
+      </div>
+      
+      {/* Hero Section with enhanced visuals */}
+      <section ref={heroRef} className="relative min-h-screen p-4 sm:p-8 pt-16 grid place-items-center overflow-hidden">
+        {/* Background blobs */}
+        <div className="absolute inset-0 overflow-hidden z-0">
+          {/* Cyan blob */}
+          <div className="absolute w-[600px] h-[600px] rounded-full bg-[#00FFFF]/10 blur-[120px] -top-64 -left-20 opacity-60"></div>
+          
+          {/* Purple blob */}
+          <div className="absolute w-[500px] h-[500px] rounded-full bg-[#9D00FF]/10 blur-[100px] bottom-0 right-0 opacity-60"></div>
+          
+          {/* Pink accent blob */}
+          <div className="absolute w-[300px] h-[300px] rounded-full bg-[#FF00E6]/10 blur-[80px] top-1/3 left-1/4 opacity-50"></div>
+          
+          {/* Extra subtle bloom for depth */}
+          <div className="absolute w-[200px] h-[200px] rounded-full bg-white/5 blur-[50px] top-1/2 right-1/4"></div>
+        </div>
+        
+        {/* Animated vertical lines - similar to the ones in other sections */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#00FFFF]/30 to-transparent left-1/4 animate-pulse-slow"></div>
+          <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#9D00FF]/30 to-transparent left-1/2 animate-pulse-slower"></div>
+          <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#FF00E6]/30 to-transparent left-3/4 animate-pulse-slow"></div>
+          
+          {/* Horizontal accent line */}
+          <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-[#00FFFF]/20 to-transparent top-1/3 animate-pulse-slower"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto text-center z-10 pt-16 relative">
+          {/* Text content - reduce vertical padding to center better */}
           <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-12"
+            className="mb-6 sm:mb-8" /* Reduced bottom margin */
           >
             <AnimatedTitle 
               titles={headlines} 
-              className="text-5xl md:text-7xl font-bold text-[#00FFFF] font-orbitron glow mb-6"
+              className="text-3xl sm:text-5xl md:text-7xl font-bold text-[#00FFFF] font-orbitron glow mb-3 sm:mb-4" /* Reduced bottom margin */
             />
             <ShimmeringText
               text="The next-generation voice platform where the world meets in real-time"
-              className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto"
+              className="text-lg sm:text-xl md:text-2xl mb-6 max-w-3xl mx-auto px-2" /* Reduced bottom margin */
               variant="gradient"
               as="p"
             />
           </m.div>
           
-          <div className="flex flex-wrap gap-6 justify-center">
+          {/* Move buttons above waveform */}
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center items-center mb-8">
             <FuturisticButton 
               text="Explore Rooms" 
               type="neon"
@@ -185,7 +234,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="mt-16"
+            className="mt-6"
           >
             <p className="text-sm mb-2 opacity-60">Live global audio activity</p>
             <div className="flex justify-center">
@@ -195,76 +244,161 @@ export default function Home() {
                 bars={100} 
                 color="#00FFFF" 
                 activeColor="#FF00E6" 
-                className="transform scale-75 md:scale-100"
+                className="transform scale-75 md:scale-100 max-w-full"
               />
             </div>
+            
+            {/* Move scroll indicator below waveform */}
+            <div className="mt-10 flex justify-center items-center">
+              <div className="flex flex-col items-center">
+                <p className="mb-3 text-sm font-orbitron tracking-wider text-[#00FFFF]/80">SCROLL TO EXPLORE</p>
+                
+                {/* Cyberpunk styled scroll indicator */}
+                <div className="relative h-14 w-6 border border-[#00FFFF]/50 rounded-full flex justify-center overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-full w-full bg-gradient-to-b from-black/20 to-black/10 backdrop-blur-sm"></div>
+                  
+                  {/* Animated dot */}
+                  <div className="absolute top-1 w-3 h-3 rounded-full animate-scroll-pulse">
+                    <div className="w-full h-full rounded-full bg-[#00FFFF] shadow-[0_0_10px_#00FFFF]"></div>
+                  </div>
+                  
+                  {/* Glow effect at bottom */}
+                  <div className="absolute bottom-1 w-3 h-1 rounded-full bg-[#00FFFF]/30 blur-sm"></div>
+                </div>
+                
+                {/* Arrow indicators */}
+                <div className="relative mt-2 flex flex-col">
+                  <svg width="14" height="8" viewBox="0 0 14 8" className="mb-1 text-[#00FFFF]/80 animate-arrow-pulse-1">
+                    <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </svg>
+                  <svg width="14" height="8" viewBox="0 0 14 8" className="text-[#00FFFF]/50 animate-arrow-pulse-2">
+                    <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </svg>
+                </div>
+              </div>
+            </div>
           </m.div>
+          
+          {/* Remove the absolute positioned scroll indicator since we moved it */}
+          {/* Enhanced Scroll indicator with cyberpunk style */}
+          <div className="absolute bottom-10 left-0 right-0 flex justify-center items-center" style={{ display: 'none' }}>
+            <div className="flex flex-col items-center">
+              <p className="mb-3 text-sm font-orbitron tracking-wider text-[#00FFFF]/80">SCROLL TO EXPLORE</p>
+              
+              {/* Cyberpunk styled scroll indicator */}
+              <div className="relative h-14 w-6 border border-[#00FFFF]/50 rounded-full flex justify-center overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-full w-full bg-gradient-to-b from-black/20 to-black/10 backdrop-blur-sm"></div>
+                
+                {/* Animated dot */}
+                <div className="absolute top-1 w-3 h-3 rounded-full animate-scroll-pulse">
+                  <div className="w-full h-full rounded-full bg-[#00FFFF] shadow-[0_0_10px_#00FFFF]"></div>
+                </div>
+                
+                {/* Glow effect at bottom */}
+                <div className="absolute bottom-1 w-3 h-1 rounded-full bg-[#00FFFF]/30 blur-sm"></div>
+              </div>
+              
+              {/* Arrow indicators */}
+              <div className="relative mt-2 flex flex-col">
+                <svg width="14" height="8" viewBox="0 0 14 8" className="mb-1 text-[#00FFFF]/80 animate-arrow-pulse-1">
+                  <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                </svg>
+                <svg width="14" height="8" viewBox="0 0 14 8" className="text-[#00FFFF]/50 animate-arrow-pulse-2">
+                  <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          
+          {/* Add animations to style block */}
+          <style jsx global>{`
+            @keyframes pulse-slow {
+              0%, 100% { opacity: 0.1; }
+              50% { opacity: 0.4; }
+            }
+            
+            @keyframes pulse-slower {
+              0%, 100% { opacity: 0.1; }
+              50% { opacity: 0.3; }
+            }
+            
+            .animate-pulse-slow {
+              animation: pulse-slow 8s ease-in-out infinite;
+            }
+            
+            .animate-pulse-slower {
+              animation: pulse-slower 12s ease-in-out infinite;
+            }
+            
+            @keyframes bounce-slow {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-10px); }
+            }
+            
+            .animate-bounce-slow {
+              animation: bounce-slow 2s ease-in-out infinite;
+            }
+            
+            @keyframes scroll-pulse {
+              0% { transform: translateY(0); opacity: 0.8; }
+              50% { transform: translateY(9px); opacity: 1; }
+              100% { transform: translateY(0); opacity: 0.8; }
+            }
+            
+            .animate-scroll-pulse {
+              animation: scroll-pulse 1.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+            }
+            
+            @keyframes arrow-pulse-1 {
+              0%, 100% { opacity: 0.8; transform: translateY(0); }
+              50% { opacity: 0.5; transform: translateY(2px); }
+            }
+            
+            @keyframes arrow-pulse-2 {
+              0%, 100% { opacity: 0.5; transform: translateY(0); }
+              50% { opacity: 0.3; transform: translateY(2px); }
+            }
+            
+            .animate-arrow-pulse-1 {
+              animation: arrow-pulse-1 1.5s ease-in-out infinite;
+            }
+            
+            .animate-arrow-pulse-2 {
+              animation: arrow-pulse-2 1.5s ease-in-out infinite;
+              animation-delay: 0.2s;
+            }
+            
+            /* Keep existing float animations */
+            @keyframes float-slow {
+              0%, 100% { transform: translateY(0) translateX(0); }
+              25% { transform: translateY(-20px) translateX(10px); }
+              50% { transform: translateY(-10px) translateX(20px); }
+              75% { transform: translateY(-30px) translateX(-10px); }
+            }
+            
+            @keyframes float-medium {
+              0%, 100% { transform: translateY(0) translateX(0); }
+              50% { transform: translateY(-30px) translateX(-20px); }
+            }
+            
+            @keyframes float-fast {
+              0%, 100% { transform: translateY(0) translateX(0); }
+              50% { transform: translateY(-15px) translateX(15px); }
+            }
+            
+            .animate-float-slow {
+              animation: float-slow 20s ease-in-out infinite;
+            }
+            
+            .animate-float-medium {
+              animation: float-medium 15s ease-in-out infinite;
+            }
+            
+            .animate-float-fast {
+              animation: float-fast 10s ease-in-out infinite;
+            }
+          `}</style>
         </div>
-        
-        {/* Scroll indicator */}
-        <m.div 
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          style={{ opacity: scrollOpacity }}
-        >
-          <m.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="flex flex-col items-center"
-          >
-            <p className="text-sm opacity-60 mb-2">Scroll to explore</p>
-            <div className="w-6 h-10 border border-white/20 rounded-full flex justify-center">
-              <m.div
-                animate={{ y: [0, 15, 0] }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.2
-                }}
-                className="w-2 h-2 bg-[#00FFFF] rounded-full mt-1"
-              />
-            </div>
-          </m.div>
-        </m.div>
-        
-        {/* Enhanced decorative elements - replace with framer-motion parallax */}
-        <m.div 
-          style={{
-            y: useTransform(scrollYProgress, [0, 1], [0, 100])
-          }}
-          className="absolute left-0 top-1/4 w-72 h-72 bg-gradient-to-r from-[#00FFFF]/30 to-transparent rounded-full blur-3xl"
-        />
-        <m.div 
-          style={{
-            y: useTransform(scrollYProgress, [0, 1], [0, 150])
-          }}
-          className="absolute right-0 bottom-1/4 w-80 h-80 bg-gradient-to-l from-[#9D00FF]/30 to-transparent rounded-full blur-3xl"
-        />
-        <m.div 
-          style={{
-            y: useTransform(scrollYProgress, [0, 1], [0, 80])
-          }}
-          className="absolute left-1/4 bottom-1/3 w-40 h-40 bg-gradient-to-tr from-[#FF00E6]/30 to-transparent rounded-full blur-2xl"
-        />
-        <m.div 
-          style={{
-            y: useTransform(scrollYProgress, [0, 1], [0, 120])
-          }}
-          className="absolute right-1/4 top-1/3 w-56 h-56 bg-gradient-to-bl from-[#00FFFF]/20 to-transparent rounded-full blur-3xl"
-        />
-        <m.div 
-          style={{
-            y: useTransform(scrollYProgress, [0, 1], [0, 60])
-          }}
-          className="absolute left-1/3 top-1/4 w-48 h-48 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-full blur-3xl"
-        />
       </section>
 
       {/* Enhanced Scrolling text band */}
