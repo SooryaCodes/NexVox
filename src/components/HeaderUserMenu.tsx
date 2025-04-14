@@ -9,7 +9,7 @@ import { getAvatarStyle, getStatusColor } from '@/utils/profileUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 
 const HeaderUserMenu = () => {
-  const { user } = useUser();
+  const { user, updateStatus } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { playClick } = useSoundEffects();
@@ -49,6 +49,12 @@ const HeaderUserMenu = () => {
   const toggleMenu = () => {
     playClick();
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  const handleStatusChange = (status: 'online' | 'away' | 'busy' | 'offline') => {
+    playClick();
+    updateStatus(status);
+    setIsMenuOpen(false);
   };
   
   return (
@@ -173,12 +179,7 @@ const HeaderUserMenu = () => {
                       <button 
                         key={status} 
                         className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/10 transition-colors text-sm"
-                        onClick={() => {
-                          playClick();
-                          const { updateStatus } = useUser();
-                          updateStatus(status as StatusType);
-                          setIsMenuOpen(false);
-                        }}
+                        onClick={() => handleStatusChange(status as StatusType)}
                       >
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getStatusColor(status) }}></div>
                         <span className="capitalize">{status}</span>
