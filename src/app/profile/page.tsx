@@ -58,10 +58,15 @@ const ProfilePage = () => {
 
   // Animation for the profile header
   useEffect(() => {
-    if (profileHeaderRef.current) {
-      const element = profileHeaderRef.current;
-      element.classList.add("animate-fade-in");
-    }
+    // Set a small timeout to ensure DOM is ready
+    const timer = setTimeout(() => {
+      if (profileHeaderRef.current) {
+        // Directly set opacity to 1 to make it visible
+        profileHeaderRef.current.style.opacity = '1';
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const handleTabChange = (tab: string) => {
@@ -145,8 +150,8 @@ const ProfilePage = () => {
         {/* Profile Header */}
         <div 
           ref={profileHeaderRef}
-          className="mb-8 opacity-0 transition-opacity duration-700"
-          style={{ animationDuration: '0.7s' }}
+          className="mb-8"
+          style={{ opacity: 0, transition: 'opacity 1s ease-in-out' }}
         >
           <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8">
             <div className="flex flex-col md:flex-row gap-6 sm:gap-10 items-center md:items-start">
