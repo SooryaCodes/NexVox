@@ -8,6 +8,15 @@ export interface User {
   badges?: string[];
   status?: 'online' | 'away' | 'busy';
   level?: number;
+  bio?: string;
+  email?: string;
+  joinDate?: string;
+  stats?: {
+    roomsJoined?: number;
+    connectionsCount?: number;
+    hoursSpent?: number;
+    communitiesJoined?: number;
+  };
 }
 
 export interface Room {

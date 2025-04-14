@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import roomsData from "../data/rooms.json";
 import NeonGrid from "@/components/NeonGrid";
 import Image from "next/image";
-import { IoSettingsOutline, IoNotificationsOutline, IoAddOutline } from "react-icons/io5";
+import { IoSettingsOutline, IoNotificationsOutline, IoAddOutline, IoSearchOutline, IoKeyOutline, IoClose } from "react-icons/io5";
 import { FiMusic, FiUsers } from "react-icons/fi";
 import { RiRobot2Fill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
@@ -70,6 +70,8 @@ export default function RoomsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For mobile sidebar toggle
   const [allRooms, setAllRooms] = useState<RoomDataType[]>([]); // All rooms including user-created ones
   const [isNotificationOpen, setIsNotificationOpen] = useState(false); // For notification panel
+  const [searchQuery, setSearchQuery] = useState(''); // For room search
+  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false); // For keyboard shortcuts modal
   const headerRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -83,6 +85,66 @@ export default function RoomsPage() {
     markAllAsRead, 
     addNotification 
   } = useNotifications();
+
+  // Keyboard shortcuts data
+  const keyboardShortcuts = [
+    { key: 'Alt+C', description: 'Open/close chat assistant' },
+    { key: 'Alt+S', description: 'Toggle sidebar' },
+    { key: 'Alt+N', description: 'Open notifications' },
+    { key: 'Alt+K', description: 'Show keyboard shortcuts' },
+    { key: 'Alt+/  or Ctrl+K', description: 'Focus search bar' },
+    { key: 'Esc', description: 'Close modal/dialog' },
+    { key: 'Tab', description: 'Navigate interface elements' },
+    { key: 'Enter/Space', description: 'Activate selected element' },
+    { key: 'Arrow keys', description: 'Navigate lists, menus' },
+  ];
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Toggle sidebar with Alt+S
+      if (e.altKey && e.key === 's') {
+        setIsSidebarOpen(prev => !prev);
+        e.preventDefault();
+      }
+      
+      // Toggle notifications with Alt+N
+      if (e.altKey && e.key === 'n') {
+        setIsNotificationOpen(prev => !prev);
+        e.preventDefault();
+      }
+
+      // Toggle keyboard shortcuts with Alt+K
+      if (e.altKey && e.key === 'k') {
+        setIsShortcutsModalOpen(prev => !prev);
+        e.preventDefault();
+      }
+      
+      // Focus search bar with Alt+/ or Ctrl+K
+      if ((e.altKey && e.key === '/') || (e.ctrlKey && e.key === 'k')) {
+        const searchInput = document.getElementById('room-search');
+        if (searchInput) {
+          searchInput.focus();
+          e.preventDefault();
+        }
+      }
+      
+      // Close notifications/shortcuts modal with Escape
+      if (e.key === 'Escape') {
+        if (isNotificationOpen) {
+          setIsNotificationOpen(false);
+          e.preventDefault();
+        }
+        if (isShortcutsModalOpen) {
+          setIsShortcutsModalOpen(false);
+          e.preventDefault();
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isNotificationOpen, isShortcutsModalOpen]);
 
   // Set sidebar open by default on desktop
   useEffect(() => {
@@ -168,16 +230,39 @@ export default function RoomsPage() {
     router.push('/rooms/create');
   };
 
-  // Filter rooms based on category
-  const filteredRooms = activeCategory === 0 
-    ? allRooms
-    : allRooms.filter(room => {
+  // Close shortcuts modal
+  const closeShortcutsModal = () => {
+    setIsShortcutsModalOpen(false);
+  };
+
+  // Filter rooms based on category and search query
+  const filteredRooms = allRooms
+    .filter(room => {
+      // Filter by category first
+      if (activeCategory !== 0) {
         const categoryName = categories.find(cat => cat.id === activeCategory)?.name.toLowerCase();
-        return room.type.toLowerCase() === categoryName;
-      });
+        if (room.type.toLowerCase() !== categoryName) return false;
+      }
+      
+      // Then filter by search query if it exists
+      if (searchQuery.trim() === '') return true;
+      
+      // Search in name, description, and tags
+      const query = searchQuery.toLowerCase();
+      return (
+        room.name.toLowerCase().includes(query) || 
+        (room.description && room.description.toLowerCase().includes(query)) ||
+        room.type.toLowerCase().includes(query)
+      );
+    });
 
   return (
-    <main className="flex min-h-screen flex-col bg-black text-white">
+    <main className="flex min-h-screen flex-col bg-black text-white" role="main" aria-label="Voice Rooms Page">
+      {/* Skip to content link for keyboard users */}
+      <a href="#content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-[#00FFFF] text-black p-2 z-50">
+        Skip to content
+      </a>
+      
       {/* Background effects */}
       <NeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.05} />
       
@@ -185,6 +270,7 @@ export default function RoomsPage() {
       <header 
         ref={headerRef}
         className="sticky top-0 z-30 bg-black/40 backdrop-blur-xl border-b border-white/10 px-6 py-4"
+        role="banner"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -193,6 +279,33 @@ export default function RoomsPage() {
             </Link>
             <div className="hidden sm:block px-2 py-1 bg-[#00FFFF]/10 text-[#00FFFF] rounded text-xs font-medium">
               Voice Rooms
+            </div>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md mx-4 hidden sm:block">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <IoSearchOutline className="h-5 w-5 text-white/50" />
+              </div>
+              <input
+                id="room-search"
+                type="text"
+                className="bg-black/30 border border-white/10 text-white placeholder-white/50 pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#00FFFF] focus:border-[#00FFFF]/50"
+                placeholder="Search rooms... (Alt+/)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search for rooms"
+              />
+              {searchQuery && (
+                <button
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                >
+                  <IoClose className="h-5 w-5 text-white/50 hover:text-white" />
+                </button>
+              )}
             </div>
           </div>
           
@@ -207,6 +320,19 @@ export default function RoomsPage() {
             >
               <IoAddOutline className="h-4 w-4" />
               <span>Create Room</span>
+            </m.button>
+            
+            {/* Keyboard Shortcuts Button */}
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsShortcutsModalOpen(true)}
+              aria-label="Keyboard shortcuts"
+              aria-haspopup="dialog"
+              aria-expanded={isShortcutsModalOpen}
+            >
+              <IoKeyOutline className="h-5 w-5" />
             </m.button>
             
             {/* Settings */}
@@ -227,7 +353,9 @@ export default function RoomsPage() {
               whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleNotifications}
-              aria-label="Notifications"
+              aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+              aria-haspopup="dialog"
+              aria-expanded={isNotificationOpen}
             >
               <IoNotificationsOutline className="h-5 w-5" />
               {unreadCount > 0 && (
@@ -243,6 +371,7 @@ export default function RoomsPage() {
                 className="relative hover:ring-2 hover:ring-[#00FFFF]/50 rounded-full"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                aria-label="Profile"
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00FFFF]/20 to-[#FF00E6]/20 border border-white/10 flex items-center justify-center text-sm">
                   U
@@ -251,21 +380,50 @@ export default function RoomsPage() {
             </Link>
           </div>
         </div>
+        
+        {/* Mobile Search Bar */}
+        <div className="mt-2 sm:hidden">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <IoSearchOutline className="h-5 w-5 text-white/50" />
+            </div>
+            <input
+              id="room-search-mobile"
+              type="text"
+              className="bg-black/30 border border-white/10 text-white placeholder-white/50 pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#00FFFF] focus:border-[#00FFFF]/50"
+              placeholder="Search rooms..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search for rooms"
+            />
+            {searchQuery && (
+              <button
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+              >
+                <IoClose className="h-5 w-5 text-white/50 hover:text-white" />
+              </button>
+            )}
+          </div>
+        </div>
       </header>
       
       {/* Main content with sidebar */}
       <div className="flex flex-1 relative">
         {/* Sidebar */}
-        <div 
+        <aside 
           ref={sidebarRef}
           className={`fixed md:static top-0 bottom-0 w-72 bg-black/60 backdrop-blur-md z-20 border-r border-white/10 transform transition-transform duration-300 ease-in-out ${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
           } mt-[73px] md:mt-0 h-[calc(100vh-73px)] md:h-auto overflow-y-auto`}
+          role="navigation"
+          aria-label="Categories and Communities"
         >
           <div className="p-6 flex flex-col gap-6 h-full">
             <div>
-              <h2 className="text-lg font-orbitron mb-4 text-[#00FFFF]">CATEGORIES</h2>
-              <div className="space-y-2">
+              <h2 className="text-lg font-orbitron mb-4 text-[#00FFFF]" id="categories-heading">CATEGORIES</h2>
+              <div className="space-y-2" role="list" aria-labelledby="categories-heading">
                 <CategoryItem 
                   category={{ id: 0, name: "All Rooms", icon: "🌐", count: allRooms.length, color: "#FF00E6" }}
                   isActive={activeCategory === 0}
@@ -283,8 +441,8 @@ export default function RoomsPage() {
             </div>
             
             <div>
-              <h2 className="text-lg font-orbitron mb-4 text-[#FF00E6]">COMMUNITIES</h2>
-              <div className="space-y-2">
+              <h2 className="text-lg font-orbitron mb-4 text-[#FF00E6]" id="communities-heading">COMMUNITIES</h2>
+              <div className="space-y-2" role="list" aria-labelledby="communities-heading">
                 {communities.map(community => (
                   <CommunityItem key={community.id} community={community} />
                 ))}
@@ -296,7 +454,7 @@ export default function RoomsPage() {
                 title="Online Users" 
                 value="2,356" 
                 icon={
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 }
@@ -305,19 +463,22 @@ export default function RoomsPage() {
                 title="Active Rooms" 
                 value={allRooms.length.toString()} 
                 icon={
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#FF00E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#FF00E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                   </svg>
                 }
               />
             </div>
           </div>
-        </div>
+        </aside>
         
         {/* Main content */}
         <div 
           ref={contentRef}
+          id="content"
           className="flex-1 px-4 pb-4 md:pl-6 md:pr-6 md:pb-6 relative"
+          role="region"
+          aria-label={`${activeCategory === 0 ? 'All' : categories.find(cat => cat.id === activeCategory)?.name} Rooms`}
         >
           {/* Header for current category */}
           <div className="sticky top-[73px] z-10 bg-black/60 backdrop-blur-lg py-4 border-b border-white/10 mb-6">
@@ -344,13 +505,19 @@ export default function RoomsPage() {
                 </m.button>
                 
                 {/* View toggle */}
-                <div className="flex bg-black/40 backdrop-blur-md rounded-md border border-white/10 p-1">
+                <div 
+                  className="flex bg-black/40 backdrop-blur-md rounded-md border border-white/10 p-1"
+                  role="radiogroup"
+                  aria-label="View style"
+                >
                   <button 
                     className={`p-2 rounded-md ${view === 'grid' ? 'bg-white/10' : ''}`}
                     onClick={() => setView('grid')}
                     aria-label="Grid view"
+                    aria-pressed={view === 'grid'}
+                    role="radio"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
                   </button>
@@ -358,8 +525,10 @@ export default function RoomsPage() {
                     className={`p-2 rounded-md ${view === 'list' ? 'bg-white/10' : ''}`}
                     onClick={() => setView('list')}
                     aria-label="List view"
+                    aria-pressed={view === 'list'}
+                    role="radio"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                   </button>
@@ -370,13 +539,15 @@ export default function RoomsPage() {
                   className="md:hidden p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10"
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   aria-label="Toggle sidebar"
+                  aria-expanded={isSidebarOpen}
+                  aria-controls="sidebar"
                 >
                   {isSidebarOpen ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                   )}
@@ -389,7 +560,11 @@ export default function RoomsPage() {
           {loading ? (
             <LoadingSpinner />
           ) : view === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              role="grid"
+              aria-label="Available voice rooms"
+            >
               {filteredRooms.map((room, index) => (
                 <EnhancedRoomCard
                   key={room.id}
@@ -400,16 +575,22 @@ export default function RoomsPage() {
               ))}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div 
+              className="space-y-4"
+              role="list"
+              aria-label="Available voice rooms list view"
+            >
               {filteredRooms.map((room, index) => (
                 <m.div 
                   key={room.id}
                   className="bg-black/40 backdrop-blur-md rounded-xl border border-white/10 p-4 hover:border-[#00FFFF]/30 transition-colors"
                   whileHover={{ backgroundColor: "rgba(255,255,255,0.05)", x: 5 }}
+                  role="listitem"
+                  tabIndex={0}
                 >
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div className="min-w-[120px]">
-                      <div className="flex items-end justify-center h-10 w-full">
+                      <div className="flex items-end justify-center h-10 w-full" aria-hidden="true">
                         {[...Array(18)].map((_, i) => {
                           const height = 10 + Math.random() * 20;
                           const color = i % 2 === 0 ? "#00FFFF" : "#FF00E6";
@@ -467,10 +648,65 @@ export default function RoomsPage() {
               ))}
             </div>
           )}
+          
+          {/* No rooms message */}
+          {filteredRooms.length === 0 && (
+            <div className="text-center p-8 border border-white/10 rounded-xl bg-black/40 backdrop-blur-md">
+              <h3 className="text-xl font-orbitron text-[#00FFFF] mb-2">No rooms found</h3>
+              <p className="text-white/70 mb-4">There are no rooms available in this category. Why not create one?</p>
+              <button
+                className="py-2 px-4 bg-gradient-to-r from-[#00FFFF]/20 to-[#FF00E6]/20 rounded-md border border-[#00FFFF]/30 text-[#00FFFF] font-medium"
+                onClick={handleCreateRoom}
+              >
+                Create Room
+              </button>
+            </div>
+          )}
         </div>
       </div>
       
-      {/* Floating Chatbot */}
+      {/* Accessibility keyboard shortcuts info */}
+      <div className="fixed bottom-4 left-4 z-20 bg-black/80 backdrop-blur-md p-2 rounded-md text-xs text-white/50">
+        <span>Alt+C: Chat • Alt+S: Sidebar • Alt+N: Notifications</span>
+      </div>
+      
+      {/* Keyboard Shortcuts Modal */}
+      {isShortcutsModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9000] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
+          <m.div 
+            className="bg-black/80 border border-white/10 rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+          >
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <h2 id="shortcuts-title" className="text-xl font-orbitron text-[#00FFFF]">Keyboard Shortcuts</h2>
+              <button 
+                onClick={closeShortcutsModal}
+                className="p-1 rounded-full hover:bg-white/10"
+                aria-label="Close keyboard shortcuts"
+              >
+                <IoClose className="h-6 w-6 text-white/70" />
+              </button>
+            </div>
+            <div className="p-4">
+              <div className="space-y-3">
+                {keyboardShortcuts.map((shortcut, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <span className="bg-black/70 border border-white/20 px-3 py-1 rounded-md text-white/90 font-mono text-sm">{shortcut.key}</span>
+                    <span className="text-white/70">{shortcut.description}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 text-center">
+                <p className="text-white/50 text-sm">Press <span className="font-mono bg-black/70 border border-white/20 px-2 py-0.5 rounded text-xs">Alt+K</span> to open this dialog anytime</p>
+              </div>
+            </div>
+          </m.div>
+        </div>
+      )}
+
+      {/* Floating Chatbot - always visible */}
       <FloatingChatbot />
       
       {/* Notification Panel */}

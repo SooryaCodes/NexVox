@@ -8,6 +8,7 @@ import GlassmorphicCard from '@/components/GlassmorphicCard';
 import FuturisticButton from '@/components/FuturisticButton';
 import { useSoundContext } from '@/components/SoundProvider';
 import soundEffects from '@/utils/soundEffects';
+import gsap from 'gsap';
 
 // Custom toast notification component
 const CyberToast = ({ 
@@ -250,49 +251,33 @@ export default function Register() {
   // Show success animation
   useEffect(() => {
     if (registerSuccess && successCircleRef.current) {
-      // Reset first
-      successCircleControls.set({ scale: 0, opacity: 0 });
+      // Play success sound
+      soundEffects.play('success');
       
-      // Grow animation
-      successCircleControls.start({
-        scale: 10,
-        opacity: 1,
-        transition: {
-          duration: 0.8,
-          ease: "easeOut"
-        }
-      }).then(() => {
-        // Pulse animation
-        successCircleControls.start({
-          boxShadow: '0 0 40px rgba(0, 255, 255, 0.8)',
-          transition: {
-            duration: 1,
-            repeat: Infinity,
-            repeatType: "reverse"
+      // Animate success circle
+      const circle = successCircleRef.current;
+      
+      gsap.fromTo(
+        circle,
+        { scale: 0, opacity: 0 },
+        { 
+          scale: 1, 
+          opacity: 1, 
+          duration: 0.5,
+          ease: 'elastic.out(1, 0.3)',
+          onComplete: () => {
+            // Pulse animation
+            gsap.to(circle, {
+              boxShadow: '0 0 40px rgba(0, 255, 255, 0.8)',
+              duration: 1,
+              repeat: 2,
+              yoyo: true
+            });
           }
-        });
-      });
-      
-      // Title glitch effect
-      const glitchInterval = setInterval(() => {
-        const title = document.getElementById('app-title');
-        if (title) {
-          // Apply random skew
-          const skewX = Math.random() * 10 - 5;
-          const skewY = Math.random() * 10 - 5;
-          
-          title.style.transform = `skew(${skewX}deg, ${skewY}deg)`;
-          
-          // Reset after a short delay
-          setTimeout(() => {
-            title.style.transform = 'skew(0deg, 0deg)';
-          }, 100);
         }
-      }, 2000);
-      
-      return () => clearInterval(glitchInterval);
+      );
     }
-  }, [registerSuccess, successCircleControls]);
+  }, [registerSuccess]);
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -419,6 +404,11 @@ export default function Register() {
         
         // Trigger success animation
         setRegisterSuccess(true);
+        
+        // Redirect to rooms after showing success animation
+        setTimeout(() => {
+          window.location.href = '/rooms';
+        }, 2000);
       }, 2000);
     }
   };
@@ -462,16 +452,29 @@ export default function Register() {
       
       {/* Success overlay */}
       {registerSuccess && (
-        <m.div
-          ref={successCircleRef}
-          className="fixed z-40 top-1/2 left-1/2 w-10 h-10 rounded-full bg-[#00FFFF] shadow-[0_0_20px_rgba(0,255,255,0.7)]"
-          style={{ 
-            translateX: '-50%', 
-            translateY: '-50%'
-          }}
-          initial={{ scale: 0, opacity: 0 }}
-          animate={successCircleControls}
-        />
+        <div className="fixed z-40 inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="w-full max-w-md flex flex-col items-center justify-center">
+            <div 
+              ref={successCircleRef} 
+              className="w-32 h-32 rounded-full bg-[#00FFFF]/20 border-2 border-[#00FFFF] flex items-center justify-center opacity-0"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="mt-8 text-2xl font-orbitron text-[#00FFFF] glow">Registration Successful</h2>
+            <p className="mt-4 text-gray-300 text-center max-w-xs">
+              Redirecting to your dashboard...
+            </p>
+            
+            {/* Animated terminal text */}
+            <div className="mt-8 w-full max-w-xs bg-black/60 border border-[#00FFFF]/30 p-4 rounded-md font-mono text-sm">
+              <p className="text-[#00FFFF]">{'>'} Creating account...</p>
+              <p className="text-[#00FFFF]">{'>'} Connecting to servers...</p>
+              <p className="text-white opacity-80">{'>'} <span className="inline-block w-3 h-4 bg-white/80 animate-pulse"></span></p>
+            </div>
+          </div>
+        </div>
       )}
       
       <div className="container mx-auto max-w-7xl z-10 flex flex-col lg:flex-row gap-8 lg:gap-16">
@@ -701,33 +704,7 @@ export default function Register() {
                 )}
               </form>
             </GlassmorphicCard>
-          ) : (
-            <GlassmorphicCard
-              gradient="cyan-purple"
-              className="p-8 text-center"
-              glowOnHover={true}
-            >
-              <m.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="py-10"
-              >
-                <h3 className="text-3xl font-bold text-[#00FFFF] mb-6 font-orbitron">Welcome to NexVox!</h3>
-                <p className="text-lg mb-6">Your account has been successfully created.</p>
-                <FuturisticButton
-                  text="Continue to Login"
-                  type="neon"
-                  className="mx-auto mt-4"
-                  accessibilityLabel="Go to login page"
-                  rippleEffect={true}
-                  onClick={() => {
-                    window.location.href = '/login';
-                  }}
-                />
-              </m.div>
-            </GlassmorphicCard>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

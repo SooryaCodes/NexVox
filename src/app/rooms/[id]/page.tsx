@@ -26,6 +26,7 @@ import ChatTab from "@/components/rooms/voice/ChatTab";
 import ParticipantsTab from "@/components/rooms/voice/ParticipantsTab";
 import SettingsTab from "@/components/rooms/voice/SettingsTab";
 import ProfileTab from "@/components/rooms/voice/ProfileTab";
+import PublicUserProfileCard from "@/components/rooms/voice/PublicUserProfileCard";
 
 // Import data
 import roomsData from "../../data/rooms.json";
@@ -212,6 +213,7 @@ export default function RoomPage() {
   );
   
   const [activeSpeakers, setActiveSpeakers] = useState<number[]>([]);
+  const [selectedParticipant, setSelectedParticipant] = useState<User | null>(null);
   
   useEffect(() => {
     const handleResize = () => {
@@ -824,7 +826,7 @@ export default function RoomPage() {
                 isSpeaking: activeSpeakers.includes(index)
               }))}
               onUserClick={(user: User) => {
-                // Show mini profile or take action
+                setSelectedParticipant(user);
                 addToast(`Viewing ${user.name}'s profile`, 'success');
               }}
             />
@@ -985,6 +987,21 @@ export default function RoomPage() {
           <UserProfileCard 
             user={currentUser} 
             onClose={() => setShowUserProfile(false)} 
+          />
+        )}
+      </AnimatePresence>
+      
+      {/* Public User Profile Card for other participants */}
+      <AnimatePresence>
+        {selectedParticipant && (
+          <PublicUserProfileCard
+            user={selectedParticipant}
+            onClose={() => setSelectedParticipant(null)}
+            onConnect={() => {
+              // Handle connect action here
+              addToast(`Connection request sent to ${selectedParticipant.name}`, 'success');
+              setSelectedParticipant(null);
+            }}
           />
         )}
       </AnimatePresence>
