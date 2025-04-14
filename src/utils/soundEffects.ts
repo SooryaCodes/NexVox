@@ -10,15 +10,18 @@ class SoundEffects {
   private lastPlayed: Map<string, number> = new Map();
   private firstInteraction: boolean = false;
   private isClient: boolean = typeof window !== 'undefined';
+  private isNavigating: boolean = false;
+  private playQueue: Array<{name: string, debounceMs: number}> = [];
+  private processingQueue: boolean = false;
 
   private constructor() {
     // Only initialize audio on client-side
     if (this.isClient) {
-      // Pre-load common sounds
+      // Pre-load common sounds - use only files that actually exist
       this.preloadSound('click', '/audios/digital-click.mp3');
-      this.preloadSound('click-soft', '/audios/soft-click.mp3');
-      this.preloadSound('click-heavy', '/audios/heavy-click.mp3');
-      this.preloadSound('click-muted', '/audios/muted-click.mp3');
+      this.preloadSound('click-soft', '/audios/digital-click.mp3'); // Fallback for missing soft-click
+      this.preloadSound('click-heavy', '/audios/digital-click2.mp3'); // Use existing similar sound
+      this.preloadSound('click-muted', '/audios/digital-click.mp3'); // Fallback
       this.preloadSound('hover', '/audios/digital-blip.mp3');
       this.preloadSound('error', '/audios/error.mp3');
       this.preloadSound('success', '/audios/process-request-accept.mp3');
@@ -33,23 +36,23 @@ class SoundEffects {
       this.preloadSound('oscillation', '/audios/oscillation.mp3');
       this.preloadSound('ignite', '/audios/ignite.mp3');
 
-      // Pre-load UI sounds
-      this.preloadSound('toggle', '/audios/toggle.mp3');
-      this.preloadSound('select', '/audios/select.mp3');
-      this.preloadSound('confirm', '/audios/confirm.mp3');
-      this.preloadSound('cancel', '/audios/cancel.mp3');
-      this.preloadSound('tab', '/audios/tab.mp3');
-      this.preloadSound('save', '/audios/save.mp3');
-      this.preloadSound('edit', '/audios/edit.mp3');
-      this.preloadSound('delete', '/audios/delete.mp3');
-      this.preloadSound('notification', '/audios/notification.mp3');
-      this.preloadSound('avatar', '/audios/avatar.mp3');
-      this.preloadSound('status', '/audios/status.mp3');
-      this.preloadSound('theme', '/audios/theme.mp3');
-      this.preloadSound('language', '/audios/language.mp3');
-      this.preloadSound('privacy', '/audios/privacy.mp3');
-      this.preloadSound('device', '/audios/device.mp3');
-      this.preloadSound('accessibility', '/audios/accessibility.mp3');
+      // Pre-load UI sounds - use fallbacks for missing files
+      this.preloadSound('toggle', '/audios/digital-click.mp3'); // Fallback
+      this.preloadSound('select', '/audios/digital-blip.mp3'); // Fallback
+      this.preloadSound('confirm', '/audios/process-request-accept.mp3'); // Fallback
+      this.preloadSound('cancel', '/audios/error.mp3'); // Fallback
+      this.preloadSound('tab', '/audios/digital-blip.mp3'); // Fallback
+      this.preloadSound('save', '/audios/final-accept.mp3'); // Fallback
+      this.preloadSound('edit', '/audios/digital-click2.mp3'); // Fallback
+      this.preloadSound('delete', '/audios/error.mp3'); // Fallback
+      this.preloadSound('notification', '/audios/digital-blip.mp3'); // Fallback
+      this.preloadSound('avatar', '/audios/digital-click.mp3'); // Fallback
+      this.preloadSound('status', '/audios/digital-click.mp3'); // Fallback
+      this.preloadSound('theme', '/audios/digital-blip.mp3'); // Fallback
+      this.preloadSound('language', '/audios/digital-click.mp3'); // Fallback
+      this.preloadSound('privacy', '/audios/digital-click.mp3'); // Fallback
+      this.preloadSound('device', '/audios/digital-click.mp3'); // Fallback
+      this.preloadSound('accessibility', '/audios/digital-click.mp3'); // Fallback
 
       // Set up first interaction listener to handle autoplay restrictions
       const handleFirstInteraction = () => {
@@ -100,25 +103,103 @@ class SoundEffects {
     
     const audio = new Audio(path);
     audio.volume = this.volume;
+    
+    // Add error handling to prevent uncaught 404 errors
+    audio.addEventListener('error', (e) => {
+      console.warn(`Failed to load audio: ${path}`);
+      // Remove from sounds map to avoid future errors
+      this.sounds.delete(name);
+    });
+    
     audio.load();
     this.sounds.set(name, audio);
   }
 
+  // Set navigation state
+  public setNavigating(isNavigating: boolean): void {
+    this.isNavigating = isNavigating;
+    
+    // If we're no longer navigating, process any queued sounds
+    if (!isNavigating && this.playQueue.length > 0) {
+      this.processPlayQueue();
+    }
+  }
+
+  private processPlayQueue(): void {
+    if (this.processingQueue) return;
+    
+    this.processingQueue = true;
+    
+    // Process at most 2 sounds from the queue
+    const toProcess = this.playQueue.splice(0, 2);
+    
+    toProcess.forEach(({name, debounceMs}) => {
+      this._playSound(name, debounceMs);
+    });
+    
+    this.processingQueue = false;
+    
+    // If there are more items and we're not navigating, schedule next batch
+    if (this.playQueue.length > 0 && !this.isNavigating) {
+      setTimeout(() => this.processPlayQueue(), 100);
+    }
+  }
+
   // Play a sound with debounce protection
   public play(name: string, debounceMs: number = 50): void {
+    // During navigation, only allow essential sounds or queue less important ones
+    if (this.isNavigating && name !== 'transition') {
+      // Queue the sound to play after navigation completes
+      this.playQueue.push({name, debounceMs});
+      return;
+    }
+    
+    this._playSound(name, debounceMs);
+  }
+  
+  // Internal method to actually play the sound
+  private _playSound(name: string, debounceMs: number = 50): void {
     if (!this.isClient || !this.enabled || !this.firstInteraction) return;
 
     const now = Date.now();
     const lastPlayed = this.lastPlayed.get(name) || 0;
     
-    if (now - lastPlayed < debounceMs) return;
+    // More aggressive debouncing during navigation
+    const effectiveDebounce = this.isNavigating ? Math.max(debounceMs, 300) : debounceMs;
+    
+    if (now - lastPlayed < effectiveDebounce) return;
     
     const sound = this.sounds.get(name);
-    if (!sound) return;
+    if (!sound) {
+      // Handle missing sound - try to use a default sound instead
+      const defaultSound = this.sounds.get('click');
+      if (!defaultSound) return; // No fallback available
+      
+      // Use default sound instead
+      defaultSound.currentTime = 0;
+      defaultSound.play().catch(() => {});
+      this.lastPlayed.set(name, now);
+      return;
+    }
     
     // Reset the sound to the beginning
     sound.currentTime = 0;
+    
+    // Lower volume for navigation sounds
+    const originalVolume = sound.volume;
+    if (this.isNavigating) {
+      sound.volume = Math.min(originalVolume, 0.3);
+    }
+    
     sound.play().catch(() => {});
+    
+    // Reset volume after playback
+    if (this.isNavigating) {
+      setTimeout(() => {
+        sound.volume = originalVolume;
+      }, 500);
+    }
+    
     this.lastPlayed.set(name, now);
   }
 

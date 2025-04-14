@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import { usePathname } from 'next/navigation'
 import AnimationProvider from '@/components/AnimationProvider'
 import SmoothScroll from '@/components/ScrollTriggerSetup'
 import { Inter, Orbitron } from 'next/font/google'
@@ -38,14 +39,14 @@ export default function RootLayout({
           <UserProvider>
             <SmoothScroll />
             
-            <div>
+            <div className="flex flex-col min-h-screen">
               <AnimationProvider>
-                {children}
+                <main className="flex-grow">
+                  {children}
+                </main>
                 <FloatingChatbotController />
               </AnimationProvider>
             </div>
-            
-            {/* Global Floating Chatbot outside of AnimationProvider to ensure fixed positioning */}
           </UserProvider>
         </SoundProvider>
       </body>

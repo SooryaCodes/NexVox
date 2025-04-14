@@ -1,7 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import soundEffects from '@/utils/soundEffects';
+import { usePathname } from 'next/navigation';
+import { debounce } from '@/utils/performance';
 
 // Create a context for sound settings
 type SoundContextType = {
@@ -27,6 +29,10 @@ export const useSoundContext = () => useContext(SoundContext);
 export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [soundsEnabled, setSoundsEnabled] = useState(true);
   const [volume, setVolume] = useState(0.5);
+  const [lastPathname, setLastPathname] = useState('');
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+  const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Apply sound settings when they change
   useEffect(() => {
@@ -37,24 +43,115 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     soundEffects.setVolume(volume);
   }, [volume]);
 
-  // Initialize page transition sounds
+  // Detect navigation and play transition sound
   useEffect(() => {
-    const handleRouteChangeStart = () => {
-      soundEffects.play('transition');
+    if (lastPathname && pathname !== lastPathname) {
+      // Only for major navigation changes (ignore hash changes)
+      if (!pathname.includes('#') && !lastPathname.includes('#')) {
+        // Pathname changed, indicating navigation
+        soundEffects.setNavigating(true);
+        
+        // On homepage transitions, add a special effect
+        if (pathname === '/' || lastPathname === '/') {
+          // Remove transition sound
+          // soundEffects.playTransition();
+        } else {
+          // Regular page transition
+          // soundEffects.playTransition();
+        }
+        
+        // Reset navigation state after transition
+        if (navigationTimeoutRef.current) {
+          clearTimeout(navigationTimeoutRef.current);
+        }
+        
+        navigationTimeoutRef.current = setTimeout(() => {
+          soundEffects.setNavigating(false);
+          navigationTimeoutRef.current = null;
+        }, 350);
+      }
+    }
+    
+    setLastPathname(pathname);
+    
+    // Clean up timeout
+    return () => {
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = null;
+      }
     };
+  }, [pathname, lastPathname]);
+
+  // Initialize page transition sounds with optimized handlers
+  useEffect(() => {
+    // Create a debounced version of the transition handler
+    let navigationDebounceTimer: NodeJS.Timeout | null = null;
+    
+    const handleRouteChangeStart = debounce(() => {
+      // Prevent duplicate sounds
+      if (navigationDebounceTimer) {
+        clearTimeout(navigationDebounceTimer);
+      }
+      
+      navigationDebounceTimer = setTimeout(() => {
+        soundEffects.setNavigating(true);
+        // Remove transition sound
+        // soundEffects.playTransition();
+      }, 50);
+    }, 100);
+    
+    const handleRouteChangeComplete = debounce(() => {
+      if (navigationDebounceTimer) {
+        clearTimeout(navigationDebounceTimer);
+      }
+      
+      // Delay to allow for animations to complete
+      navigationDebounceTimer = setTimeout(() => {
+        soundEffects.setNavigating(false);
+      }, 300);
+    }, 100);
 
     // Initialize with browser history API for SPA
-    // This could be integrated with Next.js Router in a real implementation
     window.addEventListener('popstate', handleRouteChangeStart);
-
+    
+    // Clean up
     return () => {
       window.removeEventListener('popstate', handleRouteChangeStart);
+      if (navigationDebounceTimer) {
+        clearTimeout(navigationDebounceTimer);
+      }
     };
   }, []);
 
-  // Function to play a sound by name
+  // Function to play a sound by name with optimization
   const playSound = useCallback((name: string) => {
-    soundEffects.play(name);
+    // Prevent sounds during navigation except for transition sounds
+    if (!name.includes('transition') && soundEffects['isNavigating']) {
+      return;
+    }
+    
+    // Use dedicated sound method if available
+    switch (name) {
+      case 'click':
+        soundEffects.playClick();
+        break;
+      case 'hover':
+        soundEffects.playHover();
+        break;
+      case 'transition':
+        // Disabled transition sounds
+        // soundEffects.playTransition();
+        break;
+      case 'success':
+        soundEffects.playSuccess();
+        break;
+      case 'error':
+        soundEffects.playError();
+        break;
+      default:
+        soundEffects.play(name);
+    }
   }, []);
 
   // Create the context value
@@ -79,7 +176,11 @@ export const SoundToggle: React.FC = () => {
 
   const toggleSound = () => {
     setSoundsEnabled(!soundsEnabled);
-    soundEffects.play('click');
+    
+    // Play sound after toggling (will only be heard when turning on)
+    if (!soundsEnabled) {
+      setTimeout(() => soundEffects.playClick(), 10);
+    }
   };
 
   return (

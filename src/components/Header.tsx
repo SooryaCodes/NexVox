@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import Link from 'next/link';
 import { m, motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
@@ -8,32 +8,36 @@ import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
 import { IoMenuOutline, IoClose } from "react-icons/io5";
 import HeaderUserMenu from '@/components/HeaderUserMenu';
+import { useNavigation } from '@/hooks/useNavigation';
+import { throttle } from '@/utils/performance';
 
-const Header = () => {
-  const pathname = usePathname();
+// Memoized Header component for better performance
+const Header = memo(() => {
+  const { pathname, isNavigating, navigate } = useNavigation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentHash, setCurrentHash] = useState('');
 
+  // Throttled scroll handler for better performance
+  const handleScroll = useCallback(throttle(() => {
+    setIsScrolled(window.scrollY > 20);
+  }, 100), []);
+  
+  // Close mobile menu on resize to desktop
+  const handleResize = useCallback(throttle(() => {
+    if (window.innerWidth >= 768 && isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  }, 200), [isMobileMenuOpen]);
+  
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    
-    // Close mobile menu on resize to desktop
-    const handleResize = () => {
-      if (window.innerWidth >= 768 && isMobileMenuOpen) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize); 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
     };
-  }, [isMobileMenuOpen]); // Add dependency
+  }, [handleScroll, handleResize]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -48,6 +52,7 @@ const Header = () => {
     { name: 'Testimonials', href: '/#testimonials' },
   ];
 
+  // Simplified variants with minimal properties
   const headerVariants = {
     initial: { y: -100, opacity: 0 },
     animate: { 
@@ -57,17 +62,17 @@ const Header = () => {
         type: "spring", 
         stiffness: 300, 
         damping: 30,
-        delay: 0.2
+        delay: 0.1
       }
     }
   };
 
+  // Simplified variants with reduced complexity
   const logoVariants = {
     normal: { scale: 1 },
     hover: { 
       scale: 1.05, 
-      color: "#00FFFF", 
-      textShadow: "0 0 15px rgba(0, 255, 255, 0.8)",
+      color: "#00FFFF",
       transition: { 
         type: "spring", 
         stiffness: 400,
@@ -77,12 +82,10 @@ const Header = () => {
   };
 
   const navItemVariants = {
-    normal: { scale: 1, x: 0 },
+    normal: { scale: 1 },
     hover: { 
-      scale: 1.1, 
-      x: 5,
+      scale: 1.05,
       color: "#00FFFF",
-      textShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
       transition: { 
         type: "spring", 
         stiffness: 400,
@@ -95,35 +98,24 @@ const Header = () => {
     closed: {
       opacity: 0,
       height: 0,
-      transition: {
-        duration: 0.3,
-        when: "afterChildren",
-        staggerChildren: 0.05,
-        staggerDirection: -1
-      }
+      transition: { duration: 0.2 }
     },
     open: {
       opacity: 1,
       height: "auto",
-      transition: {
-        duration: 0.4,
-        when: "beforeChildren",
-        staggerChildren: 0.1,
-        delayChildren: 0.1
-      }
+      transition: { duration: 0.2 }
     }
   };
 
   const mobileItemVariants = {
-    closed: { y: 20, opacity: 0 },
-    open: { y: 0, opacity: 1 }
+    closed: { opacity: 0 },
+    open: { opacity: 1 }
   };
 
   const buttonVariants = {
-    normal: { scale: 1, boxShadow: "0 0 0 rgba(0, 255, 255, 0)" },
+    normal: { scale: 1 },
     hover: { 
       scale: 1.05, 
-      boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
       transition: { 
         type: "spring", 
         stiffness: 400,
@@ -132,67 +124,57 @@ const Header = () => {
     }
   };
 
-  const glowCircleVariants = {
-    initial: { scale: 0.5, opacity: 0 },
-    animate: { 
-      scale: [0.5, 1.5, 0.5], 
-      opacity: [0, 0.3, 0],
-      transition: {
-        duration: 4,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
-
-  const toggleMobileMenu = () => {
-    soundEffects.loadAndPlay(isMobileMenuOpen ? 'digital-click' : 'digital-click2', 
-      isMobileMenuOpen ? '/audios/digital-click.mp3' : '/audios/digital-click2.mp3');
-    setIsMobileMenuOpen(prev => !prev);
-  };
-  
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, isMobile: boolean = false) => {
+  const toggleMobileMenu = useCallback(() => {
     soundEffects.playClick();
-    const href = e.currentTarget.getAttribute('href');
+    setIsMobileMenuOpen(prev => !prev);
+  }, []);
+  
+  const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, isMobile: boolean = false) => {
+    e.preventDefault();
+    const href = e.currentTarget.getAttribute('href') || '/';
     
-    if (href && href.includes('#') && pathname === '/') {
-      e.preventDefault();
-        const targetId = href.substring(href.indexOf('#') + 1);
-      const element = document.getElementById(targetId);
-      if (element) {
-            // Calculate offset for fixed header
-            const headerOffset = 80; // Adjust as needed based on header height
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+    // Play subtle click sound instead of transition sound
+    soundEffects.playClick('soft');
+    
+    // For non-hash links (like /rooms), force immediate navigation
+    if (!href.includes('#')) {
+      // Use our optimized navigation - force routing to happen immediately
+      navigate(href, { skipTransition: true });
       
-            window.scrollTo({
-                 top: offsetPosition,
-                 behavior: "smooth"
-            });
-        setCurrentHash('#' + targetId);
+      if (isMobile) {
+        setIsMobileMenuOpen(false);
       }
+      return;
     }
-    // No else needed for direct links like /rooms, NextLink handles it
+    
+    // For hash links, use hash navigation behavior
+    if (href.includes('#') && pathname === '/') {
+      const targetId = href.substring(href.indexOf('#') + 1);
+      setCurrentHash('#' + targetId);
+    }
+    
+    // Use our optimized navigation
+    navigate(href, { skipTransition: true });
     
     if (isMobile) {
-        setIsMobileMenuOpen(false); // Close menu after mobile click
+      setIsMobileMenuOpen(false);
     }
-  };
+  }, [navigate, pathname]);
 
-  const isNavItemActive = (href: string) => {
-      if (href.includes('#') && pathname === '/') {
-          // Check hash for homepage sections
-          return currentHash === href.substring(href.indexOf('#'));
-      }
-      // Check base path for other pages
-      return pathname === href || pathname.startsWith(href + '/'); 
-  };
+  const isNavItemActive = useCallback((href: string) => {
+    if (href.includes('#') && pathname === '/') {
+      // Check hash for homepage sections
+      return currentHash === href.substring(href.indexOf('#'));
+    }
+    // Check base path for other pages
+    return pathname === href || pathname.startsWith(href + '/'); 
+  }, [currentHash, pathname]);
 
   return (
     <m.header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? 'bg-black/80 backdrop-blur-md border-b border-[#0ff]/10' : 'bg-transparent'
-      }`}
+      } ${isNavigating ? 'pointer-events-none opacity-80' : ''}`}
       variants={headerVariants}
       initial="initial"
       animate="animate"
@@ -200,22 +182,20 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20"> {/* Consistent height */}
           {/* Logo */}
-            <m.div 
-              className="relative"
-              variants={logoVariants}
-              initial="normal"
-              whileHover="hover"
+          <m.div 
+            className="relative"
+            variants={logoVariants}
+            initial="normal"
+            whileHover="hover"
+          >
+            <a 
+              href="/" 
+              onClick={handleNavClick} 
+              className="font-orbitron text-xl sm:text-2xl font-bold text-[#0ff] glow flex items-center"
             >
-             <Link href="/" className="font-orbitron text-xl sm:text-2xl font-bold text-[#0ff] glow flex items-center" onClick={(e) => handleNavClick(e)}>
-                <m.div 
-                  className="absolute -inset-1 rounded-full bg-[#0ff]"
-                  variants={glowCircleVariants}
-                  initial="initial"
-                  animate="animate"
-                />
-               <span className="relative z-10">Nex<span className="text-purple-400">Vox</span></span>
-              </Link>
-            </m.div>
+              <span className="relative z-10">Nex<span className="text-purple-400">Vox</span></span>
+            </a>
+          </m.div>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 lg:space-x-8"> {/* Adjusted spacing */}
@@ -226,7 +206,7 @@ const Header = () => {
                 initial="normal"
                 whileHover="hover"
               >
-                <Link 
+                <a 
                   href={item.href} 
                   className={`text-sm lg:text-base transition-colors duration-300 ${ // Adjusted text size
                     isNavItemActive(item.href) 
@@ -237,110 +217,83 @@ const Header = () => {
                   aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                 >
                   {item.name}
-                </Link>
+                </a>
               </m.div>
             ))}
           
-              <div className="mr-2">
-                <SoundToggle />
-              </div>
+            <div className="mr-2">
+              <SoundToggle />
+            </div>
             
             {/* Replace auth buttons with HeaderUserMenu for authenticated users */}
             <HeaderUserMenu />
           </nav>
           
           {/* Mobile menu button */}
-          <div className="flex md:hidden items-center">
-              <div className="mr-2">
-                <SoundToggle />
-              </div>
-              <button
+          <div className="md:hidden flex items-center">
+            <SoundToggle />
+            
+            <m.button
+              className="ml-2 p-2 rounded-md text-white/80 hover:text-white focus:outline-none"
               onClick={toggleMobileMenu}
-                className="inline-flex items-center justify-center p-2 rounded-md text-[#0ff] hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#0ff]"
-                aria-controls="mobile-menu"
-                aria-expanded={isMobileMenuOpen}
-                aria-label={isMobileMenuOpen ? "Close main menu" : "Open main menu"}
-              >
-                <span className="sr-only">{isMobileMenuOpen ? "Close main menu" : "Open main menu"}</span>
-                {/* Correctly toggle icon based on state */}
-                {isMobileMenuOpen ? (
-                  <IoClose className="block h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <IoMenuOutline className="block h-6 w-6" aria-hidden="true" />
-                )}
-              </button>
+              variants={buttonVariants}
+              initial="normal"
+              whileHover="hover"
+              whileTap={{ scale: 0.95 }}
+            >
+              {isMobileMenuOpen ? (
+                <IoClose className="h-6 w-6" />
+              ) : (
+                <IoMenuOutline className="h-6 w-6" />
+              )}
+            </m.button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Navigation Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
+      {/* Mobile menu with lazy rendering */}
+      {isMobileMenuOpen && (
+        <AnimatePresence>
           <m.div
-            id="mobile-menu"
-            className="fixed inset-0 z-40 pt-16 md:hidden" // Use fixed positioning and ensure it's on top
+            className="md:hidden bg-black/95 backdrop-blur-md border-b border-[#0ff]/10 overflow-hidden"
             variants={mobileMenuVariants}
             initial="closed"
             animate="open"
             exit="closed"
           >
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-lg"></div>
-
-            <div className="relative h-full overflow-y-auto px-5 pb-6 pt-5 space-y-6"> {/* Content container */}
-              {/* Explicit close button at the top right */}
-              <button 
-                onClick={toggleMobileMenu}
-                className="absolute top-2 right-2 p-2 rounded-full bg-[#0ff]/20 text-white hover:bg-[#0ff]/30 hover:text-[#0ff] transition-colors z-50"
-                aria-label="Close menu"
-              >
-                <IoClose className="h-6 w-6" />
-              </button>
-              
+            <div className="px-4 pt-2 pb-4 space-y-1">
               {navItems.map((item) => (
-                <m.div
+                <m.div 
                   key={item.name}
-                  variants={mobileItemVariants}
-                  className="border-b border-white/10 pb-4"
+                  className="border-b border-white/10 last:border-b-0"
                 >
-                  <Link 
+                  <a
                     href={item.href}
-                    className={`block rounded-md py-2 text-base font-medium transition-colors duration-300 ${
-                      isNavItemActive(item.href) ? 'text-[#0ff]' : 'text-white/80 hover:text-[#0ff]'
+                    className={`block px-3 py-3 text-base font-medium ${
+                      isNavItemActive(item.href) 
+                        ? 'text-[#0ff]' 
+                        : 'text-white/80 hover:text-[#0ff]'
                     }`}
-                    // Pass true for isMobile to close menu on click
-                    onClick={(e) => handleNavClick(e, true)} 
+                    onClick={(e) => handleNavClick(e, true)}
                     aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                   >
                     {item.name}
-                  </Link>
+                  </a>
                 </m.div>
               ))}
               
-              {/* Auth buttons for mobile */}
-              <m.div variants={mobileItemVariants} className="pt-6 flex flex-col space-y-4">
-                <Link 
-                  href="/login"
-                  className="w-full px-4 py-3 font-semibold text-white text-center border border-[#0ff] rounded-md"
-                  onClick={(e) => handleNavClick(e, true)}
-                >
-                  Sign In
-                </Link>
-              
-                <Link 
-                  href="/register"
-                  className="w-full px-4 py-3 font-semibold text-black text-center bg-[#0ff] rounded-md hover:bg-opacity-90 transition-colors"
-                   onClick={(e) => handleNavClick(e, true)}
-                >
-                  Sign Up
-                </Link>
-              </m.div>
+              {/* Mobile user menu */}
+              <div className="pt-2">
+                <HeaderUserMenu />
+              </div>
             </div>
           </m.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      )}
     </m.header>
   );
-};
+});
+
+Header.displayName = 'Header';
 
 export default Header; 

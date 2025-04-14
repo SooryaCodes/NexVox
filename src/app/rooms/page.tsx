@@ -238,7 +238,6 @@ export default function RoomsPage() {
 
   // Navigate to create room page
   const handleCreateRoom = () => {
-    playTransition();
     router.push('/rooms/create');
   };
 

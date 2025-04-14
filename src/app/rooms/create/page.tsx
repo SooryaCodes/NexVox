@@ -171,7 +171,6 @@ const CreateRoomPage = () => {
       });
       
       playSuccess();
-      playTransition();
       router.push(`/rooms/${newRoom.id}`);
     } catch (err) {
       playError();
@@ -179,6 +178,12 @@ const CreateRoomPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoBack = () => {
+    // Removed transition sound
+    // playTransition();
+    router.back();
   };
 
   return (

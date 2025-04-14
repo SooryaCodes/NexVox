@@ -20,7 +20,9 @@ import CyberMarquee from "@/components/CyberMarquee";
 import HolographicCard from "@/components/HolographicCard";
 import AmbientRoom from "@/components/AmbientRoom";
 import useSoundEffects from "@/hooks/useSoundEffects";
+import { useNavigation } from "@/hooks/useNavigation";
 import soundEffects from "@/utils/soundEffects";
+import setupNavigationOptimizations from "@/utils/navigation-optimizer";
 import Link from "next/link";
 import { IoMenuOutline } from "react-icons/io5";
 
@@ -76,14 +78,17 @@ const testimonials = [
 const SoundEffectsController = () => {
   const { playTransition } = useSoundEffects();
   
-  // Add scrolling sound effects
+  // Initialize navigation optimizations on component mount
   useEffect(() => {
-    // Sound is handled by the useSoundEffects hook automatically
+    // Initialize navigation optimizations
+    setupNavigationOptimizations();
     
-    // Play initial transition sound on load
-    setTimeout(() => {
-      playTransition();
-    }, 1000);
+    // Remove the initial transition sound on load
+    // const timer = setTimeout(() => {
+    //   playTransition();
+    // }, 1000);
+    
+    // return () => clearTimeout(timer);
   }, [playTransition]);
   
   return null; // This component doesn't render anything
@@ -91,6 +96,7 @@ const SoundEffectsController = () => {
 
 export default function Home() {
   const router = useRouter();
+  const { navigate, isNavigating } = useNavigation();
   const mainRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -104,9 +110,10 @@ export default function Home() {
     "Connect Like Never Before"
   ];
 
-  // Add these handler functions
+  // Optimized navigation handlers using the new hook
   const handleExploreRooms = () => {
-    router.push("/rooms");
+    // Force immediate navigation to rooms page without transition sound
+    navigate("/rooms", { skipTransition: true });
   };
   
   const handleLearnMore = () => {
@@ -115,20 +122,27 @@ export default function Home() {
   };
   
   const handleBrowseRooms = () => {
-    router.push("/rooms");
+    // Force immediate navigation to rooms page without transition sound
+    navigate("/rooms", { skipTransition: true });
   };
   
   const handleExploreAllRooms = () => {
-    router.push("/rooms");
+    // Force immediate navigation to rooms page without transition sound
+    navigate("/rooms", { skipTransition: true });
   };
   
   const handleStartForFree = () => {
-    router.push("/register");
+    // Force immediate navigation to register page without transition sound
+    navigate("/register", { skipTransition: true });
   };
 
   return (
-    <div ref={mainRef} className="min-h-screen bg-black text-white overflow-x-hidden">
-      {/* Header is already responsive */}
+    <div 
+      ref={mainRef} 
+      className="min-h-screen bg-black text-white overflow-x-hidden"
+      aria-busy={isNavigating ? "true" : "false"}
+    >
+      {/* Header included only on homepage */}
       <Header />
       
       {/* Sound effects controller (invisible) */}
