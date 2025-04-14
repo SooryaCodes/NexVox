@@ -105,7 +105,7 @@ class SoundEffects {
   }
 
   // Play a sound with debounce protection
-  private play(name: string, debounceMs: number = 50): void {
+  public play(name: string, debounceMs: number = 50): void {
     if (!this.isClient || !this.enabled || !this.firstInteraction) return;
 
     const now = Date.now();
