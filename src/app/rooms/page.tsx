@@ -706,9 +706,6 @@ export default function RoomsPage() {
         </div>
       )}
 
-      {/* Floating Chatbot - always visible */}
-      <FloatingChatbot />
-      
       {/* Notification Panel */}
       <NotificationPanel 
         isOpen={isNotificationOpen}

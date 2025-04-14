@@ -55,7 +55,22 @@ const FloatingChatbot: React.FC = () => {
   // Auto-scroll to bottom of messages
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest' 
+      });
+      
+      // Prevent page scrolling when chat scrolls
+      const handleChatScroll = (e: Event) => {
+        e.stopPropagation();
+      };
+      
+      const chatContainer = messagesEndRef.current.parentElement;
+      if (chatContainer) {
+        chatContainer.addEventListener('scroll', handleChatScroll);
+        return () => chatContainer.removeEventListener('scroll', handleChatScroll);
+      }
     }
   }, [messages, typing]);
 
@@ -103,6 +118,16 @@ const FloatingChatbot: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
+
+  // Add this effect to ensure immediate visibility
+  useEffect(() => {
+    // Ensure button is visible on mount
+    if (chatButtonRef.current) {
+      // Force immediate render with no animation delay
+      chatButtonRef.current.style.opacity = '1';
+      chatButtonRef.current.style.transform = 'scale(1)';
+    }
+  }, []);
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
@@ -161,17 +186,17 @@ const FloatingChatbot: React.FC = () => {
   return (
     <>
       {/* Floating button - ALWAYS visible with position:fixed and highest z-index */}
-      <div className="fixed bottom-6 right-6 z-[9999]" style={{ position: 'fixed' }}>
-        <AnimatePresence>
+      <div className="fixed top-[calc(100vh-100px)] right-6 z-[99999]" style={{ position: 'fixed', willChange: 'transform' }}>
+        <AnimatePresence initial={false}>
           {!isOpen && (
             <m.button
               ref={chatButtonRef}
               className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00FFFF] to-[#FF00E6] flex items-center justify-center shadow-lg shadow-[#00FFFF]/20"
               onClick={() => setIsOpen(true)}
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 1, opacity: 1 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.2 }}
               whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(0, 255, 255, 0.5)" }}
               whileTap={{ scale: 0.9 }}
               aria-label="Open chat assistant"
@@ -193,12 +218,18 @@ const FloatingChatbot: React.FC = () => {
             role="dialog"
             aria-labelledby="chat-title"
             aria-describedby="chat-description"
-            className="fixed bottom-6 right-6 w-full max-w-md h-[500px] max-h-[80vh] bg-black/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg shadow-[#00FFFF]/20 overflow-hidden z-[9999] flex flex-col"
-            style={{ position: 'fixed', zIndex: 9999 }}
+            className="fixed top-[calc(100vh-600px)] right-6 w-full max-w-md h-[500px] max-h-[80vh] bg-black/80 backdrop-blur-xl rounded-xl border border-white/10 shadow-lg shadow-[#00FFFF]/20 overflow-hidden z-[9999] flex flex-col"
+            style={{ 
+              position: 'fixed', 
+              zIndex: 9999,
+              willChange: 'transform',
+              isolation: 'isolate'
+            }}
             initial={{ y: 50, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 50, opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div id="chat-description" className="sr-only">
               Chat with NexBot for help with NexVox features. Press Escape to close the chat.
@@ -239,6 +270,8 @@ const FloatingChatbot: React.FC = () => {
               role="log"
               aria-live="polite"
               aria-atomic="false"
+              onScroll={(e) => e.stopPropagation()}
+              style={{ overscrollBehavior: 'contain' }}
             >
               {messages.map((msg, index) => (
                 <div

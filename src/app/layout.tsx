@@ -4,6 +4,7 @@ import AnimationProvider from '@/components/AnimationProvider'
 import SmoothScroll from '@/components/ScrollTriggerSetup'
 import { Inter, Orbitron } from 'next/font/google'
 import SoundProvider from '@/components/SoundProvider'
+import FloatingChatbotController from '@/components/FloatingChatbotController'
 
 // Initialize the fonts
 const inter = Inter({
@@ -37,8 +38,11 @@ export default function RootLayout({
           <div>
             <AnimationProvider>
               {children}
+          <FloatingChatbotController />
             </AnimationProvider>
           </div>
+          
+          {/* Global Floating Chatbot outside of AnimationProvider to ensure fixed positioning */}
         </SoundProvider>
       </body>
     </html>
