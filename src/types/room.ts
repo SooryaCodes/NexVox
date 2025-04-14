@@ -6,11 +6,13 @@ export interface User {
   isHost?: boolean;
   isSpeaking?: boolean;
   badges?: string[];
-  status?: 'online' | 'away' | 'busy';
+  status?: 'online' | 'away' | 'busy' | 'offline';
   level?: number;
   bio?: string;
   email?: string;
   joinDate?: string;
+  avatarType?: 'cyan' | 'purple' | 'pink' | 'gradient' | 'blue' | 'green';
+  avatarAnimation?: 'pulse' | 'wave' | 'bounce' | 'glitch' | 'none';
   stats?: {
     roomsJoined?: number;
     connectionsCount?: number;
@@ -18,6 +20,25 @@ export interface User {
     communitiesJoined?: number;
   };
 }
+
+// Avatar options for consistent selection
+export const AVATAR_TYPES = {
+  CYAN: 'cyan',
+  PURPLE: 'purple',
+  PINK: 'pink',
+  GRADIENT: 'gradient',
+  BLUE: 'blue',
+  GREEN: 'green'
+} as const;
+
+// Animation types for avatar
+export const AVATAR_ANIMATIONS = {
+  PULSE: 'pulse',
+  WAVE: 'wave',
+  BOUNCE: 'bounce',
+  GLITCH: 'glitch',
+  NONE: 'none'
+} as const;
 
 export interface Room {
   id: number;

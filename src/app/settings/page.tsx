@@ -1,7 +1,7 @@
 // src/app/settings/page.tsx
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { m, motion } from "framer-motion";
 import HolographicCard from "@/components/HolographicCard";
@@ -9,6 +9,7 @@ import GlassmorphicCard from "@/components/GlassmorphicCard";
 import NeonGrid from "@/components/NeonGrid";
 import ShimmeringText from "@/components/ShimmeringText";
 import { IoChevronBackOutline, IoSaveOutline } from "react-icons/io5";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 
 // Tabs for settings
 const settingsTabs = [
@@ -41,6 +42,22 @@ const languageOptions = [
 ];
 
 const SettingsPage = () => {
+  const { 
+    playClick,
+    playCustom,
+    playSuccess,
+    playError
+  } = useSoundEffects();
+
+  // Custom sound effects using playCustom
+  const playTab = useCallback(() => playCustom('tab', '/audios/tab.mp3'), [playCustom]);
+  const playTheme = useCallback(() => playCustom('theme', '/audios/theme.mp3'), [playCustom]);
+  const playLanguage = useCallback(() => playCustom('language', '/audios/language.mp3'), [playCustom]);
+  const playPrivacy = useCallback(() => playCustom('privacy', '/audios/privacy.mp3'), [playCustom]);
+  const playDevice = useCallback(() => playCustom('device', '/audios/device.mp3'), [playCustom]);
+  const playAccessibility = useCallback(() => playCustom('accessibility', '/audios/accessibility.mp3'), [playCustom]);
+  const playSave = useCallback(() => playCustom('save', '/audios/save.mp3'), [playCustom]);
+
   const [activeTab, setActiveTab] = useState("account");
   const [selectedTheme, setSelectedTheme] = useState("cyberpunk");
   const [settings, setSettings] = useState({
@@ -94,10 +111,12 @@ const SettingsPage = () => {
   });
   
   const handleTabChange = (tab: string) => {
+    playTab();
     setActiveTab(tab);
   };
   
   const handleSettingChange = (section: string, setting: string, value: any) => {
+    playClick();
     setSettings({
       ...settings,
       [setting]: value
@@ -105,10 +124,42 @@ const SettingsPage = () => {
   };
   
   const handleThemeChange = (theme: string) => {
+    playTheme();
     setSelectedTheme(theme);
     handleSettingChange("appearance", "theme", theme);
   };
-  
+
+  const handleLanguageChange = (value: string) => {
+    playLanguage();
+    handleSettingChange("language", "language", value);
+  };
+
+  const handleVoiceLanguageChange = (value: string) => {
+    playLanguage();
+    handleSettingChange("language", "voiceLanguage", value);
+  };
+
+  const handlePrivacyChange = (value: string) => {
+    playPrivacy();
+    handleSettingChange("privacy", "profileVisibility", value);
+  };
+
+  const handleDeviceRemove = () => {
+    playDevice();
+    // Handle device removal logic
+  };
+
+  const handleAccessibilityChange = (value: boolean) => {
+    playAccessibility();
+    handleSettingChange("accessibility", "screenReader", value);
+  };
+
+  const handleSaveSettings = () => {
+    playSave();
+    playSuccess();
+    // Handle save settings logic
+  };
+
   // Toggle switch component
   const ToggleSwitch = ({ label, value, onChange, description }: { label: string, value: boolean, onChange: (value: boolean) => void, description?: string }) => (
     <div className="flex items-start justify-between gap-4 mb-6">
@@ -198,6 +249,7 @@ const SettingsPage = () => {
                 className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
                 whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => playClick()}
                 aria-label="Back to Rooms"
               >
                 <IoChevronBackOutline className="h-5 w-5" />
@@ -211,6 +263,7 @@ const SettingsPage = () => {
               className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#00FFFF]/20 to-[#FF00E6]/20 rounded-md border border-[#00FFFF]/30 text-[#00FFFF] font-medium text-sm"
               whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(0, 255, 255, 0.3)" }}
               whileTap={{ scale: 0.95 }}
+              onClick={handleSaveSettings}
             >
               <IoSaveOutline className="h-4 w-4" />
               <span>Save Changes</span>

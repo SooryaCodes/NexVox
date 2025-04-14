@@ -1,7 +1,7 @@
 // src/app/profile/page.tsx
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { m } from "framer-motion";
 import HolographicCard from "@/components/HolographicCard";
@@ -9,17 +9,34 @@ import GlassmorphicCard from "@/components/GlassmorphicCard";
 import NeonGrid from "@/components/NeonGrid";
 import AudioWaveform from "@/components/AudioWaveform";
 import { IoSettingsOutline, IoNotificationsOutline, IoChevronBackOutline } from "react-icons/io5";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { User } from "@/types/room";
+
+// Define avatar option type
+interface AvatarOption {
+  id: number;
+  src: string;
+  alt: string;
+  color: 'cyan' | 'purple' | 'pink' | 'gradient' | 'blue' | 'green';
+}
+
+// Define status option type
+interface StatusOption {
+  value: 'online' | 'away' | 'busy' | 'offline';
+  label: string;
+  color: string;
+}
 
 // Mock user data
-const userData = {
+const userData: User = {
   id: 1,
   name: "CyberUser",
   email: "user@nexvox.io",
   joinDate: "2023-05-12",
   bio: "Digital explorer and voice chat enthusiast. Love to connect with others across the metaverse.",
-  avatar: null,
+  avatarUrl: "",
   level: 34,
-  status: "online" as const,
+  status: "online",
   badges: ["Early Adopter", "Voice Master", "Community Leader"],
   stats: {
     roomsJoined: 128,
@@ -29,23 +46,31 @@ const userData = {
   }
 };
 
-// Avatars to choose from
-const avatarOptions = [
-  { id: 1, color: "cyan", name: "Neon Sprite" },
-  { id: 2, color: "purple", name: "Void Walker" },
-  { id: 3, color: "pink", name: "Glitch Punk" },
-  { id: 4, color: "gradient", name: "Cyber Soul" },
+// Define these outside the component to avoid redeclaration
+const avatarOptions: AvatarOption[] = [
+  { id: 1, src: "/avatars/avatar1.png", alt: "Avatar 1", color: "cyan" },
+  { id: 2, src: "/avatars/avatar2.png", alt: "Avatar 2", color: "purple" },
+  { id: 3, src: "/avatars/avatar3.png", alt: "Avatar 3", color: "pink" },
+  { id: 4, src: "/avatars/avatar4.png", alt: "Avatar 4", color: "gradient" },
+  { id: 5, src: "/avatars/avatar5.png", alt: "Avatar 5", color: "blue" },
+  { id: 6, src: "/avatars/avatar6.png", alt: "Avatar 6", color: "green" }
 ];
 
-// Define the status options
-const statusOptions = [
-  { id: "online", label: "Online", color: "#4ade80" },
-  { id: "away", label: "Away", color: "#facc15" },
-  { id: "busy", label: "Busy", color: "#f87171" },
-  { id: "invisible", label: "Invisible", color: "#9ca3af" },
+const statusOptions: StatusOption[] = [
+  { value: "online", label: "Online", color: "#00FF00" },
+  { value: "away", label: "Away", color: "#FFFF00" },
+  { value: "busy", label: "Busy", color: "#FF0000" },
+  { value: "offline", label: "Offline", color: "#808080" }
 ];
 
-const ProfilePage = () => {
+// Define the component
+function ProfilePage() {
+  const { 
+    playClick,
+    playCustom,
+    playSuccess,
+    playError
+  } = useSoundEffects();
   const [activeTab, setActiveTab] = useState("profile");
   const [selectedAvatar, setSelectedAvatar] = useState(1);
   const [status, setStatus] = useState("online");
@@ -55,6 +80,15 @@ const ProfilePage = () => {
     bio: userData.bio,
   });
   const profileHeaderRef = useRef<HTMLDivElement>(null);
+
+  // Custom sound effects using playCustom
+  const playTab = useCallback(() => playCustom('tab', '/audios/tab.mp3'), [playCustom]);
+  const playEdit = useCallback(() => playCustom('edit', '/audios/edit.mp3'), [playCustom]);
+  const playSave = useCallback(() => playCustom('save', '/audios/save.mp3'), [playCustom]);
+  const playCancel = useCallback(() => playCustom('cancel', '/audios/cancel.mp3'), [playCustom]);
+  const playAvatar = useCallback(() => playCustom('avatar', '/audios/avatar.mp3'), [playCustom]);
+  const playStatus = useCallback(() => playCustom('status', '/audios/status.mp3'), [playCustom]);
+  const playNotification = useCallback(() => playCustom('notification', '/audios/notification.mp3'), [playCustom]);
 
   // Animation for the profile header
   useEffect(() => {
@@ -70,35 +104,58 @@ const ProfilePage = () => {
   }, []);
 
   const handleTabChange = (tab: string) => {
+    playTab();
     setActiveTab(tab);
   };
 
   const handleAvatarSelect = (id: number) => {
+    playAvatar();
     setSelectedAvatar(id);
   };
 
   const handleStatusChange = (newStatus: string) => {
+    playStatus();
     setStatus(newStatus);
   };
 
   const handleEditToggle = () => {
-    setIsEditing(!isEditing);
     if (!isEditing) {
-      // Start editing - nothing else to do
+      playEdit();
     } else {
-      // Save changes - in a real app you would save to backend
-      // For now we just update local state
-      // Also you might want to validate data before saving
+      playSave();
+      playSuccess(); // Play success sound when saving
     }
+    setIsEditing(!isEditing);
+  };
+
+  const handleCancelEdit = () => {
+    playCancel();
+    setIsEditing(false);
+    setProfileData({
+      name: userData.name,
+      bio: userData.bio,
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    playClick();
     const { name, value } = e.target;
     setProfileData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
+
+  // Safe access to optional properties
+  const badges = userData.badges ?? [];
+  const level = userData.level ?? 0;
+  const stats = userData.stats ?? {
+    roomsJoined: 0,
+    connectionsCount: 0,
+    hoursSpent: 0,
+    communitiesJoined: 0
+  };
+  const joinDate = userData.joinDate ? new Date(userData.joinDate) : new Date();
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -113,6 +170,7 @@ const ProfilePage = () => {
                 className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
                 whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => playClick()}
                 aria-label="Back to Rooms"
               >
                 <IoChevronBackOutline className="h-5 w-5" />
@@ -127,6 +185,7 @@ const ProfilePage = () => {
                 className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
                 whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => playClick()}
                 aria-label="Settings"
               >
                 <IoSettingsOutline className="h-5 w-5" />
@@ -137,6 +196,7 @@ const ProfilePage = () => {
               className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70 relative"
               whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => playNotification()}
               aria-label="Notifications"
             >
               <IoNotificationsOutline className="h-5 w-5" />
@@ -194,7 +254,7 @@ const ProfilePage = () => {
                 {/* Status Indicator */}
                 <div 
                   className="absolute bottom-2 right-2 w-6 h-6 rounded-full border-2 border-black"
-                  style={{ backgroundColor: statusOptions.find(s => s.id === status)?.color }}
+                  style={{ backgroundColor: statusOptions.find(s => s.value === status)?.color }}
                 ></div>
               </div>
               
@@ -213,7 +273,7 @@ const ProfilePage = () => {
                   )}
                   
                   <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                    {userData.badges.map((badge, index) => (
+                    {badges.map((badge, index) => (
                       <div 
                         key={index}
                         className="px-2 py-1 rounded-md text-xs"
@@ -239,9 +299,9 @@ const ProfilePage = () => {
                 <div className="flex items-center justify-center md:justify-start gap-4 mb-4 text-sm">
                   <div className="flex items-center gap-1 text-white/70">
                     <span className="w-2 h-2 rounded-full bg-[#00FFFF]"></span>
-                    <span>Level {userData.level}</span>
+                    <span>Level {level}</span>
                   </div>
-                  <div className="text-white/50">Joined {new Date(userData.joinDate).toLocaleDateString()}</div>
+                  <div className="text-white/50">Member since {joinDate.toLocaleDateString()}</div>
                 </div>
                 
                 {isEditing ? (
@@ -256,35 +316,31 @@ const ProfilePage = () => {
                 )}
                 
                 <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                  <m.button
-                    className={`px-4 py-2 rounded-md text-sm font-medium ${
-                      isEditing
-                        ? "bg-[#00FFFF]/20 text-[#00FFFF] border border-[#00FFFF]/30"
-                        : "bg-[#FF00E6]/20 text-[#FF00E6] border border-[#FF00E6]/30"
-                    }`}
-                    whileHover={{ scale: 1.05, boxShadow: isEditing ? "0 0 15px rgba(0, 255, 255, 0.3)" : "0 0 15px rgba(255, 0, 230, 0.3)" }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleEditToggle}
-                  >
-                    {isEditing ? "Save Profile" : "Edit Profile"}
-                  </m.button>
-                  
-                  {isEditing && (
+                  <div className="flex gap-2">
                     <m.button
-                      className="px-4 py-2 rounded-md text-sm font-medium bg-black/40 text-white/70 border border-white/20"
-                      whileHover={{ scale: 1.05 }}
+                      className={`px-4 py-2 rounded-md text-sm font-medium ${
+                        isEditing
+                          ? "bg-[#00FFFF]/20 text-[#00FFFF] border border-[#00FFFF]/30"
+                          : "bg-[#FF00E6]/20 text-[#FF00E6] border border-[#FF00E6]/30"
+                      }`}
+                      whileHover={{ scale: 1.05, boxShadow: isEditing ? "0 0 15px rgba(0, 255, 255, 0.3)" : "0 0 15px rgba(255, 0, 230, 0.3)" }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setIsEditing(false);
-                        setProfileData({
-                          name: userData.name,
-                          bio: userData.bio,
-                        });
-                      }}
+                      onClick={handleEditToggle}
                     >
-                      Cancel
+                      {isEditing ? "Save Profile" : "Edit Profile"}
                     </m.button>
-                  )}
+                    
+                    {isEditing && (
+                      <m.button
+                        className="px-4 py-2 rounded-md text-sm font-medium bg-black/40 text-white/70 border border-white/20"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </m.button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -357,13 +413,13 @@ const ProfilePage = () => {
                     <div className="flex gap-2">
                       {statusOptions.map((option) => (
                         <button
-                          key={option.id}
+                          key={option.value}
                           className={`flex items-center gap-2 px-3 py-2 rounded-md border transition-colors ${
-                            status === option.id
+                            status === option.value
                               ? 'border-[#00FFFF]/50 bg-[#00FFFF]/10'
                               : 'border-white/10 bg-black/40 hover:bg-black/60'
                           }`}
-                          onClick={() => handleStatusChange(option.id)}
+                          onClick={() => handleStatusChange(option.value)}
                         >
                           <div
                             className="w-3 h-3 rounded-full"
@@ -388,7 +444,7 @@ const ProfilePage = () => {
                     <div className="h-2 bg-black/40 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-[#00FFFF] to-[#FF00E6] w-[72%]"></div>
                     </div>
-                    <div className="mt-1 text-xs text-white/50">1280 XP more until level {userData.level + 1}</div>
+                    <div className="mt-1 text-xs text-white/50">1280 XP more until level {level + 1}</div>
                   </div>
                   
                   <div>
@@ -418,56 +474,34 @@ const ProfilePage = () => {
           )}
           
           {activeTab === "stats" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <HolographicCard className="p-6 flex flex-col items-center justify-center">
-                <div className="text-3xl font-orbitron text-[#00FFFF] mb-2">{userData.stats.roomsJoined}</div>
-                <div className="text-sm text-white/60 text-center">Rooms Joined</div>
-              </HolographicCard>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <GlassmorphicCard className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-orbitron text-[#00FFFF]">{stats.roomsJoined}</div>
+                  <div className="text-sm text-white/60">Rooms Joined</div>
+                </div>
+              </GlassmorphicCard>
               
-              <HolographicCard className="p-6 flex flex-col items-center justify-center">
-                <div className="text-3xl font-orbitron text-[#9D00FF] mb-2">{userData.stats.connectionsCount}</div>
-                <div className="text-sm text-white/60 text-center">Connections</div>
-              </HolographicCard>
+              <GlassmorphicCard className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-orbitron text-[#00FFFF]">{stats.connectionsCount}</div>
+                  <div className="text-sm text-white/60">Connections</div>
+                </div>
+              </GlassmorphicCard>
               
-              <HolographicCard className="p-6 flex flex-col items-center justify-center">
-                <div className="text-3xl font-orbitron text-[#FF00E6] mb-2">{userData.stats.hoursSpent}</div>
-                <div className="text-sm text-white/60 text-center">Hours Spent</div>
-              </HolographicCard>
+              <GlassmorphicCard className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-orbitron text-[#00FFFF]">{stats.hoursSpent}</div>
+                  <div className="text-sm text-white/60">Hours Spent</div>
+                </div>
+              </GlassmorphicCard>
               
-              <HolographicCard className="p-6 flex flex-col items-center justify-center">
-                <div className="text-3xl font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-[#00FFFF] to-[#FF00E6] mb-2">{userData.stats.communitiesJoined}</div>
-                <div className="text-sm text-white/60 text-center">Communities</div>
-              </HolographicCard>
-              
-              <div className="col-span-1 sm:col-span-2 lg:col-span-4">
-                <GlassmorphicCard className="p-6">
-                  <h3 className="text-lg font-orbitron text-[#00FFFF] mb-4">Activity History</h3>
-                  <div className="h-64 relative">
-                    <div className="absolute inset-0 flex items-end">
-                      {[...Array(30)].map((_, index) => {
-                        const height = 20 + Math.floor(Math.random() * 80);
-                        return (
-                          <div 
-                            key={index} 
-                            className="flex-1 mx-0.5 rounded-t"
-                            style={{ 
-                              height: `${height}%`,
-                              background: `linear-gradient(to top, ${
-                                index % 3 === 0 ? '#00FFFF' : index % 3 === 1 ? '#9D00FF' : '#FF00E6'
-                              }30, ${
-                                index % 3 === 0 ? '#00FFFF' : index % 3 === 1 ? '#9D00FF' : '#FF00E6'
-                              }60)`
-                            }}
-                          ></div>
-                        );
-                      })}
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 text-xs text-white/40 pt-1">
-                      Last 30 days
-                    </div>
-                  </div>
-                </GlassmorphicCard>
-              </div>
+              <GlassmorphicCard className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-orbitron text-[#00FFFF]">{stats.communitiesJoined}</div>
+                  <div className="text-sm text-white/60">Communities</div>
+                </div>
+              </GlassmorphicCard>
             </div>
           )}
           
@@ -518,7 +552,7 @@ const ProfilePage = () => {
                           ? '#9D00FF' 
                           : '#FF00E6'
                     }}>
-                      {avatarOptions[selectedAvatar - 1].name}
+                      {avatarOptions[selectedAvatar - 1].alt}
                     </div>
                     <p className="text-sm text-white/60 text-center">Your virtual identity in voice rooms</p>
                   </div>
@@ -573,7 +607,7 @@ const ProfilePage = () => {
                               {profileData.name.charAt(0)}
                             </span>
                           </div>
-                          <div className="text-sm font-medium">{avatar.name}</div>
+                          <div className="text-sm font-medium">{avatar.alt}</div>
                         </div>
                       </m.div>
                     ))}
@@ -848,6 +882,7 @@ const ProfilePage = () => {
       </div>
     </main>
   );
-};
+}
 
+// Single default export at the end of the file
 export default ProfilePage;

@@ -252,7 +252,7 @@ export default function Register() {
   useEffect(() => {
     if (registerSuccess && successCircleRef.current) {
       // Play success sound
-      soundEffects.play('success');
+      soundEffects.playSuccess();
       
       // Animate success circle
       const circle = successCircleRef.current;
@@ -288,7 +288,7 @@ export default function Register() {
     });
     
     // Play soft key sound
-    soundEffects.play('key-press');
+    soundEffects.loadAndPlay('key-press', '/audios/digital-click.mp3');
     
     // Clear error when typing
     if (errors[name as keyof typeof errors]) {
@@ -380,7 +380,7 @@ export default function Register() {
       showToast('Please fix the form errors', 'error');
       
       // Play error sound
-      soundEffects.play('error');
+      soundEffects.playError();
     }
     
     return valid;
@@ -392,7 +392,7 @@ export default function Register() {
     
     if (validateForm()) {
       setIsSubmitting(true);
-      soundEffects.play('processing');
+      soundEffects.loadAndPlay('processing', '/audios/digital-process.mp3');
       
       // Simulated backend registration (2 second delay)
       setTimeout(() => {

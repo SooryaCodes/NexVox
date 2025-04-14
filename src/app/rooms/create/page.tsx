@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RoomData, generateRoomId, generateRoomCode, createRoom } from '@/lib/roomUtils';
 import NeonGrid from '@/components/NeonGrid';
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 
 const CreateRoomPage = () => {
   const [step, setStep] = useState(1);
@@ -24,6 +25,9 @@ const CreateRoomPage = () => {
   const [roomLink, setRoomLink] = useState('');
   const [copyToast, setCopyToast] = useState({ visible: false, text: '' });
   const [roomId, setRoomId] = useState('');
+  const { playClick, playSuccess, playError, playTransition } = useSoundEffects();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   
   const formRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -61,9 +65,13 @@ const CreateRoomPage = () => {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    playClick();
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
   };
 
   const handleToggle = () => {
@@ -146,15 +154,31 @@ const CreateRoomPage = () => {
     });
   };
 
-  const createAndJoinRoom = () => {
-    // Use the utility function to create the room
-    const newRoom = createRoom({
-      ...formData,
-      participantCount: 1, // Starting with just you
-    });
-    
-    // Navigate to the new room
-    router.push(`/rooms/${newRoom.id}`);
+  const createAndJoinRoom = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Validate form data
+      if (!formData.name.trim()) {
+        throw new Error('Room name is required');
+      }
+
+      // Use the utility function to create the room
+      const newRoom = createRoom({
+        ...formData,
+        participantCount: 1, // Starting with just you
+      });
+      
+      playSuccess();
+      playTransition();
+      router.push(`/rooms/${newRoom.id}`);
+    } catch (err) {
+      playError();
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -166,7 +190,10 @@ const CreateRoomPage = () => {
       <header className="sticky top-0 z-30 bg-black/40 backdrop-blur-xl border-b border-white/10 px-6 py-4">
         <div className="flex items-center justify-between">
           <Link href="/rooms" className="flex items-center gap-2">
-            <button className="flex items-center gap-2 text-white hover:text-[#00FFFF] transition-colors">
+            <button 
+              className="flex items-center gap-2 text-white hover:text-[#00FFFF] transition-colors"
+              onClick={() => playClick()}
+            >
               <IoArrowBack />
               <span>Back to Rooms</span>
             </button>
@@ -222,7 +249,7 @@ const CreateRoomPage = () => {
                     id="room-name"
                     name="name"
                     value={formData.name}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     placeholder="Cyber Lounge"
                     className="w-full bg-black/40 border border-[#00FFFF]/30 focus:border-[#9D00FF] outline-none text-white p-3 rounded-md placeholder-white/30 transition-all focus:shadow-[0_0_10px_rgba(0,255,255,0.3)]"
                     maxLength={30}
@@ -238,7 +265,7 @@ const CreateRoomPage = () => {
                     id="room-description"
                     name="description"
                     value={formData.description}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     placeholder="Chill vibes and good conversations..."
                     className="w-full bg-black/40 border border-[#00FFFF]/30 focus:border-[#9D00FF] outline-none text-white p-3 rounded-md placeholder-white/30 transition-all focus:shadow-[0_0_10px_rgba(0,255,255,0.3)] min-h-[100px] resize-none"
                     maxLength={100}
@@ -257,7 +284,7 @@ const CreateRoomPage = () => {
                     id="room-type"
                     name="type"
                     value={formData.type}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     className="w-full bg-black/40 border border-[#00FFFF]/30 focus:border-[#9D00FF] outline-none text-white p-3 rounded-md transition-all focus:shadow-[0_0_10px_rgba(0,255,255,0.3)] appearance-none"
                     aria-label="Room type selection"
                   >
@@ -281,7 +308,7 @@ const CreateRoomPage = () => {
                     id="max-participants"
                     name="maxParticipants"
                     value={formData.maxParticipants}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     className="w-full bg-black/40 border border-[#00FFFF]/30 focus:border-[#9D00FF] outline-none text-white p-3 rounded-md transition-all focus:shadow-[0_0_10px_rgba(0,255,255,0.3)] appearance-none"
                     aria-label="Maximum participants selection"
                   >
@@ -400,8 +427,11 @@ const CreateRoomPage = () => {
                     onClick={createAndJoinRoom}
                     className="w-full py-3 px-4 bg-gradient-to-r from-[#00FFFF]/20 to-[#FF00E6]/20 hover:from-[#00FFFF]/30 hover:to-[#FF00E6]/30 border border-[#00FFFF]/30 rounded-md font-orbitron text-[#00FFFF] relative overflow-hidden group"
                     aria-label="Create and join room"
+                    disabled={loading}
                   >
-                    <span className="relative z-10">Create & Join Room</span>
+                    <span className="relative z-10">
+                      {loading ? 'Creating...' : 'Create & Join Room'}
+                    </span>
                     <span className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/10 to-[#FF00E6]/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
                   </button>
                 </div>

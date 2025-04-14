@@ -25,6 +25,7 @@ import NotificationPanel from "@/components/NotificationPanel";
 // Import utilities
 import { getAllRooms, RoomData as RoomDataType } from "@/lib/roomUtils";
 import useNotifications from "@/lib/notificationService";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 
 // Register ScrollTrigger with GSAP
 if (typeof window !== "undefined") {
@@ -86,6 +87,8 @@ export default function RoomsPage() {
     markAllAsRead, 
     addNotification 
   } = useNotifications();
+
+  const { playClick, playSuccess, playError, playTransition } = useSoundEffects();
 
   // Keyboard shortcuts data
   const keyboardShortcuts = [
@@ -178,7 +181,7 @@ export default function RoomsPage() {
       // Load all rooms (default + user-created)
       const combinedRooms = getAllRooms(roomsData);
       setAllRooms(combinedRooms);
-      
+      playSuccess();
       setLoading(false);
     }, 1000);
 
@@ -223,21 +226,25 @@ export default function RoomsPage() {
 
   // Toggle notifications panel
   const toggleNotifications = () => {
+    playClick();
     setIsNotificationOpen(!isNotificationOpen);
   };
 
   // Close notifications panel
   const closeNotifications = () => {
+    playClick();
     setIsNotificationOpen(false);
   };
 
   // Navigate to create room page
   const handleCreateRoom = () => {
+    playTransition();
     router.push('/rooms/create');
   };
 
   // Close shortcuts modal
   const closeShortcutsModal = () => {
+    playClick();
     setIsShortcutsModalOpen(false);
   };
 
@@ -264,6 +271,7 @@ export default function RoomsPage() {
 
   // Toggle sidebar function
   const toggleSidebar = () => {
+    playClick();
     setIsSidebarOpen(prev => !prev);
   };
 
@@ -303,13 +311,19 @@ export default function RoomsPage() {
                 className="bg-black/30 border border-white/10 text-white placeholder-white/50 pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#00FFFF] focus:border-[#00FFFF]/50"
                 placeholder="Search rooms... (Alt+/)"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  playClick();
+                  setSearchQuery(e.target.value);
+                }}
                 aria-label="Search for rooms"
               />
               {searchQuery && (
                 <button
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => {
+                    playClick();
+                    setSearchQuery('');
+                  }}
                   aria-label="Clear search"
                 >
                   <IoClose className="h-5 w-5 text-white/50 hover:text-white" />
@@ -319,7 +333,7 @@ export default function RoomsPage() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Create Room Button - updated to use router navigation */}
+            {/* Create Room Button */}
             <m.button
               className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#00FFFF]/20 to-[#FF00E6]/20 rounded-md border border-[#00FFFF]/30 text-[#00FFFF] font-medium text-sm"
               whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(0, 255, 255, 0.3)" }}
@@ -336,7 +350,10 @@ export default function RoomsPage() {
               className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
               whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setIsShortcutsModalOpen(true)}
+              onClick={() => {
+                playClick();
+                setIsShortcutsModalOpen(true);
+              }}
               aria-label="Keyboard shortcuts"
               aria-haspopup="dialog"
               aria-expanded={isShortcutsModalOpen}
@@ -350,26 +367,27 @@ export default function RoomsPage() {
                 className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
                 whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => playClick()}
                 aria-label="Settings"
               >
                 <IoSettingsOutline className="h-5 w-5" />
               </m.button>
             </Link>
             
-            {/* Notifications - Updated with working functionality */}
+            {/* Notifications */}
             <m.button
               className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70 relative"
-              whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
+              whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleNotifications}
-              aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+              aria-label="Notifications"
               aria-haspopup="dialog"
               aria-expanded={isNotificationOpen}
             >
               <IoNotificationsOutline className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#FF00E6] text-xs flex items-center justify-center">
-                  {unreadCount > 9 ? '9+' : unreadCount}
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF00E6] rounded-full text-xs flex items-center justify-center">
+                  {unreadCount}
                 </span>
               )}
             </m.button>

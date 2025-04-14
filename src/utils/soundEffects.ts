@@ -16,12 +16,14 @@ class SoundEffects {
     if (this.isClient) {
       // Pre-load common sounds
       this.preloadSound('click', '/audios/digital-click.mp3');
+      this.preloadSound('click-soft', '/audios/soft-click.mp3');
+      this.preloadSound('click-heavy', '/audios/heavy-click.mp3');
+      this.preloadSound('click-muted', '/audios/muted-click.mp3');
       this.preloadSound('hover', '/audios/digital-blip.mp3');
       this.preloadSound('error', '/audios/error.mp3');
       this.preloadSound('success', '/audios/process-request-accept.mp3');
       this.preloadSound('scroll', '/audios/gear-scroll.mp3');
       this.preloadSound('transition', '/audios/whoosh2.mp3');
-      this.preloadSound('loading', '/audios/digital-load2.mp3');
       this.preloadSound('complete', '/audios/final-accept.mp3');
       this.preloadSound('whoosh', '/audios/flabby-whoosh.mp3');
       this.preloadSound('splash', '/audios/hit-splash.mp3');
@@ -30,6 +32,24 @@ class SoundEffects {
       this.preloadSound('big-transition', '/audios/resonance.mp3');
       this.preloadSound('oscillation', '/audios/oscillation.mp3');
       this.preloadSound('ignite', '/audios/ignite.mp3');
+
+      // Pre-load UI sounds
+      this.preloadSound('toggle', '/audios/toggle.mp3');
+      this.preloadSound('select', '/audios/select.mp3');
+      this.preloadSound('confirm', '/audios/confirm.mp3');
+      this.preloadSound('cancel', '/audios/cancel.mp3');
+      this.preloadSound('tab', '/audios/tab.mp3');
+      this.preloadSound('save', '/audios/save.mp3');
+      this.preloadSound('edit', '/audios/edit.mp3');
+      this.preloadSound('delete', '/audios/delete.mp3');
+      this.preloadSound('notification', '/audios/notification.mp3');
+      this.preloadSound('avatar', '/audios/avatar.mp3');
+      this.preloadSound('status', '/audios/status.mp3');
+      this.preloadSound('theme', '/audios/theme.mp3');
+      this.preloadSound('language', '/audios/language.mp3');
+      this.preloadSound('privacy', '/audios/privacy.mp3');
+      this.preloadSound('device', '/audios/device.mp3');
+      this.preloadSound('accessibility', '/audios/accessibility.mp3');
 
       // Set up first interaction listener to handle autoplay restrictions
       const handleFirstInteraction = () => {
@@ -84,94 +104,143 @@ class SoundEffects {
     this.sounds.set(name, audio);
   }
 
-  // Play a sound by name with debounce protection
-  public play(name: string, debounceMs: number = 50): void {
-    if (!this.isClient || !this.enabled) return;
-    
+  // Play a sound with debounce protection
+  private play(name: string, debounceMs: number = 50): void {
+    if (!this.isClient || !this.enabled || !this.firstInteraction) return;
+
     const now = Date.now();
     const lastPlayed = this.lastPlayed.get(name) || 0;
     
-    // Debounce frequent sounds
     if (now - lastPlayed < debounceMs) return;
     
-    // Handle playing the sound
-    if (this.sounds.has(name)) {
-      const sound = this.sounds.get(name);
-      
-      // Clone the audio to prevent overlapping issues
-      if (sound) {
-        const clone = new Audio(sound.src);
-        clone.volume = this.volume;
-        
-        // Clean up after playing
-        clone.addEventListener('ended', () => {
-          // Allow garbage collection
-          clone.remove();
-        });
-        
-        clone.play().catch(e => {
-          // Silently fail - this commonly happens due to browser autoplay restrictions
-          console.debug('Sound playback error (normal if before user interaction):', e);
-        });
-        
-        this.lastPlayed.set(name, now);
-      }
-    } else {
-      console.warn(`Sound "${name}" not loaded`);
+    const sound = this.sounds.get(name);
+    if (!sound) return;
+    
+    // Reset the sound to the beginning
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+    this.lastPlayed.set(name, now);
+  }
+
+  // Public methods for playing specific sounds
+  public playClick(type: 'default' | 'soft' | 'heavy' | 'muted' = 'default'): void {
+    switch (type) {
+      case 'soft':
+        this.play('click-soft');
+        break;
+      case 'heavy':
+        this.play('click-heavy');
+        break;
+      case 'muted':
+        this.play('click-muted');
+        break;
+      default:
+        this.play('click');
     }
   }
 
-  // Play a sound for clicks
-  public playClick(): void {
-    this.play('click', 100);
-  }
-
-  // Play a sound for hover - use lower debounce for better responsiveness
   public playHover(): void {
-    // Hover sounds disabled as requested
-    return;
+    this.play('hover');
   }
 
-  // Play a scroll sound (heavily debounced)
-  public playScroll(): void {
-    this.play('scroll', 500);
-  }
-
-  // Play a transition sound
-  public playTransition(): void {
-    this.play('transition', 300);
-  }
-
-  // Play a whoosh sound
-  public playWhoosh(): void {
-    this.play('whoosh', 300);
-  }
-
-  // Play a success sound
-  public playSuccess(): void {
-    this.play('success');
-  }
-
-  // Play an error sound
   public playError(): void {
     this.play('error');
   }
 
-  // Play loading sound
-  public playLoading(): void {
-    this.play('loading', 800);
+  public playSuccess(): void {
+    this.play('success');
   }
 
-  // Play completion sound
+  public playScroll(): void {
+    this.play('scroll', 800);
+  }
+
+  public playTransition(): void {
+    this.play('transition');
+  }
+
   public playComplete(): void {
     this.play('complete');
   }
 
-  // Load a custom sound on demand
+  public playWhoosh(): void {
+    this.play('whoosh');
+  }
+
+  // UI sound methods
+  public playToggle(): void {
+    this.play('toggle');
+  }
+
+  public playSelect(): void {
+    this.play('select');
+  }
+
+  public playConfirm(): void {
+    this.play('confirm');
+  }
+
+  public playCancel(): void {
+    this.play('cancel');
+  }
+
+  public playTab(): void {
+    this.play('tab');
+  }
+
+  public playSave(): void {
+    this.play('save');
+  }
+
+  public playEdit(): void {
+    this.play('edit');
+  }
+
+  public playDelete(): void {
+    this.play('delete');
+  }
+
+  public playNotification(): void {
+    this.play('notification');
+  }
+
+  public playAvatar(): void {
+    this.play('avatar');
+  }
+
+  public playStatus(): void {
+    this.play('status');
+  }
+
+  public playTheme(): void {
+    this.play('theme');
+  }
+
+  public playLanguage(): void {
+    this.play('language');
+  }
+
+  public playPrivacy(): void {
+    this.play('privacy');
+  }
+
+  public playDevice(): void {
+    this.play('device');
+  }
+
+  public playAccessibility(): void {
+    this.play('accessibility');
+  }
+
+  // Load and play a custom sound
   public loadAndPlay(name: string, path: string): void {
-    this.preloadSound(name, path);
+    if (!this.sounds.has(name)) {
+      this.preloadSound(name, path);
+    }
     this.play(name);
   }
 }
 
-export default SoundEffects.getInstance(); 
+// Export singleton instance
+const soundEffects = SoundEffects.getInstance();
+export default soundEffects; 

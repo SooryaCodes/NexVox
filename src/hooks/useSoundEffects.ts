@@ -32,13 +32,31 @@ export const useSoundEffects = () => {
 
   // Helper functions bound to our sound effects
   const playHover = useCallback(() => soundEffects.playHover(), []);
-  const playClick = useCallback(() => soundEffects.playClick(), []);
+  const playClick = useCallback((type: 'default' | 'soft' | 'heavy' | 'muted' = 'default') => 
+    soundEffects.playClick(type), []);
   const playTransition = useCallback(() => soundEffects.playTransition(), []);
   const playSuccess = useCallback(() => soundEffects.playSuccess(), []);
   const playError = useCallback(() => soundEffects.playError(), []);
-  const playLoading = useCallback(() => soundEffects.playLoading(), []);
   const playComplete = useCallback(() => soundEffects.playComplete(), []);
-  const playWhoosh = useCallback(() => soundEffects.loadAndPlay('whoosh', '/audios/whoosh2.mp3'), []);
+  const playWhoosh = useCallback(() => soundEffects.playWhoosh(), []);
+
+  // UI sound effects
+  const playToggle = useCallback(() => soundEffects.playToggle(), []);
+  const playSelect = useCallback(() => soundEffects.playSelect(), []);
+  const playConfirm = useCallback(() => soundEffects.playConfirm(), []);
+  const playCancel = useCallback(() => soundEffects.playCancel(), []);
+  const playTab = useCallback(() => soundEffects.playTab(), []);
+  const playSave = useCallback(() => soundEffects.playSave(), []);
+  const playEdit = useCallback(() => soundEffects.playEdit(), []);
+  const playDelete = useCallback(() => soundEffects.playDelete(), []);
+  const playNotification = useCallback(() => soundEffects.playNotification(), []);
+  const playAvatar = useCallback(() => soundEffects.playAvatar(), []);
+  const playStatus = useCallback(() => soundEffects.playStatus(), []);
+  const playTheme = useCallback(() => soundEffects.playTheme(), []);
+  const playLanguage = useCallback(() => soundEffects.playLanguage(), []);
+  const playPrivacy = useCallback(() => soundEffects.playPrivacy(), []);
+  const playDevice = useCallback(() => soundEffects.playDevice(), []);
+  const playAccessibility = useCallback(() => soundEffects.playAccessibility(), []);
 
   // Custom sound handler
   const playCustom = useCallback((name: string, path: string) => {
@@ -61,9 +79,24 @@ export const useSoundEffects = () => {
     playTransition,
     playSuccess,
     playError,
-    playLoading,
     playComplete,
     playWhoosh,
+    playToggle,
+    playSelect,
+    playConfirm,
+    playCancel,
+    playTab,
+    playSave,
+    playEdit,
+    playDelete,
+    playNotification,
+    playAvatar,
+    playStatus,
+    playTheme,
+    playLanguage,
+    playPrivacy,
+    playDevice,
+    playAccessibility,
     playCustom,
     setVolume,
     setSoundsEnabled
@@ -75,7 +108,7 @@ type ReactMouseEvent = React.MouseEvent<HTMLElement>;
 type EventHandler<E extends React.SyntheticEvent> = (event: E) => void;
 
 interface WithSoundsOptions {
-  onClick?: boolean;
+  onClick?: boolean | 'soft' | 'heavy' | 'muted';
   onHover?: boolean;
   onMouseEnter?: string;
   onMouseLeave?: string;
@@ -98,51 +131,55 @@ export const withSounds = <P extends React.HTMLAttributes<HTMLElement>>(
   
   // Create a new props object
   const newProps = { ...element.props } as React.JSX.LibraryManagedAttributes<
-    React.ElementType,
+    typeof element.type,
     P
   >;
-  
-  if (onClick) {
-    const originalOnClick = element.props.onClick as EventHandler<ReactMouseEvent> | undefined;
-    newProps.onClick = (e: ReactMouseEvent) => {
-      soundEffects.playClick();
-      if (originalOnClick) originalOnClick(e);
+
+  // Handle click sound
+  if (onClick || (custom?.event === 'onClick')) {
+    const originalClick = element.props.onClick as EventHandler<ReactMouseEvent>;
+    newProps.onClick = (event: ReactMouseEvent) => {
+      if (custom?.event === 'onClick') {
+        soundEffects.loadAndPlay(custom.sound, `/audios/${custom.sound}.mp3`);
+      } else {
+        if (typeof onClick === 'string' && ['soft', 'heavy', 'muted'].includes(onClick)) {
+          soundEffects.playClick(onClick as 'soft' | 'heavy' | 'muted');
+        } else {
+          soundEffects.playClick('default');
+        }
+      }
+      if (originalClick) originalClick(event);
     };
   }
-  
-  if (onHover) {
-    const originalOnMouseEnter = element.props.onMouseEnter as EventHandler<ReactMouseEvent> | undefined;
-    newProps.onMouseEnter = (e: ReactMouseEvent) => {
-      soundEffects.playHover();
-      if (originalOnMouseEnter) originalOnMouseEnter(e);
+
+  // Handle hover sound
+  if (onHover || onMouseEnter || (custom?.event === 'onMouseEnter')) {
+    const originalMouseEnter = element.props.onMouseEnter as EventHandler<ReactMouseEvent>;
+    newProps.onMouseEnter = (event: ReactMouseEvent) => {
+      if (custom?.event === 'onMouseEnter') {
+        soundEffects.loadAndPlay(custom.sound, `/audios/${custom.sound}.mp3`);
+      } else if (onMouseEnter) {
+        soundEffects.loadAndPlay(onMouseEnter, `/audios/${onMouseEnter}.mp3`);
+      } else {
+        soundEffects.playHover();
+      }
+      if (originalMouseEnter) originalMouseEnter(event);
     };
   }
-  
-  if (onMouseEnter) {
-    const originalOnMouseEnter = element.props.onMouseEnter as EventHandler<ReactMouseEvent> | undefined;
-    newProps.onMouseEnter = (e: ReactMouseEvent) => {
-      soundEffects.loadAndPlay('custom-enter', onMouseEnter);
-      if (originalOnMouseEnter) originalOnMouseEnter(e);
+
+  // Handle mouse leave sound
+  if (onMouseLeave || (custom?.event === 'onMouseLeave')) {
+    const originalMouseLeave = element.props.onMouseLeave as EventHandler<ReactMouseEvent>;
+    newProps.onMouseLeave = (event: ReactMouseEvent) => {
+      if (custom?.event === 'onMouseLeave') {
+        soundEffects.loadAndPlay(custom.sound, `/audios/${custom.sound}.mp3`);
+      } else if (onMouseLeave) {
+        soundEffects.loadAndPlay(onMouseLeave, `/audios/${onMouseLeave}.mp3`);
+      }
+      if (originalMouseLeave) originalMouseLeave(event);
     };
   }
-  
-  if (onMouseLeave) {
-    const originalOnMouseLeave = element.props.onMouseLeave as EventHandler<ReactMouseEvent> | undefined;
-    newProps.onMouseLeave = (e: ReactMouseEvent) => {
-      soundEffects.loadAndPlay('custom-leave', onMouseLeave);
-      if (originalOnMouseLeave) originalOnMouseLeave(e);
-    };
-  }
-  
-  if (custom) {
-    const eventName = custom.event;
-    const originalHandler = element.props[eventName] as EventHandler<ReactMouseEvent> | undefined;
-    newProps[eventName] = (e: ReactMouseEvent) => {
-      soundEffects.loadAndPlay('custom', custom.sound);
-      if (originalHandler) originalHandler(e);
-    };
-  }
-  
+
   return cloneElement(element, newProps);
 };
 

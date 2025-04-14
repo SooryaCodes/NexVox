@@ -3,8 +3,10 @@ import type { Metadata } from 'next'
 import AnimationProvider from '@/components/AnimationProvider'
 import SmoothScroll from '@/components/ScrollTriggerSetup'
 import { Inter, Orbitron } from 'next/font/google'
-import SoundProvider from '@/components/SoundProvider'
+import { SoundProvider } from '@/components/SoundProvider'
 import FloatingChatbotController from '@/components/FloatingChatbotController'
+import { UserProvider } from '@/contexts/UserContext'
+import Header from '@/components/Header'
 
 // Initialize the fonts
 const inter = Inter({
@@ -33,16 +35,18 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${orbitron.variable}`}>
       <body className="bg-black min-h-screen">
         <SoundProvider>
-          <SmoothScroll />
-          
-          <div>
-            <AnimationProvider>
-              {children}
-          <FloatingChatbotController />
-            </AnimationProvider>
-          </div>
-          
-          {/* Global Floating Chatbot outside of AnimationProvider to ensure fixed positioning */}
+          <UserProvider>
+            <SmoothScroll />
+            
+            <div>
+              <AnimationProvider>
+                {children}
+                <FloatingChatbotController />
+              </AnimationProvider>
+            </div>
+            
+            {/* Global Floating Chatbot outside of AnimationProvider to ensure fixed positioning */}
+          </UserProvider>
         </SoundProvider>
       </body>
     </html>

@@ -32,6 +32,11 @@ import PublicUserProfileCard from "@/components/rooms/voice/PublicUserProfileCar
 import roomsData from "../../data/rooms.json";
 import usersDataRaw from "../../data/users.json";
 
+// Import useSoundEffects hook
+import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { useUser } from "@/contexts/UserContext";
+import { getAvatarStyle, getStatusColor } from "@/utils/profileUtils";
+
 // Register ScrollTrigger with GSAP
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -186,14 +191,11 @@ export default function RoomPage() {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAudioSettingsOpen, setIsAudioSettingsOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User>({
-    id: 1,
-    name: "You",
-    level: 24,
-    badges: ["Early Adopter", "Spatial Audio Pro", "Night Owl"]
-  });
+  const { user: contextUser } = useUser();
   
   const [toasts, setToasts] = useState<Array<{id: string, message: string, type: 'success' | 'error' | 'warning'}>>([]);
+  
+  const { playClick, playSuccess, playError, playTransition, playComplete } = useSoundEffects();
   
   const addToast = React.useCallback((message: string, type: 'success' | 'error' | 'warning' = 'success') => {
     const id = Date.now().toString();
@@ -282,8 +284,17 @@ export default function RoomPage() {
     if (chatInput.trim() === '') return;
     
     const userMessage = chatInput.trim();
-    setMessages([...messages, { message: userMessage, isUser: true }]);
+    const newMessage: ChatMessage = {
+      message: userMessage,
+      isUser: true,
+      timestamp: new Date(),
+      userName: contextUser.name
+    };
+    
+    playClick();
+    setMessages(prev => [...prev, newMessage]);
     setChatInput('');
+    playSuccess();
     
     if (isAiAssistantActive) {
       handleAiAssistant(userMessage);
@@ -297,7 +308,13 @@ export default function RoomPage() {
           "I'll try that out"
         ];
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        setMessages(prev => [...prev, { message: randomResponse, isUser: false, userName: "Alex" }]);
+        const aiMessage: ChatMessage = {
+          message: randomResponse,
+          isUser: false,
+          userName: "Alex",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiMessage]);
       }, 1000 + Math.random() * 2000);
     }
   };
@@ -449,12 +466,14 @@ export default function RoomPage() {
   const toggleAudioSettings = () => {
     const newSettingsState = !isAudioSettingsOpen;
     setIsAudioSettingsOpen(newSettingsState);
+    playClick();
     if (newSettingsState) {
       addToast("Audio settings opened", 'success');
     }
   };
   
   const toggleUserProfile = () => {
+    playClick();
     setShowUserProfile(!showUserProfile);
   };
   
@@ -466,6 +485,52 @@ export default function RoomPage() {
   const handleUserHoverEnd = () => {
     setHoveredUser({user: null, position: {x: 0, y: 0}});
   };
+  
+  const handleRaiseHand = () => {
+    playClick();
+    setHandRaised(!handRaised);
+    if (!handRaised) {
+      addToast("Hand raised", 'success');
+    }
+  };
+
+  const handleMuteToggle = () => {
+    playClick();
+    setMuted(!muted);
+    if (muted) {
+      addToast("Microphone unmuted", 'success');
+    } else {
+      addToast("Microphone muted", 'warning');
+    }
+  };
+
+  const handleTabChange = (tab: typeof TABS[keyof typeof TABS]) => {
+    playClick();
+    setActiveTab(tab);
+  };
+  
+  const [currentUser, setCurrentUser] = useState<User>(() => ({
+    id: 1,
+    name: contextUser.name || "You",
+    level: contextUser.level || 24,
+    status: contextUser.status || "online",
+    avatarType: contextUser.avatarType || "cyan",
+    avatarUrl: contextUser.avatarUrl || "",
+    badges: contextUser.badges || ["Early Adopter", "Spatial Audio Pro", "Night Owl"]
+  }));
+
+  // Make sure currentUser updates when contextUser changes
+  useEffect(() => {
+    setCurrentUser(prev => ({
+      ...prev,
+      name: contextUser.name || prev.name,
+      level: contextUser.level || prev.level,
+      status: contextUser.status || prev.status,
+      avatarType: contextUser.avatarType || prev.avatarType,
+      avatarUrl: contextUser.avatarUrl || prev.avatarUrl,
+      badges: contextUser.badges || prev.badges
+    }));
+  }, [contextUser]);
   
   if (loading) {
     return (
@@ -539,18 +604,34 @@ export default function RoomPage() {
               whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(0, 255, 255, 0.2)" }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#00FFFF]/50">
-                <Image 
-                  src="/images/user-avatar.jpg" 
-                  alt="Your profile" 
-                  width={32} 
-                  height={32}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-8 h-8 rounded-full overflow-hidden border-2 flex items-center justify-center" 
+                style={{ 
+                  borderColor: `${getAvatarStyle(currentUser.avatarType || 'cyan').borderColor}50`,
+                  background: getAvatarStyle(currentUser.avatarType || 'cyan').background 
+                }}
+              >
+                {currentUser.avatarUrl ? (
+                  <Image 
+                    src={currentUser.avatarUrl} 
+                    alt="Your profile" 
+                    width={32} 
+                    height={32}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span 
+                    className="text-sm font-bold"
+                    style={{ color: getAvatarStyle(currentUser.avatarType || 'cyan').color }}
+                  >
+                    {currentUser.name.charAt(0)}
+                  </span>
+                )}
               </div>
               
-              {/* Activity indicator */}
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-black"></div>
+              {/* Status indicator */}
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border border-black"
+                style={{ backgroundColor: getStatusColor(currentUser.status || 'online') }}
+              ></div>
             </m.button>
           </div>
         </div>
@@ -791,7 +872,7 @@ export default function RoomPage() {
               }`}
               whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabChange(tab)}
               aria-selected={activeTab === tab}
               role="tab"
             >
@@ -869,7 +950,7 @@ export default function RoomPage() {
               </svg>
             )}
             label={muted ? "Unmute microphone" : "Mute microphone"}
-            onClick={toggleMicrophone}
+            onClick={handleMuteToggle}
             color="#00FFFF"
             isActive={muted}
           />
@@ -885,7 +966,7 @@ export default function RoomPage() {
               </svg>
             )}
             label={handRaised ? "Lower hand" : "Raise hand"}
-            onClick={toggleHandRaised}
+            onClick={handleRaiseHand}
             color="#9D00FF"
             isActive={handRaised}
           />
@@ -900,7 +981,7 @@ export default function RoomPage() {
               }
               label="Toggle chat"
               onClick={() => {
-                setActiveTab(TABS.CHAT);
+                handleTabChange(TABS.CHAT);
                 setIsSidebarOpen(true);
               }}
               isActive={activeTab === TABS.CHAT && isSidebarOpen}
@@ -914,7 +995,7 @@ export default function RoomPage() {
               }
               label="Show participants"
               onClick={() => {
-                setActiveTab(TABS.PARTICIPANTS);
+                handleTabChange(TABS.PARTICIPANTS);
                 setIsSidebarOpen(true);
               }}
               isActive={activeTab === TABS.PARTICIPANTS && isSidebarOpen}
@@ -929,7 +1010,7 @@ export default function RoomPage() {
               }
               label="Settings"
               onClick={() => {
-                setActiveTab(TABS.SETTINGS);
+                handleTabChange(TABS.SETTINGS);
                 setIsSidebarOpen(true);
               }}
               isActive={activeTab === TABS.SETTINGS && isSidebarOpen}
@@ -943,7 +1024,7 @@ export default function RoomPage() {
               }
               label="Profile"
               onClick={() => {
-                setActiveTab(TABS.PROFILE);
+                handleTabChange(TABS.PROFILE);
                 setIsSidebarOpen(true);
               }}
               isActive={activeTab === TABS.PROFILE && isSidebarOpen}

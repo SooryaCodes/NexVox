@@ -230,7 +230,7 @@ export default function Login() {
   useEffect(() => {
     if (loginSuccess && successCircleRef.current) {
       // Play success sound
-      soundEffects.play('success');
+      soundEffects.playSuccess();
       
       // Animate success circle
       const circle = successCircleRef.current;
@@ -324,7 +324,7 @@ export default function Login() {
     });
     
     // Play soft key sound
-    soundEffects.play('key-press');
+    soundEffects.loadAndPlay('key-press', '/audios/digital-click.mp3');
     
     // Clear error when typing
     if (errors[name as keyof typeof errors]) {
@@ -410,7 +410,7 @@ export default function Login() {
       showToast('Please fix the form errors', 'error');
       
       // Play error sound
-      soundEffects.play('error');
+      soundEffects.playError();
     }
     
     return valid;

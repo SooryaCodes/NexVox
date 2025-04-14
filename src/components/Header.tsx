@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
 import { IoMenuOutline, IoClose } from "react-icons/io5";
+import HeaderUserMenu from '@/components/HeaderUserMenu';
 
 const Header = () => {
   const pathname = usePathname();
@@ -145,7 +146,8 @@ const Header = () => {
   };
 
   const toggleMobileMenu = () => {
-    soundEffects.play(isMobileMenuOpen ? 'digital-click' : 'digital-click2');
+    soundEffects.loadAndPlay(isMobileMenuOpen ? 'digital-click' : 'digital-click2', 
+      isMobileMenuOpen ? '/audios/digital-click.mp3' : '/audios/digital-click2.mp3');
     setIsMobileMenuOpen(prev => !prev);
   };
   
@@ -243,35 +245,8 @@ const Header = () => {
                 <SoundToggle />
               </div>
             
-            <div className="flex items-center space-x-3"> {/* Grouped Auth buttons */}
-            <m.div
-                variants={buttonVariants}
-              initial="normal"
-              whileHover="hover"
-            >
-              <Link 
-                href="/login" 
-                  className="px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium text-white border border-[#0ff]/50 rounded-md hover:border-[#0ff] hover:text-[#0ff] transition-all"
-                  onClick={(e) => handleNavClick(e)}
-              >
-                  Sign In
-              </Link>
-            </m.div>
-            
-            <m.div
-              variants={buttonVariants}
-              initial="normal"
-              whileHover="hover"
-            >
-              <Link 
-                href="/register"
-                  className="px-3 py-1.5 lg:px-4 lg:py-2 text-sm lg:text-base font-medium text-black bg-[#0ff] rounded-md hover:bg-opacity-90 transition-colors shadow-md hover:shadow-lg shadow-[#0ff]/30"
-                   onClick={(e) => handleNavClick(e)}
-              >
-                  Sign Up
-              </Link>
-            </m.div>
-          </div>
+            {/* Replace auth buttons with HeaderUserMenu for authenticated users */}
+            <HeaderUserMenu />
           </nav>
           
           {/* Mobile menu button */}
