@@ -3,15 +3,18 @@
 import { useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { IoArrowBackOutline, IoCheckmarkOutline, IoCloseOutline, IoChatbubbleOutline, IoMicOutline } from "react-icons/io5";
+import { IoArrowBackOutline, IoCheckmarkOutline, IoCloseOutline, IoChatbubbleOutline, IoMicOutline, 
+  IoSettingsOutline, IoNotificationsOutline, IoChevronBackOutline, IoPersonOutline } from "react-icons/io5";
 import { useFriends } from '@/contexts/FriendContext';
 import { getAvatarStyle, getStatusColor } from '@/utils/profileUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useRouter } from 'next/navigation';
 
 export default function FriendRequestsPage() {
   const { incomingRequests, outgoingRequests, acceptFriendRequest, rejectFriendRequest, cancelFriendRequest } = useFriends();
   const [activeTab, setActiveTab] = useState<'incoming' | 'outgoing'>('incoming');
   const { playClick, playToggle, playConfirm, playSuccess, playCancel } = useSoundEffects();
+  const router = useRouter();
 
   // Handle tab change
   const handleTabChange = (tab: 'incoming' | 'outgoing') => {
@@ -35,6 +38,24 @@ export default function FriendRequestsPage() {
   const handleCancel = (userId: number) => {
     playCancel();
     cancelFriendRequest(userId);
+  };
+
+  // Handle settings click
+  const handleSettingsClick = () => {
+    playClick();
+    router.push('/settings');
+  };
+  
+  // Handle profile click
+  const handleProfileClick = () => {
+    playClick();
+    router.push('/profile');
+  };
+  
+  // Handle notifications click
+  const handleNotificationsClick = () => {
+    playClick();
+    // This would typically open a notifications panel
   };
 
   // Page animations
@@ -97,10 +118,75 @@ export default function FriendRequestsPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white pt-6 pb-16">
+    <div className="relative min-h-screen bg-black text-white pt-0 pb-16">
       {/* Ambient background elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0D001A] to-black opacity-80 z-0"></div>
       <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] bg-repeat opacity-10 z-0"></div>
+      
+      {/* Header */}
+      <header className="sticky top-0 z-30 bg-black/40 backdrop-blur-xl border-b border-white/10 px-6 py-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/friends">
+              <m.button
+                className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+                whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => playClick()}
+                aria-label="Back to Friends"
+              >
+                <IoChevronBackOutline className="h-5 w-5" />
+              </m.button>
+            </Link>
+            <h1 className="text-2xl font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#FF00E6] to-[#0ff]">Friend Requests</h1>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push('/friends')}
+              aria-label="Friends"
+            >
+              <IoPersonOutline className="h-5 w-5" />
+            </m.button>
+            
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSettingsClick}
+              aria-label="Settings"
+            >
+              <IoSettingsOutline className="h-5 w-5" />
+            </m.button>
+            
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70 relative"
+              whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleNotificationsClick}
+              aria-label="Notifications"
+            >
+              <IoNotificationsOutline className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF00E6] text-xs flex items-center justify-center">3</span>
+            </m.button>
+            
+            <m.button
+              onClick={handleProfileClick}
+              className="relative hover:ring-2 hover:ring-[#00FFFF]/50 rounded-full"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Profile"
+            >
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00FFFF]/20 to-[#FF00E6]/20 border border-white/10 flex items-center justify-center text-sm">
+                U
+              </div>
+            </m.button>
+          </div>
+        </div>
+      </header>
       
       <m.div 
         className="container mx-auto px-4 sm:px-6 relative z-10"

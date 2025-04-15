@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { IoSearchOutline, IoPersonAdd, IoArrowBack, IoChatbubbleOutline, IoMicOutline, IoClose, IoAdd } from "react-icons/io5";
+import { IoSearchOutline, IoPersonAdd, IoArrowBack, IoChatbubbleOutline, IoMicOutline, IoClose, IoAdd, 
+  IoSettingsOutline, IoNotificationsOutline, IoChevronBackOutline } from "react-icons/io5";
 import { useFriends } from '@/contexts/FriendContext';
 import { getAvatarStyle, getStatusColor } from '@/utils/profileUtils';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
@@ -65,6 +66,24 @@ export default function FriendsPage() {
     router.push(`/rooms/create?invite=${friend.id}`);
   };
 
+  // Handle settings click
+  const handleSettingsClick = () => {
+    playClick();
+    router.push('/settings');
+  };
+  
+  // Handle profile click
+  const handleProfileClick = () => {
+    playClick();
+    router.push('/profile');
+  };
+  
+  // Handle notifications click
+  const handleNotificationsClick = () => {
+    playClick();
+    // This would typically open a notifications panel
+  };
+
   // Page animations
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -122,10 +141,75 @@ export default function FriendsPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white pt-6 pb-16">
+    <div className="relative min-h-screen bg-black text-white pt-0 pb-16">
       {/* Ambient background elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0D001A] to-black opacity-80 z-0"></div>
       <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] bg-repeat opacity-10 z-0"></div>
+      
+      {/* Header */}
+      <header className="sticky top-0 z-30 bg-black/40 backdrop-blur-xl border-b border-white/10 px-6 py-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/rooms">
+              <m.button
+                className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+                whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => playClick()}
+                aria-label="Back to Rooms"
+              >
+                <IoChevronBackOutline className="h-5 w-5" />
+              </m.button>
+            </Link>
+            <h1 className="text-2xl font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#0ff] to-[#FF00E6]">Friends</h1>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleSearch}
+              aria-label="Find Friends"
+            >
+              <IoSearchOutline className="h-5 w-5" />
+            </m.button>
+            
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSettingsClick}
+              aria-label="Settings"
+            >
+              <IoSettingsOutline className="h-5 w-5" />
+            </m.button>
+            
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70 relative"
+              whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleNotificationsClick}
+              aria-label="Notifications"
+            >
+              <IoNotificationsOutline className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF00E6] text-xs flex items-center justify-center">3</span>
+            </m.button>
+            
+            <m.button
+              onClick={handleProfileClick}
+              className="relative hover:ring-2 hover:ring-[#00FFFF]/50 rounded-full"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Profile"
+            >
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00FFFF]/20 to-[#FF00E6]/20 border border-white/10 flex items-center justify-center text-sm">
+                U
+              </div>
+            </m.button>
+          </div>
+        </div>
+      </header>
       
       <m.div 
         className="container mx-auto px-4 sm:px-6 relative z-10"
@@ -133,33 +217,15 @@ export default function FriendsPage() {
         initial="hidden"
         animate="visible"
       >
-        {/* Back button + Header */}
+        {/* Options bar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-          <div className="flex items-center">
-            <Link 
-              href="/rooms" 
-              className="flex items-center text-white/70 hover:text-white transition-colors mr-4"
-              onClick={() => playClick()}
-            >
-              <IoArrowBack className="mr-1.5" />
-              <span>Back to Rooms</span>
-            </Link>
-            
-            <m.h1 
-              variants={itemVariants}
-              className="text-2xl md:text-3xl font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#0ff] to-[#FF00E6]"
-            >
-              Friends
-            </m.h1>
-          </div>
-          
           <m.div 
             variants={itemVariants} 
-            className="mt-4 md:mt-0 flex items-center"
+            className="flex items-center gap-4"
           >
             <button 
               onClick={toggleSearch}
-              className="mr-4 px-4 py-2 rounded-md flex items-center bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+              className="px-4 py-2 rounded-md flex items-center bg-gradient-to-r from-[#0ff]/20 to-[#0ff]/5 hover:from-[#0ff]/30 hover:to-[#0ff]/10 border border-[#0ff]/20 transition-colors"
             >
               <IoSearchOutline className="mr-2" /> 
               Find Friends
@@ -167,7 +233,7 @@ export default function FriendsPage() {
             
             <Link 
               href="/friends/requests" 
-              className="px-4 py-2 rounded-md flex items-center bg-gradient-to-r from-[#0ff]/20 to-[#FF00E6]/20 hover:from-[#0ff]/30 hover:to-[#FF00E6]/30 border border-white/10 transition-colors"
+              className="px-4 py-2 rounded-md flex items-center bg-gradient-to-r from-[#FF00E6]/20 to-[#FF00E6]/5 hover:from-[#FF00E6]/30 hover:to-[#FF00E6]/10 border border-[#FF00E6]/20 transition-colors"
             >
               <IoPersonAdd className="mr-2" /> 
               Requests
@@ -248,46 +314,52 @@ export default function FriendsPage() {
           )}
         </AnimatePresence>
         
-        {/* Friends list */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {friends.length > 0 ? (
-            friends.map((friend, index) => {
+        {/* Friends grid */}
+        {friends.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {friends.map((friend, index) => {
               const avatarStyle = getAvatarStyle(friend.avatarType || 'cyan');
               const statusColor = getStatusColor(friend.status || 'online');
               
               return (
                 <m.div 
-                  key={friend.id}
+                  key={friend.id} 
                   custom={index}
                   variants={cardVariants}
                   initial="initial"
                   animate="animate"
                   whileHover="hover"
                   whileTap="tap"
-                  className="relative rounded-xl overflow-hidden group"
+                  className="relative overflow-hidden group"
                 >
-                  {/* Card background with gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/80 z-0"></div>
-                  <div className="absolute inset-0 border border-white/10 group-hover:border-[#0ff]/20 transition-colors rounded-xl z-10"></div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#0ff]/5 to-[#FF00E6]/5 opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
+                  {/* Card background with glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/80 to-black/60 z-0 rounded-xl"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br opacity-10 rounded-xl"
+                       style={{ background: `linear-gradient(135deg, ${avatarStyle.color}20, transparent)` }}></div>
                   
-                  {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-br from-[#0ff]/10 to-transparent rounded-bl-full -translate-y-1/2 translate-x-1/2 blur-md z-0"></div>
-                  <div className="absolute bottom-0 left-0 h-16 w-16 bg-gradient-to-tr from-[#FF00E6]/10 to-transparent rounded-tr-full translate-y-1/2 -translate-x-1/2 blur-md z-0"></div>
+                  {/* Animated border */}
+                  <div className="absolute inset-0 rounded-xl border border-white/10 group-hover:border-[#0ff]/30 transition-colors duration-300 z-10"></div>
                   
-                  <div className="relative p-5 backdrop-blur-sm z-20">
+                  {/* Glow dot in corner */}
+                  <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-br from-[#0ff]/10 to-transparent rounded-bl-full -translate-y-1/2 translate-x-1/2 blur-md z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  <div className="relative p-5 z-10 backdrop-blur-sm rounded-xl">
                     <div className="flex items-start">
                       <div className="relative">
                         <div 
-                          className="w-14 h-14 rounded-full flex items-center justify-center border border-white/5 shadow-lg"
+                          className="w-16 h-16 rounded-full flex items-center justify-center border border-white/10 shadow-lg overflow-hidden group-hover:border-[#0ff]/30 transition-colors"
                           style={{ background: avatarStyle.background }}
                         >
-                          <span className="text-2xl font-bold" style={{ color: avatarStyle.color }}>
+                          <span className="text-3xl font-bold" style={{ color: avatarStyle.color }}>
                             {friend.name.charAt(0)}
                           </span>
+                          
+                          {/* Animated overlay on hover */}
+                          <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+                               style={{ background: `linear-gradient(135deg, ${avatarStyle.color}, transparent)` }}></div>
                         </div>
                         
-                        {/* Status indicator with pulse animation for online */}
+                        {/* Status indicator with pulse animation */}
                         <div 
                           className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-black ${friend.status === 'online' ? 'animate-pulse' : ''}`}
                           style={{ backgroundColor: statusColor }}
@@ -295,8 +367,9 @@ export default function FriendsPage() {
                       </div>
                       
                       <div className="ml-4 flex-1">
-                        <h3 className="text-lg font-medium">{friend.name}</h3>
-                        <div className="flex items-center text-xs text-white/60 mt-0.5">
+                        <h3 className="text-xl font-medium group-hover:text-[#0ff] transition-colors">{friend.name}</h3>
+                        
+                        <div className="flex items-center text-xs text-white/60 mt-1">
                           <span className="capitalize">{friend.status || 'online'}</span>
                           <span className="mx-1.5">•</span>
                           <span>Level {friend.level || 1}</span>
@@ -308,7 +381,7 @@ export default function FriendsPage() {
                             {friend.badges.map((badge, i) => (
                               <span 
                                 key={i}
-                                className="px-2 py-0.5 bg-black/40 border border-white/10 rounded-full text-xs"
+                                className="px-2 py-0.5 bg-black/40 border border-white/10 rounded-full text-xs group-hover:border-[#0ff]/20 transition-colors"
                               >
                                 {badge}
                               </span>
@@ -319,62 +392,66 @@ export default function FriendsPage() {
                     </div>
                     
                     {/* Action buttons */}
-                    <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
-                      <div className="text-xs text-white/50">
-                        {friend.stats?.roomsJoined ? `${friend.stats.roomsJoined} rooms joined` : 'New user'}
+                    <div className="mt-5 pt-4 border-t border-white/5 flex justify-between">
+                      <div className="flex gap-2">
+                        <m.button 
+                          onClick={() => handleRemoveFriend(friend.id)}
+                          className="p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                          title="Remove friend"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <IoClose size={18} />
+                        </m.button>
                       </div>
                       
                       <div className="flex gap-2">
-                        <button 
+                        <m.button 
                           onClick={() => openChat(friend)}
-                          className="p-2.5 rounded-full bg-[#0ff]/10 hover:bg-[#0ff]/20 text-[#0ff] transition-colors"
-                          title="Chat with friend"
+                          className="p-2 rounded-full bg-[#0ff]/10 hover:bg-[#0ff]/20 text-[#0ff] transition-colors"
+                          title="Chat"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
                         >
                           <IoChatbubbleOutline size={18} />
-                        </button>
-                        <button 
+                        </m.button>
+                        
+                        <m.button 
                           onClick={() => createRoomWithFriend(friend)}
-                          className="p-2.5 rounded-full bg-[#FF00E6]/10 hover:bg-[#FF00E6]/20 text-[#FF00E6] transition-colors"
+                          className="p-2 rounded-full bg-[#FF00E6]/10 hover:bg-[#FF00E6]/20 text-[#FF00E6] transition-colors"
                           title="Create voice room"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
                         >
                           <IoMicOutline size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleRemoveFriend(friend.id)}
-                          className="p-2.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
-                          title="Remove friend"
-                        >
-                          <IoClose size={18} />
-                        </button>
+                        </m.button>
                       </div>
                     </div>
                   </div>
                 </m.div>
               );
-            })
-          ) : (
-            <m.div 
-              variants={itemVariants}
-              className="col-span-full bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-8 text-center"
-            >
-              <div className="mb-4">
-                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto">
-                  <IoPersonAdd className="w-10 h-10 text-white/30" />
-                </div>
+            })}
+          </div>
+        ) : (
+          <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-10 text-center">
+            <div className="flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-[#0ff]/10 flex items-center justify-center mb-4">
+                <IoPersonAdd size={40} className="text-[#0ff]/70" />
               </div>
               <h3 className="text-xl font-medium mb-2">No friends yet</h3>
-              <p className="text-white/60 max-w-md mx-auto mb-6">
-                Connect with other users in the NexVox universe. Find friends with similar interests and join voice rooms together.
+              <p className="text-white/50 mb-6 max-w-md mx-auto">
+                Find and add friends to chat, create voice rooms together, or join collaborative experiences
               </p>
               <button 
                 onClick={toggleSearch}
-                className="px-5 py-2.5 rounded-md bg-gradient-to-r from-[#0ff] to-[#FF00E6] text-black font-medium transition-transform hover:scale-105"
+                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#0ff]/20 to-[#FF00E6]/20 hover:from-[#0ff]/30 hover:to-[#FF00E6]/30 text-white border border-white/10 transition-colors"
               >
+                <IoSearchOutline className="inline mr-2" />
                 Find Friends
               </button>
-            </m.div>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </m.div>
       
       {/* Ambient sound effect */}

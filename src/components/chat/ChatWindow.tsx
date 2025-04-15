@@ -494,6 +494,13 @@ export default function ChatWindow({
     }
   };
   
+  // Initialize chat with suggestions visible for new conversations
+  useEffect(() => {
+    if (messages.length <= 3) {
+      setShowSuggestions(true);
+    }
+  }, [messages]);
+  
   return (
     <div className="flex flex-col h-full relative">
       {/* Chat header */}
