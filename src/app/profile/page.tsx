@@ -8,9 +8,10 @@ import HolographicCard from "@/components/HolographicCard";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import NeonGrid from "@/components/NeonGrid";
 import AudioWaveform from "@/components/AudioWaveform";
-import { IoSettingsOutline, IoNotificationsOutline, IoChevronBackOutline } from "react-icons/io5";
+import { IoSettingsOutline, IoNotificationsOutline, IoChevronBackOutline, IoChatbubbleOutline } from "react-icons/io5";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { User } from "@/types/room";
+import { useRouter } from "next/navigation";
 
 // Define avatar option type
 interface AvatarOption {
@@ -65,6 +66,7 @@ const statusOptions: StatusOption[] = [
 
 // Define the component
 function ProfilePage() {
+  const router = useRouter();
   const { 
     playClick,
     playCustom,
@@ -146,6 +148,12 @@ function ProfilePage() {
     }));
   };
 
+  // Handle navigation to chats page
+  const handleChatsClick = () => {
+    playClick();
+    router.push('/chats');
+  };
+
   // Safe access to optional properties
   const badges = userData.badges ?? [];
   const level = userData.level ?? 0;
@@ -180,6 +188,17 @@ function ProfilePage() {
           </div>
           
           <div className="flex items-center gap-2">
+            {/* Chat Button */}
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleChatsClick}
+              aria-label="Chats"
+            >
+              <IoChatbubbleOutline className="h-5 w-5" />
+            </m.button>
+            
             <Link href="/settings">
               <m.button
                 className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"

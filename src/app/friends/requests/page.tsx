@@ -50,11 +50,16 @@ export default function FriendRequestsPage() {
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { 
+    visible: (i: number) => ({ 
       y: 0, 
       opacity: 1,
-      transition: { type: "spring", stiffness: 300, damping: 24 }
-    }
+      transition: { 
+        delay: i * 0.05,
+        type: "spring", 
+        stiffness: 300, 
+        damping: 24 
+      }
+    })
   };
 
   const tabVariants = {
@@ -68,8 +73,31 @@ export default function FriendRequestsPage() {
     }
   };
 
+  const cardVariants = {
+    hidden: { scale: 0.95, opacity: 0 },
+    visible: (i: number) => ({
+      scale: 1,
+      opacity: 1,
+      transition: {
+        delay: i * 0.05,
+        type: "spring",
+        stiffness: 300,
+        damping: 24
+      }
+    }),
+    hover: {
+      y: -5,
+      boxShadow: "0 10px 20px rgba(0, 255, 255, 0.1)",
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10
+      }
+    }
+  };
+
   return (
-    <div className="relative min-h-screen bg-black text-white pt-24 pb-16">
+    <div className="relative min-h-screen bg-black text-white pt-6 pb-16">
       {/* Ambient background elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0D001A] to-black opacity-80 z-0"></div>
       <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] bg-repeat opacity-10 z-0"></div>
@@ -84,14 +112,16 @@ export default function FriendRequestsPage() {
           <Link 
             href="/friends" 
             className="flex items-center text-white/70 hover:text-white transition-colors mr-4"
+            onClick={() => playClick()}
           >
             <IoArrowBackOutline className="mr-1.5" />
             <span>Back to Friends</span>
           </Link>
           
           <m.h1 
+            custom={0}
             variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#FF00E6] to-[#0ff]"
+            className="text-2xl md:text-3xl font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#FF00E6] to-[#0ff]"
           >
             Friend Requests
           </m.h1>
@@ -100,6 +130,7 @@ export default function FriendRequestsPage() {
         {/* Tab navigation */}
         <m.div 
           className="flex border-b border-white/10 mb-8"
+          custom={1}
           variants={itemVariants}
         >
           <m.button
@@ -130,97 +161,115 @@ export default function FriendRequestsPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {incomingRequests.length > 0 ? (
-                incomingRequests.map((request) => {
+                incomingRequests.map((request, index) => {
                   const avatarStyle = getAvatarStyle(request.avatarType || 'cyan');
                   const statusColor = getStatusColor(request.status || 'online');
                   
                   return (
                     <m.div 
                       key={request.id}
-                      variants={itemVariants}
-                      className="relative rounded-lg border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden hover:border-[#0ff]/20 transition-colors group"
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover="hover"
+                      className="relative rounded-xl overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#0ff]/5 to-[#FF00E6]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      {/* Card background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/80 z-0"></div>
+                      <div className="absolute inset-0 border border-white/10 hover:border-[#0ff]/20 transition-colors rounded-xl z-10"></div>
                       
-                      <div className="p-4 flex items-center">
-                        <div className="relative">
-                          <div 
-                            className="w-12 h-12 rounded-full flex items-center justify-center"
-                            style={{ background: avatarStyle.background }}
-                          >
-                            <span className="text-xl font-bold" style={{ color: avatarStyle.color }}>
-                              {request.name.charAt(0)}
-                            </span>
+                      {/* Decorative elements */}
+                      <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-br from-[#FF00E6]/10 to-transparent rounded-bl-full -translate-y-1/2 translate-x-1/2 blur-md z-0"></div>
+                      
+                      <div className="relative p-5 backdrop-blur-sm z-20">
+                        <div className="flex items-start">
+                          <div className="relative">
+                            <div 
+                              className="w-14 h-14 rounded-full flex items-center justify-center border border-white/5 shadow-lg"
+                              style={{ background: avatarStyle.background }}
+                            >
+                              <span className="text-2xl font-bold" style={{ color: avatarStyle.color }}>
+                                {request.name.charAt(0)}
+                              </span>
+                            </div>
+                            
+                            {/* Status indicator */}
+                            <div 
+                              className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-black ${request.status === 'online' ? 'animate-pulse' : ''}`}
+                              style={{ backgroundColor: statusColor }}
+                            ></div>
                           </div>
                           
-                          {/* Status indicator */}
-                          <div 
-                            className="absolute bottom-0 right-0 w-3 h-3 rounded-full border border-black"
-                            style={{ backgroundColor: statusColor }}
-                          ></div>
+                          <div className="ml-4 flex-1">
+                            <h3 className="text-lg font-medium">{request.name}</h3>
+                            <div className="flex items-center text-xs text-white/60 mt-0.5">
+                              <span className="capitalize">{request.status || 'online'}</span>
+                              <span className="mx-1.5">•</span>
+                              <span>Level {request.level || 1}</span>
+                            </div>
+                            
+                            {/* Badges */}
+                            {request.badges && request.badges.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {request.badges.slice(0, 2).map((badge, i) => (
+                                  <span 
+                                    key={i}
+                                    className="px-2 py-0.5 bg-black/40 border border-white/10 rounded-full text-xs"
+                                  >
+                                    {badge}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                         
-                        <div className="ml-4 flex-1">
-                          <h3 className="font-medium">{request.name}</h3>
-                          <div className="flex items-center text-xs text-white/60 mt-0.5">
-                            <span className="capitalize">{request.status || 'online'}</span>
-                            <span className="mx-1.5">•</span>
-                            <span>Level {request.level || 1}</span>
-                          </div>
-                          
-                          {/* Badges */}
-                          {request.badges && request.badges.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-1.5">
-                              {request.badges.slice(0, 2).map((badge, i) => (
-                                <span 
-                                  key={i}
-                                  className="px-2 py-0.5 bg-white/10 rounded-full text-xs"
-                                >
-                                  {badge}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                        <div className="mt-4 pt-4 border-t border-white/5 flex justify-end gap-2">
+                          <m.button 
+                            onClick={() => handleReject(request.id)}
+                            className="p-2.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                            title="Reject request"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <IoCloseOutline size={20} />
+                          </m.button>
+                          <m.button 
+                            onClick={() => handleAccept(request.id)}
+                            className="p-2.5 rounded-full bg-green-500/10 hover:bg-green-500/20 text-green-400 transition-colors"
+                            title="Accept request"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <IoCheckmarkOutline size={20} />
+                          </m.button>
                         </div>
-                      </div>
-                      
-                      <div className="bg-white/5 p-3 flex justify-end gap-2">
-                        <button 
-                          onClick={() => handleReject(request.id)}
-                          className="p-2 rounded-full bg-white/10 hover:bg-red-500/20 hover:text-red-400 transition-colors"
-                          title="Reject request"
-                        >
-                          <IoCloseOutline size={20} />
-                        </button>
-                        <button 
-                          onClick={() => handleAccept(request.id)}
-                          className="p-2 rounded-full bg-white/10 hover:bg-green-500/20 hover:text-green-400 transition-colors"
-                          title="Accept request"
-                        >
-                          <IoCheckmarkOutline size={20} />
-                        </button>
                       </div>
                     </m.div>
                   );
                 })
               ) : (
                 <m.div 
+                  custom={0}
                   variants={itemVariants}
-                  className="col-span-full bg-white/5 rounded-lg p-8 text-center"
+                  className="col-span-full bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-8 text-center"
                 >
                   <div className="mb-4">
-                    <IoCheckmarkOutline className="w-16 h-16 mx-auto text-white/30" />
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto">
+                      <IoCheckmarkOutline className="w-10 h-10 text-white/30" />
+                    </div>
                   </div>
                   <h3 className="text-xl font-medium mb-2">No incoming requests</h3>
-                  <p className="text-white/60 mb-4">
+                  <p className="text-white/60 max-w-md mx-auto mb-6">
                     You don't have any incoming friend requests at the moment
                   </p>
                   <Link 
                     href="/friends" 
-                    className="inline-block px-5 py-2.5 rounded-md bg-white/10 hover:bg-white/20 transition-colors"
+                    className="inline-block px-5 py-2.5 rounded-md bg-gradient-to-r from-[#0ff]/20 to-[#FF00E6]/20 hover:from-[#0ff]/30 hover:to-[#FF00E6]/30 border border-white/10 transition-colors"
                   >
                     Return to Friends
                   </Link>
@@ -234,74 +283,90 @@ export default function FriendRequestsPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {outgoingRequests.length > 0 ? (
-                outgoingRequests.map((request) => {
+                outgoingRequests.map((request, index) => {
                   const avatarStyle = getAvatarStyle(request.avatarType || 'cyan');
                   const statusColor = getStatusColor(request.status || 'online');
                   
                   return (
                     <m.div 
                       key={request.id}
-                      variants={itemVariants}
-                      className="relative rounded-lg border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden hover:border-[#0ff]/20 transition-colors group"
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover="hover"
+                      className="relative rounded-xl overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#0ff]/5 to-[#FF00E6]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      {/* Card background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/80 z-0"></div>
+                      <div className="absolute inset-0 border border-white/10 hover:border-[#0ff]/20 transition-colors rounded-xl z-10"></div>
                       
-                      <div className="p-4 flex items-center">
-                        <div className="relative">
-                          <div 
-                            className="w-12 h-12 rounded-full flex items-center justify-center"
-                            style={{ background: avatarStyle.background }}
-                          >
-                            <span className="text-xl font-bold" style={{ color: avatarStyle.color }}>
-                              {request.name.charAt(0)}
-                            </span>
+                      {/* Decorative elements */}
+                      <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-br from-[#FF00E6]/10 to-transparent rounded-bl-full -translate-y-1/2 translate-x-1/2 blur-md z-0"></div>
+                      
+                      <div className="relative p-5 backdrop-blur-sm z-20">
+                        <div className="flex items-start">
+                          <div className="relative">
+                            <div 
+                              className="w-14 h-14 rounded-full flex items-center justify-center border border-white/5 shadow-lg"
+                              style={{ background: avatarStyle.background }}
+                            >
+                              <span className="text-2xl font-bold" style={{ color: avatarStyle.color }}>
+                                {request.name.charAt(0)}
+                              </span>
+                            </div>
+                            
+                            {/* Status indicator */}
+                            <div 
+                              className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-black ${request.status === 'online' ? 'animate-pulse' : ''}`}
+                              style={{ backgroundColor: statusColor }}
+                            ></div>
                           </div>
                           
-                          {/* Status indicator */}
-                          <div 
-                            className="absolute bottom-0 right-0 w-3 h-3 rounded-full border border-black"
-                            style={{ backgroundColor: statusColor }}
-                          ></div>
+                          <div className="ml-4 flex-1">
+                            <h3 className="text-lg font-medium">{request.name}</h3>
+                            <div className="flex items-center text-xs text-white/60 mt-0.5">
+                              <span className="capitalize">{request.status || 'online'}</span>
+                              <span className="mx-1.5">•</span>
+                              <span>Level {request.level || 1}</span>
+                            </div>
+                            
+                            <div className="mt-2 inline-block px-3 py-1.5 bg-[#FF00E6]/10 rounded-full text-xs text-[#FF00E6]">
+                              Request pending
+                            </div>
+                          </div>
                         </div>
                         
-                        <div className="ml-4 flex-1">
-                          <h3 className="font-medium">{request.name}</h3>
-                          <div className="flex items-center text-xs text-white/60 mt-0.5">
-                            <span className="capitalize">{request.status || 'online'}</span>
-                            <span className="mx-1.5">•</span>
-                            <span>Level {request.level || 1}</span>
-                          </div>
-                          
-                          <div className="mt-1 text-xs text-white/40">
-                            Request pending
-                          </div>
+                        <div className="mt-4 pt-4 border-t border-white/5 flex justify-end">
+                          <m.button 
+                            onClick={() => handleCancel(request.id)}
+                            className="px-4 py-2 rounded-md bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-sm transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            Cancel Request
+                          </m.button>
                         </div>
-                      </div>
-                      
-                      <div className="bg-white/5 p-3 flex justify-end">
-                        <button 
-                          onClick={() => handleCancel(request.id)}
-                          className="px-3 py-1 rounded-md bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-sm transition-colors"
-                        >
-                          Cancel Request
-                        </button>
                       </div>
                     </m.div>
                   );
                 })
               ) : (
                 <m.div 
+                  custom={0}
                   variants={itemVariants}
-                  className="col-span-full bg-white/5 rounded-lg p-8 text-center"
+                  className="col-span-full bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-8 text-center"
                 >
                   <div className="mb-4">
-                    <IoChatbubbleOutline className="w-16 h-16 mx-auto text-white/30" />
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto">
+                      <IoChatbubbleOutline className="w-10 h-10 text-white/30" />
+                    </div>
                   </div>
                   <h3 className="text-xl font-medium mb-2">No outgoing requests</h3>
-                  <p className="text-white/60 mb-4">
+                  <p className="text-white/60 max-w-md mx-auto mb-6">
                     You haven't sent any friend requests yet
                   </p>
                   <Link 
@@ -317,7 +382,7 @@ export default function FriendRequestsPage() {
         </AnimatePresence>
       </m.div>
       
-      {/* Ambient sound effects on page load */}
+      {/* Ambient sound effects */}
       {typeof window !== 'undefined' && (
         <audio 
           src="/audios/digital-blip.mp3" 
