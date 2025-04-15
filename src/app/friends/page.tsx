@@ -315,7 +315,7 @@ export default function FriendsPage() {
         </AnimatePresence>
         
         {/* Friends grid */}
-        {friends.length > 0 ? (
+        {friends && friends.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {friends.map((friend, index) => {
               const avatarStyle = getAvatarStyle(friend.avatarType || 'cyan');
@@ -458,7 +458,8 @@ export default function FriendsPage() {
       {typeof window !== 'undefined' && (
         <audio 
           src="/audios/digital-blip.mp3" 
-          autoPlay 
+          autoPlay={typeof window !== 'undefined'} 
+          loop
           style={{ display: 'none' }}
         />
       )}

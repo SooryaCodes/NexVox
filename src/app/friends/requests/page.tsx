@@ -194,25 +194,6 @@ export default function FriendRequestsPage() {
         initial="hidden"
         animate="visible"
       >
-        <div className="flex items-center mb-8">
-          <Link 
-            href="/friends" 
-            className="flex items-center text-white/70 hover:text-white transition-colors mr-4"
-            onClick={() => playClick()}
-          >
-            <IoArrowBackOutline className="mr-1.5" />
-            <span>Back to Friends</span>
-          </Link>
-          
-          <m.h1 
-            custom={0}
-            variants={itemVariants}
-            className="text-2xl md:text-3xl font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#FF00E6] to-[#0ff]"
-          >
-            Friend Requests
-          </m.h1>
-        </div>
-        
         {/* Tab navigation */}
         <m.div 
           className="flex border-b border-white/10 mb-8"
@@ -249,7 +230,7 @@ export default function FriendRequestsPage() {
               transition={{ duration: 0.2 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {incomingRequests.length > 0 ? (
+              {incomingRequests && incomingRequests.length > 0 ? (
                 incomingRequests.map((request, index) => {
                   const avatarStyle = getAvatarStyle(request.avatarType || 'cyan');
                   const statusColor = getStatusColor(request.status || 'online');
@@ -371,7 +352,7 @@ export default function FriendRequestsPage() {
               transition={{ duration: 0.2 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {outgoingRequests.length > 0 ? (
+              {outgoingRequests && outgoingRequests.length > 0 ? (
                 outgoingRequests.map((request, index) => {
                   const avatarStyle = getAvatarStyle(request.avatarType || 'cyan');
                   const statusColor = getStatusColor(request.status || 'online');
@@ -472,7 +453,8 @@ export default function FriendRequestsPage() {
       {typeof window !== 'undefined' && (
         <audio 
           src="/audios/digital-blip.mp3" 
-          autoPlay 
+          autoPlay={typeof window !== 'undefined'} 
+          loop
           style={{ display: 'none' }}
         />
       )}

@@ -86,7 +86,7 @@ const getFriendMessages = (friendId: number): ChatMessage[] => {
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
         attachment: {
           type: 'image',
-          url: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e',
+          url: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=800',
           name: 'audio_diagram.jpg'
         }
       },
@@ -101,7 +101,7 @@ const getFriendMessages = (friendId: number): ChatMessage[] => {
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 47),
         attachment: {
           type: 'image',
-          url: 'https://images.unsplash.com/photo-1614729373246-42ec9bf7edf1',
+          url: 'https://images.unsplash.com/photo-1614729373246-42ec9bf7edf1?q=80&w=800',
           name: 'vr_design.jpg'
         }
       },
@@ -137,6 +137,13 @@ const getRandomResponse = (friendName: string): string => {
   ];
   
   return responses[Math.floor(Math.random() * responses.length)];
+};
+
+// Generate voice message duration for better realism
+const getRandomDuration = (): string => {
+  const minutes = Math.floor(Math.random() * 2);
+  const seconds = Math.floor(Math.random() * 59) + 1;
+  return minutes > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : `0:${seconds.toString().padStart(2, '0')}`;
 };
 
 export default function ChatWindow({ 
@@ -280,7 +287,7 @@ export default function ChatWindow({
       attachment: undefined
     };
 
-    // Different media options with realistic attachments
+    // Different media options with reliable attachments
     switch (option) {
       case 'Images':
         newMessage.attachment = {
@@ -290,12 +297,13 @@ export default function ChatWindow({
         };
         break;
       case 'Audio':
+        const duration = getRandomDuration();
         newMessage.attachment = {
           type: 'audio',
           url: '/audios/sample-track.mp3',
-          name: 'voice_message.mp3'
+          name: `voice_message_${duration}.mp3`
         };
-        newMessage.content = 'Voice message';
+        newMessage.content = `Voice message (${duration})`;
         break;
       case 'Files':
         newMessage.attachment = {
@@ -361,6 +369,7 @@ export default function ChatWindow({
         // Have friend respond with an image or text after a delay
         setTimeout(() => {
           const isImageResponse = ['Images', 'Location', 'Theme'].includes(option) && Math.random() > 0.5;
+          const isVoiceResponse = option === 'Audio' && Math.random() > 0.7;
           
           const responseImages = [
             'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800',
@@ -369,17 +378,30 @@ export default function ChatWindow({
           ];
           
           const randomImage = responseImages[Math.floor(Math.random() * responseImages.length)];
+          const responseDuration = getRandomDuration();
           
           const friendResponse: ChatMessage = {
             id: `msg-${Date.now()}`,
-            content: isImageResponse ? 'Check this out too:' : getRandomResponse(friend.name),
+            content: isImageResponse 
+              ? 'Check this out too:' 
+              : isVoiceResponse 
+                ? `Voice message (${responseDuration})` 
+                : getRandomResponse(friend.name),
             isUser: false,
             timestamp: new Date(),
-            attachment: isImageResponse ? {
-              type: 'image',
-              url: randomImage,
-              name: 'response_image.jpg'
-            } : undefined
+            attachment: isImageResponse 
+              ? {
+                  type: 'image',
+                  url: randomImage,
+                  name: 'response_image.jpg'
+                } 
+              : isVoiceResponse 
+                ? {
+                    type: 'audio',
+                    url: '/audios/sample-track.mp3',
+                    name: `voice_message_${responseDuration}.mp3`
+                  } 
+                : undefined
           };
           
           setMessages(prev => [...prev, friendResponse]);
@@ -629,7 +651,9 @@ export default function ChatWindow({
                   >
                     {/* Message content */}
                     <div className="p-3">
-                      <p className="text-white">{message.content}</p>
+                      {!message.attachment && (
+                        <p className="text-white">{message.content}</p>
+                      )}
                       
                       {/* Attachment display if any */}
                       {message.attachment && (
@@ -641,40 +665,77 @@ export default function ChatWindow({
                                 alt={message.attachment.name || "Attached image"} 
                                 className="w-full h-auto max-h-60 object-cover"
                               />
+                              {message.content && (
+                                <p className="text-white mt-2">{message.content}</p>
+                              )}
                             </div>
                           )}
                           
                           {message.attachment.type === 'audio' && (
-                            <div className="mt-2 p-2 bg-black/30 rounded-md">
+                            <div className="mt-2 p-3 bg-black/30 rounded-md border border-white/5">
                               <div className="flex items-center">
-                                <div className="p-2 bg-[#FF00E6]/20 rounded-full mr-2">
-                                  <IoMicOutline className="text-[#FF00E6]" />
+                                <div className={`p-2 ${message.isUser ? 'bg-[#0ff]/20' : 'bg-[#FF00E6]/20'} rounded-full mr-3 transition-all hover:scale-110 cursor-pointer`}>
+                                  <IoMicOutline className={message.isUser ? 'text-[#0ff]' : 'text-[#FF00E6]'} size={18} />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-sm">{message.attachment.name}</div>
-                                  <div className="h-1 w-full bg-white/10 rounded-full mt-1">
-                                    <div className="h-full w-1/3 bg-gradient-to-r from-[#0ff] to-[#FF00E6] rounded-full"></div>
+                                  <div className="flex justify-between items-center">
+                                    <div className="text-sm font-medium">{message.content}</div>
+                                    <div className="text-xs text-white/40">
+                                      {message.attachment.name?.split('_')[2]?.split('.')[0] || '0:23'}
+                                    </div>
+                                  </div>
+                                  <div className="h-1.5 w-full bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                                    <div 
+                                      className={`h-full ${message.isUser ? 'bg-gradient-to-r from-[#0ff]/80 to-[#0ff]' : 'bg-gradient-to-r from-[#FF00E6]/80 to-[#FF00E6]'} rounded-full`}
+                                      style={{ width: `${Math.random() * 80 + 20}%` }}
+                                    ></div>
+                                  </div>
+                                  <div className="flex justify-between items-center mt-1.5 text-xs text-white/40">
+                                    <div>Tap to play</div>
+                                    <div className="flex items-center gap-1.5">
+                                      <button className="p-1 hover:bg-white/10 rounded-full">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M8 5V19L19 12L8 5Z" fill="currentColor" />
+                                        </svg>
+                                      </button>
+                                      <button className="p-1 hover:bg-white/10 rounded-full">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9 9H11V15H9V9ZM13 9H15V15H13V9Z" fill="currentColor" />
+                                        </svg>
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
-                                <button 
-                                  className="p-1.5 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-                                  onClick={() => playClick()}
-                                >
-                                  <IoPaperPlane size={14} className="text-white/70" />
-                                </button>
                               </div>
                             </div>
                           )}
                           
                           {message.attachment.type === 'file' && (
-                            <div className="mt-2 p-2 bg-black/30 rounded-md">
+                            <div className="mt-2 p-3 bg-black/30 rounded-md border border-white/5">
                               <div className="flex items-center">
-                                <div className="p-2 bg-[#9D00FF]/20 rounded-full mr-2">
-                                  <IoDocumentText className="text-[#9D00FF]" />
+                                <div className={`p-2 ${message.isUser ? 'bg-[#0ff]/20' : 'bg-[#9D00FF]/20'} rounded-full mr-3 transition-all hover:scale-110 cursor-pointer`}>
+                                  <IoDocumentText className={message.isUser ? 'text-[#0ff]' : 'text-[#9D00FF]'} size={18} />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-sm">{message.attachment.name}</div>
-                                  <div className="text-xs text-white/40">Click to download</div>
+                                  <div className="flex justify-between items-center">
+                                    <div className="text-sm font-medium">{message.attachment.name}</div>
+                                    <div className="text-xs text-white/40">
+                                      {Math.floor(Math.random() * 5) + 1}MB
+                                    </div>
+                                  </div>
+                                  <div className="flex justify-between items-center mt-2">
+                                    <div className="flex items-center gap-1 text-xs text-white/60">
+                                      <span>{message.content}</span>
+                                    </div>
+                                    <m.button 
+                                      className={`px-2 py-1 rounded-md text-xs ${message.isUser ? 'bg-[#0ff]/20 text-[#0ff]' : 'bg-[#9D00FF]/20 text-[#9D00FF]'}`}
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                      onClick={() => playClick()}
+                                    >
+                                      Download
+                                    </m.button>
+                                  </div>
                                 </div>
                               </div>
                             </div>

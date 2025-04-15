@@ -45,9 +45,9 @@ export default function ChatsPage() {
   
   // Media sharing options - these will be accessible in the chat window
   const mediaOptions = [
-    { label: "Photos", color: "#00FFFF", icon: <IoImages className="h-5 w-5" /> },
-    { label: "Voice", color: "#FF00E6", icon: <IoMic className="h-5 w-5" /> },
-    { label: "File", color: "#9D00FF", icon: <IoDocumentText className="h-5 w-5" /> },
+    { label: "Images", color: "#00FFFF", icon: <IoImages className="h-5 w-5" /> },
+    { label: "Audio", color: "#FF00E6", icon: <IoMic className="h-5 w-5" /> },
+    { label: "Files", color: "#9D00FF", icon: <IoDocumentText className="h-5 w-5" /> },
     { label: "Location", color: "#00FF7F", icon: <IoLocation className="h-5 w-5" /> },
     { label: "Calendar", color: "#FFA500", icon: <IoCalendarOutline className="h-5 w-5" /> },
     { label: "Theme", color: "#00BFFF", icon: <IoColorPaletteOutline className="h-5 w-5" /> }
@@ -300,7 +300,7 @@ export default function ChatsPage() {
                       }}
                       suggestedReplies={suggestedReplies}
                       mediaOptions={mediaOptions}
-                      onViewProfile={() => {/* Handle profile view */}}
+                      onViewProfile={handleToggleUserProfile}
                     />
                   </m.div>
                 ) : (
