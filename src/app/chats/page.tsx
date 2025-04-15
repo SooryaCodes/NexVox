@@ -33,25 +33,17 @@ export default function ChatsPage() {
   
   // Suggested replies for quick access - these will be shown in the chat window
   const suggestedReplies = [
-    "Hey, how are you?",
-    "Want to join a voice room?",
-    "Thanks for the message!",
-    "Let's catch up later",
-    "What have you been up to?",
-    "Did you see the new VR features?",
-    "Sorry, I'm busy right now",
-    "That sounds awesome!"
+    "How are you today?",
+    "Check out this new feature!",
+    "Are you free to chat?"
   ];
   
   // Media sharing options - these will be accessible in the chat window
   const mediaOptions = [
-    { icon: <IoImages />, label: "Images", color: "#0ff" },
-    { icon: <IoMic />, label: "Audio", color: "#FF00E6" },
-    { icon: <IoDocumentText />, label: "Files", color: "#9D00FF" },
-    { icon: <IoLocation />, label: "Location", color: "#00FF75" },
-    { icon: <IoCalendarOutline />, label: "Calendar", color: "#FFA500" },
-    { icon: <IoColorPaletteOutline />, label: "Theme", color: "#00BFFF" },
-    { icon: <IoBrushOutline />, label: "Stickers", color: "#FF6347" }
+    { label: "Photos", color: "#00FFFF", icon: <IoImages className="h-5 w-5" /> },
+    { label: "Voice", color: "#FF00E6", icon: <IoMic className="h-5 w-5" /> },
+    { label: "File", color: "#9D00FF", icon: <IoDocumentText className="h-5 w-5" /> },
+    { label: "Location", color: "#00FF7F", icon: <IoLocation className="h-5 w-5" /> }
   ];
   
   // Animation for the header
@@ -98,8 +90,9 @@ export default function ChatsPage() {
   
   // Handle conversation selection
   const handleSelectConversation = (friend: User) => {
-    playSuccess();
     setSelectedFriend(friend);
+    
+    // On mobile, hide the chat list when a conversation is selected
     if (isMobile) {
       setShowChatList(false);
     }
@@ -279,32 +272,41 @@ export default function ChatsPage() {
               )}
             </AnimatePresence>
             
-            {/* Chat content - right side or full width on mobile */}
-            <AnimatePresence mode="wait">
-              {(!showChatList || !isMobile) && (
-                <m.div 
-                  key="chat-content"
-                  className={`${isMobile ? 'w-full' : 'w-2/3'}`}
-                  variants={panelVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  custom={true}
-                >
-                  {selectedFriend ? (
+            {/* Chat interface or empty state depending on if a friend is selected */}
+            <div className="flex-1 relative flex items-stretch">
+              <AnimatePresence mode="wait">
+                {selectedFriend ? (
+                  <m.div 
+                    key="chat-window"
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                    className="w-full"
+                  >
                     <ChatWindow 
-                      friend={selectedFriend}
-                      onBack={handleBackToList}
+                      friend={selectedFriend} 
+                      onBack={() => {
+                        setSelectedFriend(null);
+                        if (isMobile) setShowChatList(true);
+                      }}
                       suggestedReplies={suggestedReplies}
                       mediaOptions={mediaOptions}
-                      onViewProfile={handleToggleUserProfile}
+                      onViewProfile={() => {/* Handle profile view */}}
                     />
-                  ) : (
+                  </m.div>
+                ) : (
+                  <m.div 
+                    key="empty-state"
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                    className="flex-1"
+                  >
                     <EmptyState />
-                  )}
-                </m.div>
-              )}
-            </AnimatePresence>
+                  </m.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
