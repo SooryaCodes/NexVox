@@ -458,7 +458,7 @@ export default function FriendsPage() {
       {typeof window !== 'undefined' && (
         <audio 
           src="/audios/digital-blip.mp3" 
-          autoPlay={typeof window !== 'undefined'} 
+          autoPlay 
           loop
           style={{ display: 'none' }}
         />

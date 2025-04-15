@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback, memo } from 'react';
 import Link from 'next/link';
-import { m, motion, AnimatePresence } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { m, AnimatePresence } from 'framer-motion';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
 import { IoMenuOutline, IoClose } from "react-icons/io5";
