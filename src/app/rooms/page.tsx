@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import roomsData from "../data/rooms.json";
 import NeonGrid from "@/components/NeonGrid";
 import Image from "next/image";
-import { IoSettingsOutline, IoNotificationsOutline, IoAddOutline, IoSearchOutline, IoKeyOutline, IoClose, IoMenuOutline } from "react-icons/io5";
+import { IoSettingsOutline, IoNotificationsOutline, IoAddOutline, IoSearchOutline, IoKeyOutline, IoClose, IoMenuOutline, IoChatbubbleOutline, IoPeopleOutline } from "react-icons/io5";
 import { FiMusic, FiUsers } from "react-icons/fi";
 import { RiRobot2Fill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
@@ -21,6 +21,7 @@ import StatsCard from "@/components/rooms/StatsCard";
 import FloatingChatbot from "@/components/rooms/FloatingChatbot";
 import LoadingSpinner from "@/components/rooms/LoadingSpinner";
 import NotificationPanel from "@/components/NotificationPanel";
+import { useFriends } from '@/contexts/FriendContext';
 
 // Import utilities
 import { getAllRooms, RoomData as RoomDataType } from "@/lib/roomUtils";
@@ -78,6 +79,7 @@ export default function RoomsPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [isMobileView, setIsMobileView] = useState(false);
+  const { unreadRequestsCount } = useFriends();
   
   // Notifications system
   const { 
@@ -274,6 +276,18 @@ export default function RoomsPage() {
     setIsSidebarOpen(prev => !prev);
   };
 
+  // Navigate to friends page
+  const handleFriendsClick = () => {
+    playClick();
+    router.push('/friends');
+  };
+  
+  // Navigate to chats page
+  const handleChatsClick = () => {
+    playClick();
+    router.push('/chats');
+  };
+
   return (
     <div className="bg-black text-white min-h-screen overflow-hidden">
       {/* Header with hamburger menu for mobile */}
@@ -342,6 +356,33 @@ export default function RoomsPage() {
             >
               <IoAddOutline className="h-4 w-4" />
               <span>Create Room</span>
+            </m.button>
+
+            {/* Friends Button - NEW */}
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70 relative"
+              whileHover={{ scale: 1.05, borderColor: "#FF00E6", color: "#FF00E6" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleFriendsClick}
+              aria-label="Friends"
+            >
+              <IoPeopleOutline className="h-5 w-5" />
+              {unreadRequestsCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF00E6] rounded-full text-xs flex items-center justify-center">
+                  {unreadRequestsCount}
+                </span>
+              )}
+            </m.button>
+
+            {/* Chats Button - NEW */}
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleChatsClick}
+              aria-label="Chats"
+            >
+              <IoChatbubbleOutline className="h-5 w-5" />
             </m.button>
             
             {/* Keyboard Shortcuts Button */}

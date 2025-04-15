@@ -7,6 +7,7 @@ import { Inter, Orbitron } from 'next/font/google'
 import { SoundProvider } from '@/components/SoundProvider'
 import FloatingChatbotController from '@/components/FloatingChatbotController'
 import { UserProvider } from '@/contexts/UserContext'
+import { FriendProvider } from '@/contexts/FriendContext'
 import Header from '@/components/Header'
 
 // Initialize the fonts
@@ -37,16 +38,18 @@ export default function RootLayout({
       <body className="bg-black min-h-screen">
         <SoundProvider>
           <UserProvider>
-            <SmoothScroll />
-            
-            <div className="flex flex-col min-h-screen">
-              <AnimationProvider>
-                <main className="flex-grow">
-                  {children}
-                </main>
-                <FloatingChatbotController />
-              </AnimationProvider>
-            </div>
+            <FriendProvider>
+              <SmoothScroll />
+              
+              <div className="flex flex-col min-h-screen">
+                <AnimationProvider>
+                  <main className="flex-grow">
+                    {children}
+                  </main>
+                  <FloatingChatbotController />
+                </AnimationProvider>
+              </div>
+            </FriendProvider>
           </UserProvider>
         </SoundProvider>
       </body>

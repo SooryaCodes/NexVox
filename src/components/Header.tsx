@@ -251,45 +251,39 @@ const Header = memo(() => {
         </div>
       </div>
       
-      {/* Mobile menu with lazy rendering */}
-      {isMobileMenuOpen && (
-        <AnimatePresence>
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
           <m.div
-            className="md:hidden bg-black/95 backdrop-blur-md border-b border-[#0ff]/10 overflow-hidden"
+            className="md:hidden"
             variants={mobileMenuVariants}
             initial="closed"
             animate="open"
             exit="closed"
           >
-            <div className="px-4 pt-2 pb-4 space-y-1">
-              {navItems.map((item) => (
-                <m.div 
+            <div className="px-4 pt-2 pb-3 space-y-1 bg-black/90 backdrop-blur-md border-b border-white/10">
+              {navItems.map((item, idx) => (
+                <m.a
                   key={item.name}
-                  className="border-b border-white/10 last:border-b-0"
+                  href={item.href}
+                  className={`block py-2.5 px-4 rounded-md text-base font-medium transition-colors duration-300 ${
+                    isNavItemActive(item.href) 
+                      ? 'text-[#0ff] bg-white/5' 
+                      : 'text-white/80 hover:text-[#0ff] hover:bg-white/5'
+                  }`}
+                  onClick={(e) => handleNavClick(e, true)}
+                  variants={mobileItemVariants}
+                  initial="closed"
+                  animate="open"
+                  transition={{ delay: idx * 0.05 }}
                 >
-                  <a
-                    href={item.href}
-                    className={`block px-3 py-3 text-base font-medium ${
-                      isNavItemActive(item.href) 
-                        ? 'text-[#0ff]' 
-                        : 'text-white/80 hover:text-[#0ff]'
-                    }`}
-                    onClick={(e) => handleNavClick(e, true)}
-                    aria-current={isNavItemActive(item.href) ? 'page' : undefined}
-                  >
-                    {item.name}
-                  </a>
-                </m.div>
+                  <span>{item.name}</span>
+                </m.a>
               ))}
-              
-              {/* Mobile user menu */}
-              <div className="pt-2">
-                <HeaderUserMenu />
-              </div>
             </div>
           </m.div>
-        </AnimatePresence>
-      )}
+        )}
+      </AnimatePresence>
     </m.header>
   );
 });
