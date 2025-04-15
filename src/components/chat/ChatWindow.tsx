@@ -278,7 +278,7 @@ export default function ChatWindow({
 
   const handleMediaOption = (option: string) => {
     const newMessageId = `msg-${Date.now()}`;
-    let newMessage: ChatMessage = {
+    const newMessage: ChatMessage = {
       id: newMessageId,
       content: `Sent a ${option.toLowerCase()}`,
       isUser: true,

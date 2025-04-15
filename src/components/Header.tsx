@@ -188,13 +188,13 @@ const Header = memo(() => {
             initial="normal"
             whileHover="hover"
           >
-            <a 
+            <Link 
               href="/" 
               onClick={handleNavClick} 
               className="font-orbitron text-xl sm:text-2xl font-bold text-[#0ff] glow flex items-center"
             >
               <span className="relative z-10">Nex<span className="text-purple-400">Vox</span></span>
-            </a>
+            </Link>
           </m.div>
           
           {/* Desktop Navigation */}
@@ -206,7 +206,7 @@ const Header = memo(() => {
                 initial="normal"
                 whileHover="hover"
               >
-                <a 
+                <Link 
                   href={item.href} 
                   className={`text-sm lg:text-base transition-colors duration-300 ${ // Adjusted text size
                     isNavItemActive(item.href) 
@@ -217,7 +217,7 @@ const Header = memo(() => {
                   aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                 >
                   {item.name}
-                </a>
+                </Link>
               </m.div>
             ))}
           
@@ -263,22 +263,19 @@ const Header = memo(() => {
           >
             <div className="px-4 pt-2 pb-3 space-y-1 bg-black/90 backdrop-blur-md border-b border-white/10">
               {navItems.map((item, idx) => (
-                <m.a
-                  key={item.name}
-                  href={item.href}
-                  className={`block py-2.5 px-4 rounded-md text-base font-medium transition-colors duration-300 ${
-                    isNavItemActive(item.href) 
-                      ? 'text-[#0ff] bg-white/5' 
-                      : 'text-white/80 hover:text-[#0ff] hover:bg-white/5'
-                  }`}
-                  onClick={(e) => handleNavClick(e, true)}
-                  variants={mobileItemVariants}
-                  initial="closed"
-                  animate="open"
-                  transition={{ delay: idx * 0.05 }}
-                >
-                  <span>{item.name}</span>
-                </m.a>
+                <m.div key={item.name}>
+                  <Link
+                    href={item.href}
+                    className={`block py-2.5 px-4 rounded-md text-base font-medium transition-colors duration-300 ${
+                      isNavItemActive(item.href) 
+                        ? 'text-[#0ff] bg-white/5' 
+                        : 'text-white/80 hover:text-[#0ff] hover:bg-white/5'
+                    }`}
+                    onClick={(e) => handleNavClick(e, true)}
+                  >
+                    <span>{item.name}</span>
+                  </Link>
+                </m.div>
               ))}
             </div>
           </m.div>
