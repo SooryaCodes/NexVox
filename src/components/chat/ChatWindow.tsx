@@ -161,6 +161,8 @@ export default function ChatWindow({
   // Load chat history for this friend
   useEffect(() => {
     setMessages(getFriendMessages(friend.id));
+    // Show suggestions initially when chat is loaded
+    setTimeout(() => setShowSuggestions(true), 500);
   }, [friend.id]);
   
   // Scroll to bottom of chat whenever messages change
@@ -283,14 +285,14 @@ export default function ChatWindow({
       case 'Images':
         newMessage.attachment = {
           type: 'image',
-          url: 'https://images.unsplash.com/photo-1591467468450-9a2228f2cc26',
+          url: 'https://images.unsplash.com/photo-1591467468450-9a2228f2cc26?q=80&w=800',
           name: 'nexvox_image.jpg'
         };
         break;
       case 'Audio':
         newMessage.attachment = {
           type: 'audio',
-          url: 'https://example.com/audio.mp3',
+          url: '/audios/sample-track.mp3',
           name: 'voice_message.mp3'
         };
         newMessage.content = 'Voice message';
@@ -298,7 +300,7 @@ export default function ChatWindow({
       case 'Files':
         newMessage.attachment = {
           type: 'file',
-          url: 'https://example.com/document.pdf',
+          url: '#',
           name: 'project_specs.pdf'
         };
         newMessage.content = 'Shared a file: project_specs.pdf';
@@ -306,7 +308,7 @@ export default function ChatWindow({
       case 'Location':
         newMessage.attachment = {
           type: 'image',
-          url: 'https://images.unsplash.com/photo-1543039625-14cbd3802e7d',
+          url: 'https://images.unsplash.com/photo-1543039625-14cbd3802e7d?q=80&w=800',
           name: 'location_map.jpg'
         };
         newMessage.content = 'Shared my location';
@@ -314,7 +316,7 @@ export default function ChatWindow({
       case 'Calendar':
         newMessage.attachment = {
           type: 'image',
-          url: 'https://images.unsplash.com/photo-1606327054596-ee051081ae9e',
+          url: 'https://images.unsplash.com/photo-1606327054596-ee051081ae9e?q=80&w=800',
           name: 'event_calendar.jpg'
         };
         newMessage.content = 'Event: Team Meetup on Friday';
@@ -322,7 +324,7 @@ export default function ChatWindow({
       case 'Theme':
         newMessage.attachment = {
           type: 'image',
-          url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
+          url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800',
           name: 'custom_theme.jpg'
         };
         newMessage.content = 'Check out this new UI theme!';
@@ -330,7 +332,7 @@ export default function ChatWindow({
       case 'Stickers':
         newMessage.attachment = {
           type: 'image',
-          url: 'https://images.unsplash.com/photo-1612404819070-77c0da59532e',
+          url: 'https://images.unsplash.com/photo-1612404819070-77c0da59532e?q=80&w=800',
           name: 'cyber_stickers.jpg'
         };
         newMessage.content = '';
@@ -361,9 +363,9 @@ export default function ChatWindow({
           const isImageResponse = ['Images', 'Location', 'Theme'].includes(option) && Math.random() > 0.5;
           
           const responseImages = [
-            'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
-            'https://images.unsplash.com/photo-1614729375290-b2a429dcbce1',
-            'https://images.unsplash.com/photo-1558655146-9f40138edfeb'
+            'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800',
+            'https://images.unsplash.com/photo-1614729375290-b2a429dcbce1?q=80&w=800',
+            'https://images.unsplash.com/photo-1558655146-9f40138edfeb?q=80&w=800'
           ];
           
           const randomImage = responseImages[Math.floor(Math.random() * responseImages.length)];

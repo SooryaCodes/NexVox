@@ -35,7 +35,12 @@ export default function ChatsPage() {
   const suggestedReplies = [
     "How are you today?",
     "Check out this new feature!",
-    "Are you free to chat?"
+    "Are you free to chat?",
+    "Want to join a voice room?",
+    "What have you been up to?",
+    "Did you see the new VR features?",
+    "Let's catch up soon!",
+    "Have you tried spatial audio yet?"
   ];
   
   // Media sharing options - these will be accessible in the chat window
@@ -43,7 +48,9 @@ export default function ChatsPage() {
     { label: "Photos", color: "#00FFFF", icon: <IoImages className="h-5 w-5" /> },
     { label: "Voice", color: "#FF00E6", icon: <IoMic className="h-5 w-5" /> },
     { label: "File", color: "#9D00FF", icon: <IoDocumentText className="h-5 w-5" /> },
-    { label: "Location", color: "#00FF7F", icon: <IoLocation className="h-5 w-5" /> }
+    { label: "Location", color: "#00FF7F", icon: <IoLocation className="h-5 w-5" /> },
+    { label: "Calendar", color: "#FFA500", icon: <IoCalendarOutline className="h-5 w-5" /> },
+    { label: "Theme", color: "#00BFFF", icon: <IoColorPaletteOutline className="h-5 w-5" /> }
   ];
   
   // Animation for the header
@@ -90,7 +97,9 @@ export default function ChatsPage() {
   
   // Handle conversation selection
   const handleSelectConversation = (friend: User) => {
+    playSuccess();
     setSelectedFriend(friend);
+    setShowSuggestions(true); // Ensure suggestions show initially
     
     // On mobile, hide the chat list when a conversation is selected
     if (isMobile) {
@@ -311,11 +320,11 @@ export default function ChatsPage() {
         </div>
       </div>
       
-      {/* Ambient audio */}
+      {/* Ambient audio - only rendered client-side */}
       {typeof window !== 'undefined' && (
         <audio 
           src="/audios/digital-ambient.mp3" 
-          autoPlay 
+          autoPlay={typeof window !== 'undefined'}
           loop 
           style={{ display: 'none' }}
         />
