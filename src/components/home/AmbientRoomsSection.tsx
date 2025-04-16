@@ -52,7 +52,9 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
 
   const handleJoinRoom = (roomId: number) => {
     soundEffects.playClick();
-    router.push(`/rooms/${roomId}`);
+    onExploreAllRooms();
+    
+    sessionStorage.setItem('pendingRoomNavigation', roomId.toString());
   };
   
   return (

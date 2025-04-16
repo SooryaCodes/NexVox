@@ -16,7 +16,14 @@ const LiveRoomsSection: React.FC<LiveRoomsSectionProps> = ({ onBrowseRooms }) =>
   // Enhance button handler with sound effect
   const handleBrowseRooms = () => {
     soundEffects.playClick('heavy');
-    onBrowseRooms();
+    
+    // Make sure we clear any stuck page state
+    document.body.style.overflow = '';
+    
+    // Add a small delay for the sound to play
+    setTimeout(() => {
+      onBrowseRooms();
+    }, 50);
   };
   
   return (

@@ -2,14 +2,16 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence, useAnimation, Variants } from 'framer-motion';
+import { m, AnimatePresence, useAnimation, Variants } from 'framer-motion';
 import useSound from 'use-sound';
 import Image from 'next/image';
 
 interface PageTransitionProps {
-  isTransitioning: boolean;
+  isTransitioning?: boolean;
+  isOpen?: boolean;
   targetRoute: string;
-  completeTransition: () => void;
+  completeTransition?: () => void;
+  onTransitionComplete?: () => void;
 }
 
 /**
@@ -17,10 +19,15 @@ interface PageTransitionProps {
  * with a Barba.js style animation effect and smooth scrolling
  */
 export const PageTransition: React.FC<PageTransitionProps> = ({
-  isTransitioning,
+  isTransitioning: propIsTransitioning,
+  isOpen,
   targetRoute,
-  completeTransition,
+  completeTransition: propCompleteTransition,
+  onTransitionComplete,
 }) => {
+  const isTransitioning = propIsTransitioning || isOpen || false;
+  const completeTransition = propCompleteTransition || onTransitionComplete || (() => {});
+  
   const router = useRouter();
   const [transitionPhase, setTransitionPhase] = useState<'initial' | 'enter' | 'exit'>('initial');
   const controls = useAnimation();
@@ -36,8 +43,8 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
     
     // Create a more dynamic scrolling effect
     const element = scrollRef.current;
-    const duration = 1000; // ms
-    const steps = 30;
+    const duration = 800; // ms - faster for better responsiveness
+    const steps = 40; // more steps for smoother animation
     const interval = duration / steps;
     let step = 0;
     
@@ -58,9 +65,9 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       // First half scrolls down, second half scrolls up
       let scrollAmount;
       if (progress < 0.5) {
-        scrollAmount = easedProgress * 2 * 3000; // Down
+        scrollAmount = easedProgress * 2 * 5000; // Increased from 3000 to 5000 for more dramatic effect
       } else {
-        scrollAmount = (1 - (easedProgress - 0.5) * 2) * 3000; // Back up
+        scrollAmount = (1 - (easedProgress - 0.5) * 2) * 5000; // Increased from 3000 to 5000
       }
       
       element.scrollTop = scrollAmount;
@@ -121,6 +128,9 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
   // Handle transition sequence
   useEffect(() => {
     if (isTransitioning) {
+      // Immediately lock scrolling on page
+      document.body.style.overflow = 'hidden';
+      
       let scrollInterval: ReturnType<typeof setInterval> | undefined;
       
       // Play sound effect with slight delay for better timing
@@ -134,7 +144,20 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       
       // Phase 2: After delay, navigate and prepare exit animation
       const navigationTimeout = setTimeout(() => {
-        router.push(targetRoute);
+        // Ensure navigation happens
+        try {
+          router.push(targetRoute);
+          
+          // Fallback navigation in case router fails
+          setTimeout(() => {
+            if (window.location.pathname !== targetRoute && !targetRoute.includes('#')) {
+              window.location.href = targetRoute;
+            }
+          }, 200);
+        } catch (error) {
+          console.error('Navigation failed, using direct approach', error);
+          window.location.href = targetRoute;
+        }
         
         // Phase 3: Exit animation after navigation (top to bottom)
         const exitTimeout = setTimeout(() => {
@@ -145,17 +168,19 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
             if (scrollInterval) clearInterval(scrollInterval);
             completeTransition();
             setTransitionPhase('initial');
-          }, 900); // Exit animation duration
+            document.body.style.overflow = '';
+          }, 700); // Exit animation duration - reduced from 900 to 700
           
           return () => clearTimeout(completeTimeout);
         }, 200); // Small delay after navigation
         
         return () => clearTimeout(exitTimeout);
-      }, 900); // Enter animation duration (slightly longer)
+      }, 700); // Enter animation duration - reduced from 900 to 700 for better responsiveness
       
       return () => {
         clearTimeout(navigationTimeout);
         if (scrollInterval) clearInterval(scrollInterval);
+        document.body.style.overflow = '';
       };
     }
   }, [isTransitioning, targetRoute, router, completeTransition, playTransitionSound]);
@@ -166,17 +191,17 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
     visible: { 
       opacity: 1,
       transition: { 
-        duration: 0.3,
+        duration: 0.2, // Faster fade in
         when: "beforeChildren",
-        staggerChildren: 0.1
+        staggerChildren: 0.08
       }
     },
     exit: { 
       opacity: 0,
       transition: { 
-        duration: 0.3,
+        duration: 0.2, // Faster fade out
         when: "afterChildren",
-        staggerChildren: 0.05,
+        staggerChildren: 0.04,
         staggerDirection: -1
       }
     }
@@ -186,14 +211,14 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
     enter: { 
       y: ['100vh', '0vh'],
       transition: { 
-        duration: 0.9, 
+        duration: 0.7, // Faster transitions
         ease: [0.16, 1, 0.3, 1] // Custom easing function (ease-out-expo)
       }
     },
     exit: { 
       y: ['0vh', '-100vh'],
       transition: { 
-        duration: 0.9, 
+        duration: 0.7, // Faster transitions
         ease: [0.16, 1, 0.3, 1] // Same easing for consistency
       }
     }
@@ -204,12 +229,12 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
     visible: { 
       opacity: 1, 
       scale: 1,
-      transition: { duration: 0.4, ease: [0.34, 1.56, 0.64, 1] } // Spring-like effect
+      transition: { duration: 0.3, ease: [0.34, 1.56, 0.64, 1] } // Spring-like effect
     },
     exit: { 
       opacity: 0, 
       scale: 1.2,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.2 }
     }
   };
   
@@ -220,8 +245,8 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       opacity: 0.6,
       y: 0,
       transition: { 
-        delay: i * 0.04,
-        duration: 0.6,
+        delay: i * 0.03, // Slightly faster delay
+        duration: 0.5,
         ease: "easeOut"
       }
     }),
@@ -229,8 +254,8 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       opacity: 0,
       y: -100,
       transition: { 
-        delay: i * 0.02,
-        duration: 0.4,
+        delay: i * 0.015, // Slightly faster delay
+        duration: 0.3,
         ease: "easeIn"
       }
     })
@@ -242,19 +267,19 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
   return (
     <AnimatePresence mode="wait">
       {(isTransitioning || transitionPhase !== 'initial') && (
-        <motion.div
+        <m.div
           key="transition-container"
           initial="hidden"
           animate="visible"
           exit="exit"
           variants={containerVariants}
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-black pointer-events-auto"
+          className="fixed inset-0 z-[1000] flex items-center justify-center overflow-hidden bg-black pointer-events-auto"
         >
           <div ref={scrollRef} className="absolute inset-0 overflow-hidden">
             {/* Animated decorative elements with improved visuals */}
             <div className="absolute inset-0 opacity-20">
-              {Array.from({ length: 30 }).map((_, i) => (
-                <motion.div 
+              {Array.from({ length: 40 }).map((_, i) => (
+                <m.div 
                   key={i}
                   custom={i}
                   variants={particleVariants}
@@ -271,20 +296,22 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
             </div>
           
             {/* Main transition element with enhanced gradient */}
-            <motion.div
+            <m.div
               ref={overlayRef}
               key="transition-overlay"
               initial={false}
               animate={transitionPhase}
               variants={transitionVariants}
-              className="absolute inset-0 bg-gradient-to-b from-blue-900 via-indigo-900 to-purple-900"
+              className="absolute inset-0 bg-black"
               style={{
                 backgroundSize: '400% 400%',
               }}
             >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.8)_100%)]" />
+              {/* Semi-transparent gradient overlay for visual interest */}
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-900/30 via-indigo-900/20 to-purple-900/30 opacity-70"></div>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.9)_100%)]" />
               
-              <motion.div 
+              <m.div 
                 className="absolute inset-0 flex flex-col items-center justify-center p-4 text-white"
                 variants={contentVariants}
               >
@@ -335,10 +362,10 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
                     <p className="text-lg text-blue-200">Enjoy your experience</p>
                   </div>
                 )}
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

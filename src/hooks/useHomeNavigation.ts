@@ -39,6 +39,17 @@ export const useHomeNavigation = () => {
     '/support'
   ];
   
+  // Immediately fixes any stuck scroll locks - called on page load
+  useEffect(() => {
+    // Emergency cleanup for any stuck scroll locks
+    document.body.style.overflow = '';
+    
+    return () => {
+      // Always clean up when unmounting
+      document.body.style.overflow = '';
+    };
+  }, []);
+  
   // Navigation handler
   const navigateTo = useCallback((route: string) => {
     // Skip if already transitioning
@@ -88,6 +99,18 @@ export const useHomeNavigation = () => {
     setTimeout(() => {
       setIsTransitioning(false);
       setTargetRoute('');
+      
+      // Check for pending room navigation
+      const pendingRoomId = sessionStorage.getItem('pendingRoomNavigation');
+      if (pendingRoomId) {
+        // Clear the storage
+        sessionStorage.removeItem('pendingRoomNavigation');
+        
+        // Perform the navigation to the specific room
+        setTimeout(() => {
+          window.location.href = `/rooms/${pendingRoomId}`;
+        }, 100);
+      }
     }, 300);
   }, []);
   

@@ -9,6 +9,8 @@ import FuturisticButton from '@/components/FuturisticButton';
 import { useSoundContext } from '@/components/SoundProvider';
 import soundEffects from '@/utils/soundEffects';
 import gsap from 'gsap';
+import { IoChevronBackOutline } from 'react-icons/io5';
+import { useRouter } from 'next/navigation';
 
 // Custom toast notification component
 const CyberToast = ({ 
@@ -125,6 +127,7 @@ const FeatureCard = ({
 };
 
 export default function Register() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -423,289 +426,318 @@ export default function Register() {
     setIsHovering('');
   };
 
+  // Handle back button click
+  const handleBackClick = () => {
+    soundEffects.playClick();
+    router.push('/');
+  };
+
   return (
-    <div className="min-h-screen w-full flex items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen overflow-x-hidden relative bg-black selection:bg-purple-500/30 selection:text-white">
       <SmoothScroll />
       
-      {/* Toast notification */}
-      <AnimatePresence>
-        {toast && (
-          <CyberToast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
-        )}
-      </AnimatePresence>
-      
-      {/* Background effects */}
-      <div className="bg-grid absolute inset-0 opacity-10 z-0"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#9D00FF]/5 via-black to-[#00FFFF]/5 z-0"></div>
-      
-      {/* Custom cursor */}
-      <m.div
-        ref={cursorRef}
-        className="fixed w-8 h-8 rounded-full bg-[#9D00FF] bg-opacity-30 pointer-events-none z-50 mix-blend-screen"
-        initial={{ opacity: 0.3, scale: 1 }}
-        animate={cursorControls}
-      />
-      
-      {/* Success overlay */}
-      {registerSuccess && (
-        <div className="fixed z-40 inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="w-full max-w-md flex flex-col items-center justify-center">
-            <div 
-              ref={successCircleRef} 
-              className="w-32 h-32 rounded-full bg-[#00FFFF]/20 border-2 border-[#00FFFF] flex items-center justify-center opacity-0"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="mt-8 text-2xl font-orbitron text-[#00FFFF] glow">Registration Successful</h2>
-            <p className="mt-4 text-gray-300 text-center max-w-xs">
-              Redirecting to your dashboard...
-            </p>
-            
-            {/* Animated terminal text */}
-            <div className="mt-8 w-full max-w-xs bg-black/60 border border-[#00FFFF]/30 p-4 rounded-md font-mono text-sm">
-              <p className="text-[#00FFFF]">{'>'} Creating account...</p>
-              <p className="text-[#00FFFF]">{'>'} Connecting to servers...</p>
-              <p className="text-white opacity-80">{'>'} <span className="inline-block w-3 h-4 bg-white/80 animate-pulse"></span></p>
-            </div>
-          </div>
+      <div className="min-h-screen w-full relative">
+        {/* Background effects */}
+        <div className="fixed inset-0 w-full h-full z-0">
+          <div className="bg-grid absolute inset-0 opacity-10 z-0"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#9D00FF]/5 via-black to-[#00FFFF]/5 z-0"></div>
         </div>
-      )}
-      
-      <div className="container mx-auto max-w-7xl z-10 flex flex-col lg:flex-row gap-8 lg:gap-16">
-        {/* Left side - App name and features */}
-        <div 
-          ref={leftSectionRef} 
-          className="w-full lg:w-1/2 space-y-8"
-        >
-          <div className="text-center lg:text-left mb-8">
-            <h1 
-              id="register-title"
-              className="text-4xl md:text-5xl font-orbitron text-[#9D00FF] glow-purple mb-4 hardware-accelerated"
+
+        {/* Header with back button */}
+        <header className="sticky top-0 z-30 bg-black/40 backdrop-blur-xl border-b border-white/10 px-6 py-4">
+          <div className="flex items-center gap-4">
+            <m.button
+              className="p-2 bg-black/40 backdrop-blur-md rounded-md border border-white/10 text-white/70"
+              whileHover={{ scale: 1.05, borderColor: "#00FFFF", color: "#00FFFF" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleBackClick}
+              aria-label="Back to Home"
             >
-              Join <span className="text-[#00FFFF]">NexVox</span>
-            </h1>
-            <p className="text-lg text-gray-300">
-              Create your voice chat account
-            </p>
-            <div className="mt-6 bg-black/40 backdrop-blur-sm border border-[#00FFFF]/30 p-4 rounded-md">
-              <p className="text-sm text-[#00FFFF] flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                For demo purposes, you can use any information to register
-              </p>
-            </div>
+              <IoChevronBackOutline className="h-5 w-5" />
+            </m.button>
+            <h1 className="text-2xl font-orbitron text-[#00FFFF]">Register</h1>
           </div>
-          
-          {/* Feature cards grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {features.map((feature, index) => (
-              <FeatureCard
-                key={index}
-                title={feature.title}
-                description={feature.description}
-                icon={feature.icon}
+        </header>
+
+        {/* Main content */}
+        <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+          {/* Toast notification */}
+          <AnimatePresence>
+            {toast && (
+              <CyberToast
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(null)}
               />
-            ))}
-          </div>
+            )}
+          </AnimatePresence>
           
-          {/* Decorative element */}
-          <div className="hidden lg:block h-1 w-full bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#00FFFF] rounded-full opacity-70"></div>
+          {/* Custom cursor */}
+          <m.div
+            ref={cursorRef}
+            className="fixed w-8 h-8 rounded-full bg-[#9D00FF] bg-opacity-30 pointer-events-none z-50 mix-blend-screen"
+            initial={{ opacity: 0.3, scale: 1 }}
+            animate={cursorControls}
+          />
           
-          {/* Cyberpunk decoration */}
-          <div className="hidden lg:flex justify-center">
-            <div className="relative w-64 h-64">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-[#00FFFF]/30 rounded-full"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-[#9D00FF]/50 rounded-full animate-ping" style={{ animationDuration: '3s' }}></div>
+          {/* Success overlay */}
+          {registerSuccess && (
+            <div className="fixed z-40 inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+              <div className="w-full max-w-md flex flex-col items-center justify-center">
+                <div 
+                  ref={successCircleRef} 
+                  className="w-32 h-32 rounded-full bg-[#00FFFF]/20 border-2 border-[#00FFFF] flex items-center justify-center opacity-0"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h2 className="mt-8 text-2xl font-orbitron text-[#00FFFF] glow">Registration Successful</h2>
+                <p className="mt-4 text-gray-300 text-center max-w-xs">
+                  Redirecting to your dashboard...
+                </p>
+                
+                {/* Animated terminal text */}
+                <div className="mt-8 w-full max-w-xs bg-black/60 border border-[#00FFFF]/30 p-4 rounded-md font-mono text-sm">
+                  <p className="text-[#00FFFF]">{'>'} Creating account...</p>
+                  <p className="text-[#00FFFF]">{'>'} Connecting to servers...</p>
+                  <p className="text-white opacity-80">{'>'} <span className="inline-block w-3 h-4 bg-white/80 animate-pulse"></span></p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="container mx-auto max-w-7xl z-10 flex flex-col lg:flex-row gap-8 lg:gap-16">
+            {/* Left side - App name and features */}
+            <div 
+              ref={leftSectionRef} 
+              className="w-full lg:w-1/2 space-y-8"
+            >
+              <div className="text-center lg:text-left mb-8">
+                <h1 
+                  id="register-title"
+                  className="text-4xl md:text-5xl font-orbitron text-[#9D00FF] glow-purple mb-4 hardware-accelerated"
+                >
+                  Join <span className="text-[#00FFFF]">NexVox</span>
+                </h1>
+                <p className="text-lg text-gray-300">
+                  Create your voice chat account
+                </p>
+                <div className="mt-6 bg-black/40 backdrop-blur-sm border border-[#00FFFF]/30 p-4 rounded-md">
+                  <p className="text-sm text-[#00FFFF] flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    For demo purposes, you can use any information to register
+                  </p>
+                </div>
+              </div>
+              
+              {/* Feature cards grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {features.map((feature, index) => (
+                  <FeatureCard
+                    key={index}
+                    title={feature.title}
+                    description={feature.description}
+                    icon={feature.icon}
+                  />
+                ))}
+              </div>
+              
+              {/* Decorative element */}
+              <div className="hidden lg:block h-1 w-full bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#00FFFF] rounded-full opacity-70"></div>
+              
+              {/* Cyberpunk decoration */}
+              <div className="hidden lg:flex justify-center">
+                <div className="relative w-64 h-64">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-[#00FFFF]/30 rounded-full"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-[#9D00FF]/50 rounded-full animate-ping" style={{ animationDuration: '3s' }}></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right side - registration form */}
+            <div 
+              ref={rightSectionRef}
+              className="w-full lg:w-1/2 flex items-center justify-center"
+            >
+              {!registerSuccess ? (
+                <GlassmorphicCard
+                  gradient="purple-pink"
+                  borderAnimation={true}
+                  className="w-full max-w-md"
+                  glowOnHover={true}
+                >
+                  <form 
+                    ref={formRef} 
+                    onSubmit={handleSubmit} 
+                    className="space-y-6 p-2"
+                  >
+                    <div className="text-center mb-8">
+                      <h2 className="text-2xl md:text-3xl font-orbitron text-[#9D00FF] glow-purple">
+                        Sign Up
+                      </h2>
+                      <p className="mt-2 text-gray-300">
+                        Create your NexVox account
+                      </p>
+                    </div>
+                    
+                    {/* Username input */}
+                    <div>
+                      <label 
+                        htmlFor="username" 
+                        className="block text-sm font-medium text-gray-200 mb-1 font-orbitron"
+                      >
+                        Username
+                      </label>
+                      <div 
+                        className="relative"
+                        onMouseEnter={() => handleInputHover('username')}
+                        onMouseLeave={handleInputBlur}
+                      >
+                        <input
+                          id="username"
+                          name="username"
+                          type="text"
+                          autoComplete="username"
+                          value={formData.username}
+                          onChange={handleChange}
+                          className="appearance-none block w-full px-4 py-3 border-2 border-[#9D00FF]/50 rounded-md bg-black/50 placeholder-gray-500 text-white focus:outline-none focus:ring-[#FF00E6] focus:border-[#FF00E6] sm:text-sm transition-all duration-300"
+                          placeholder="CyberUser123"
+                          aria-label="Username input"
+                        />
+                        {/* Glow effect on focus */}
+                        <div className="absolute inset-0 rounded-md pointer-events-none border border-[#9D00FF]/20 opacity-0 focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
+                        
+                        {errors.username && (
+                          <div className="mt-1 text-[#FF00E6] text-xs font-medium flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <span className="leading-tight">{errors.username}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Email input */}
+                    <div>
+                      <label 
+                        htmlFor="email" 
+                        className="block text-sm font-medium text-gray-200 mb-1 font-orbitron"
+                      >
+                        Email
+                      </label>
+                      <div 
+                        className="relative"
+                        onMouseEnter={() => handleInputHover('email')}
+                        onMouseLeave={handleInputBlur}
+                      >
+                        <input
+                          id="email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className="appearance-none block w-full px-4 py-3 border-2 border-[#9D00FF]/50 rounded-md bg-black/50 placeholder-gray-500 text-white focus:outline-none focus:ring-[#FF00E6] focus:border-[#FF00E6] sm:text-sm transition-all duration-300"
+                          placeholder="your.email@example.com"
+                          aria-label="Email input"
+                        />
+                        {/* Glow effect on focus */}
+                        <div className="absolute inset-0 rounded-md pointer-events-none border border-[#9D00FF]/20 opacity-0 focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
+                        
+                        {errors.email && (
+                          <div className="mt-1 text-[#FF00E6] text-xs font-medium flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <span className="leading-tight">{errors.email}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Password input */}
+                    <div>
+                      <label 
+                        htmlFor="password" 
+                        className="block text-sm font-medium text-gray-200 mb-1 font-orbitron"
+                      >
+                        Password
+                      </label>
+                      <div 
+                        className="relative"
+                        onMouseEnter={() => handleInputHover('password')}
+                        onMouseLeave={handleInputBlur}
+                      >
+                        <input
+                          id="password"
+                          name="password"
+                          type="password"
+                          autoComplete="new-password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          className="appearance-none block w-full px-4 py-3 border-2 border-[#9D00FF]/50 rounded-md bg-black/50 placeholder-gray-500 text-white focus:outline-none focus:ring-[#FF00E6] focus:border-[#FF00E6] sm:text-sm transition-all duration-300"
+                          placeholder="••••••••"
+                          aria-label="Password input"
+                        />
+                        {/* Glow effect on focus */}
+                        <div className="absolute inset-0 rounded-md pointer-events-none border border-[#9D00FF]/20 opacity-0 focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
+                        
+                        {errors.password && (
+                          <div className="mt-1 text-[#FF00E6] text-xs font-medium flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <span className="leading-tight">{errors.password}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Submit button */}
+                    <div className="pt-4">
+                      <FuturisticButton
+                        text={isSubmitting ? "Creating account..." : "Sign Up"}
+                        type="neon"
+                        className="w-full bg-transparent hover:bg-[#9D00FF]/20 border-[#9D00FF] text-[#9D00FF] hover:text-white hover:border-[#9D00FF]"
+                        accessibilityLabel="Register for NexVox"
+                        rippleEffect={true}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    
+                    {/* Login link */}
+                    <div className="text-center mt-4">
+                      <p className="text-sm text-gray-300">
+                        Already have an account?{' '}
+                        <Link 
+                          href="/login" 
+                          className="text-[#00FFFF] hover:text-[#FF00E6] font-medium animated-underline transition-colors duration-300"
+                        >
+                          Login
+                        </Link>
+                      </p>
+                    </div>
+                    
+                    {/* Loading indicator */}
+                    {isSubmitting && (
+                      <div className="mt-6 text-xs text-center text-gray-400 flex flex-col items-center">
+                        <p>Creating your account. Please wait...</p>
+                        <div className="mt-2 w-full max-w-xs h-1 bg-black/60 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-[#9D00FF] to-[#00FFFF] w-1/3 animate-pulse"></div>
+                        </div>
+                      </div>
+                    )}
+                  </form>
+                </GlassmorphicCard>
+              ) : null}
             </div>
           </div>
-        </div>
-        
-        {/* Right side - registration form */}
-        <div 
-          ref={rightSectionRef}
-          className="w-full lg:w-1/2 flex items-center justify-center"
-        >
-          {!registerSuccess ? (
-            <GlassmorphicCard
-              gradient="purple-pink"
-              borderAnimation={true}
-              className="w-full max-w-md"
-              glowOnHover={true}
-            >
-              <form 
-                ref={formRef} 
-                onSubmit={handleSubmit} 
-                className="space-y-6 p-2"
-              >
-                <div className="text-center mb-8">
-                  <h2 className="text-2xl md:text-3xl font-orbitron text-[#9D00FF] glow-purple">
-                    Sign Up
-                  </h2>
-                  <p className="mt-2 text-gray-300">
-                    Create your NexVox account
-                  </p>
-                </div>
-                
-                {/* Username input */}
-                <div>
-                  <label 
-                    htmlFor="username" 
-                    className="block text-sm font-medium text-gray-200 mb-1 font-orbitron"
-                  >
-                    Username
-                  </label>
-                  <div 
-                    className="relative"
-                    onMouseEnter={() => handleInputHover('username')}
-                    onMouseLeave={handleInputBlur}
-                  >
-                    <input
-                      id="username"
-                      name="username"
-                      type="text"
-                      autoComplete="username"
-                      value={formData.username}
-                      onChange={handleChange}
-                      className="appearance-none block w-full px-4 py-3 border-2 border-[#9D00FF]/50 rounded-md bg-black/50 placeholder-gray-500 text-white focus:outline-none focus:ring-[#FF00E6] focus:border-[#FF00E6] sm:text-sm transition-all duration-300"
-                      placeholder="CyberUser123"
-                      aria-label="Username input"
-                    />
-                    {/* Glow effect on focus */}
-                    <div className="absolute inset-0 rounded-md pointer-events-none border border-[#9D00FF]/20 opacity-0 focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
-                    
-                    {errors.username && (
-                      <div className="mt-1 text-[#FF00E6] text-xs font-medium flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                        <span className="leading-tight">{errors.username}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Email input */}
-                <div>
-                  <label 
-                    htmlFor="email" 
-                    className="block text-sm font-medium text-gray-200 mb-1 font-orbitron"
-                  >
-                    Email
-                  </label>
-                  <div 
-                    className="relative"
-                    onMouseEnter={() => handleInputHover('email')}
-                    onMouseLeave={handleInputBlur}
-                  >
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="appearance-none block w-full px-4 py-3 border-2 border-[#9D00FF]/50 rounded-md bg-black/50 placeholder-gray-500 text-white focus:outline-none focus:ring-[#FF00E6] focus:border-[#FF00E6] sm:text-sm transition-all duration-300"
-                      placeholder="your.email@example.com"
-                      aria-label="Email input"
-                    />
-                    {/* Glow effect on focus */}
-                    <div className="absolute inset-0 rounded-md pointer-events-none border border-[#9D00FF]/20 opacity-0 focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
-                    
-                    {errors.email && (
-                      <div className="mt-1 text-[#FF00E6] text-xs font-medium flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                        <span className="leading-tight">{errors.email}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Password input */}
-                <div>
-                  <label 
-                    htmlFor="password" 
-                    className="block text-sm font-medium text-gray-200 mb-1 font-orbitron"
-                  >
-                    Password
-                  </label>
-                  <div 
-                    className="relative"
-                    onMouseEnter={() => handleInputHover('password')}
-                    onMouseLeave={handleInputBlur}
-                  >
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="new-password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="appearance-none block w-full px-4 py-3 border-2 border-[#9D00FF]/50 rounded-md bg-black/50 placeholder-gray-500 text-white focus:outline-none focus:ring-[#FF00E6] focus:border-[#FF00E6] sm:text-sm transition-all duration-300"
-                      placeholder="••••••••"
-                      aria-label="Password input"
-                    />
-                    {/* Glow effect on focus */}
-                    <div className="absolute inset-0 rounded-md pointer-events-none border border-[#9D00FF]/20 opacity-0 focus-within:opacity-100 transition-opacity duration-300 blur-sm"></div>
-                    
-                    {errors.password && (
-                      <div className="mt-1 text-[#FF00E6] text-xs font-medium flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                        <span className="leading-tight">{errors.password}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Submit button */}
-                <div className="pt-4">
-                  <FuturisticButton
-                    text={isSubmitting ? "Creating account..." : "Sign Up"}
-                    type="neon"
-                    className="w-full bg-transparent hover:bg-[#9D00FF]/20 border-[#9D00FF] text-[#9D00FF] hover:text-white hover:border-[#9D00FF]"
-                    accessibilityLabel="Register for NexVox"
-                    rippleEffect={true}
-                    disabled={isSubmitting}
-                  />
-                </div>
-                
-                {/* Login link */}
-                <div className="text-center mt-4">
-                  <p className="text-sm text-gray-300">
-                    Already have an account?{' '}
-                    <Link 
-                      href="/login" 
-                      className="text-[#00FFFF] hover:text-[#FF00E6] font-medium animated-underline transition-colors duration-300"
-                    >
-                      Login
-                    </Link>
-                  </p>
-                </div>
-                
-                {/* Loading indicator */}
-                {isSubmitting && (
-                  <div className="mt-6 text-xs text-center text-gray-400 flex flex-col items-center">
-                    <p>Creating your account. Please wait...</p>
-                    <div className="mt-2 w-full max-w-xs h-1 bg-black/60 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#9D00FF] to-[#00FFFF] w-1/3 animate-pulse"></div>
-                    </div>
-                  </div>
-                )}
-              </form>
-            </GlassmorphicCard>
-          ) : null}
-        </div>
+        </main>
       </div>
     </div>
   );

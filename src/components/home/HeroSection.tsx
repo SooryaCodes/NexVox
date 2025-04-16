@@ -61,11 +61,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   // Enhance button handlers with sound effects
   const handleExploreRooms = () => {
     soundEffects.playClick('heavy');
-    onExploreRooms();
+    
+    // Make sure we clear any stuck page state
+    document.body.style.overflow = '';
+    
+    // Add a small delay for the sound to play
+    setTimeout(() => {
+      onExploreRooms();
+    }, 50);
   };
   
   const handleLearnMore = () => {
     soundEffects.playClick();
+    
+    // Ensure no stuck scrolls
+    document.body.style.overflow = '';
+    
     onLearnMore();
   };
 

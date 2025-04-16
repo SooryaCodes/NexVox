@@ -2,7 +2,7 @@
 "use client"
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { m, motion } from "framer-motion";
+import { m, motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import roomsData from "../data/rooms.json";
@@ -69,7 +69,7 @@ export default function RoomsPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(0); // 0 means "All"
   const [view, setView] = useState<'grid' | 'list'>('grid'); // 'grid' or 'list'
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Initialize closed by default
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [allRooms, setAllRooms] = useState<RoomDataType[]>([]); // All rooms including user-created ones
   const [isNotificationOpen, setIsNotificationOpen] = useState(false); // For notification panel
   const [searchQuery, setSearchQuery] = useState(''); // For room search
@@ -152,30 +152,29 @@ export default function RoomsPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isNotificationOpen, isShortcutsModalOpen]);
 
-  // Update mobile detection
+  // Update mobile detection useEffect to be more responsive and fix sidebar behavior
   useEffect(() => {
+    // Immediately determine if mobile and set sidebar state accordingly
+    const isMobile = window.innerWidth < 768;
+    setIsMobileView(isMobile);
+    
+    // IMPORTANT: Always initialize sidebar closed on mobile, open on desktop
+    setIsSidebarOpen(!isMobile);
+    
+    // Handler for window resize
     const handleResize = () => {
-      const isMobile = window.innerWidth < 768;
-      setIsMobileView(isMobile);
+      const newIsMobile = window.innerWidth < 768;
+      setIsMobileView(newIsMobile);
       
-      // Set sidebar state based on device type
-      if (!isMobile) {
-        setIsSidebarOpen(true); // Always open on desktop
-      } else if (!isSidebarOpen && isMobile) {
-        // Keep it closed on mobile initially
-        setIsSidebarOpen(false);
+      // Only force sidebar state on breakpoint change
+      if (newIsMobile !== isMobile) {
+        setIsSidebarOpen(!newIsMobile);
       }
     };
     
-    // Initial check
-    handleResize();
-    
-    // Add event listener
     window.addEventListener('resize', handleResize);
-    
-    // Cleanup
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, []); // Empty dependency array ensures this only runs once on mount
 
   // Simulate loading and load rooms
   useEffect(() => {
@@ -288,64 +287,31 @@ export default function RoomsPage() {
     router.push('/chats');
   };
 
+  // Add the missing state declaration for mobile header menu
+  const [isMobileHeaderMenuOpen, setIsMobileHeaderMenuOpen] = useState(false);
+
+  // Add the missing toggle function for mobile header menu
+  const toggleMobileHeaderMenu = () => {
+    playClick();
+    setIsMobileHeaderMenuOpen(prev => !prev);
+  };
+
   return (
     <div className="bg-black text-white min-h-screen overflow-hidden">
-      {/* Header with hamburger menu for mobile */}
+      {/* Header without hamburger menu for mobile */}
       <div 
         ref={headerRef} 
         className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md px-4 py-3 border-b border-[#00FFFF]/20 flex items-center justify-between"
       >
-        {/* Hamburger menu for mobile */}
-        <button 
-          onClick={toggleSidebar}
-          className="md:hidden z-50 text-[#00FFFF] hover:text-white transition-colors p-2"
-          aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-          aria-expanded={isSidebarOpen}
-        >
-          {isSidebarOpen ? <IoClose size={24} /> : <IoMenuOutline size={24} />}
-        </button>
-        
-        {/* Logo/Title */}
-        <h1 className="text-xl font-orbitron text-[#00FFFF] glow">
+        {/* Logo/Title - centered on mobile, normal on desktop */}
+        <h1 className="text-xl font-orbitron text-[#00FFFF] glow md:static">
           <Link href="/">Nex<span className="text-[#FF00E6]">Vox</span> Rooms</Link>
         </h1>
         
-        {/* Rest of header content */}
-        <div className="flex items-center space-x-3">
-          {/* Search Bar */}
-          <div className="flex-1 max-w-md mx-4 hidden sm:block">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <IoSearchOutline className="h-5 w-5 text-white/50" />
-              </div>
-              <input
-                id="room-search"
-                type="text"
-                className="bg-black/30 border border-white/10 text-white placeholder-white/50 pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-[#00FFFF] focus:border-[#00FFFF]/50"
-                placeholder="Search rooms... (Alt+/)"
-                value={searchQuery}
-                onChange={(e) => {
-                  playClick();
-                  setSearchQuery(e.target.value);
-                }}
-                aria-label="Search for rooms"
-              />
-              {searchQuery && (
-                <button
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => {
-                    playClick();
-                    setSearchQuery('');
-                  }}
-                  aria-label="Clear search"
-                >
-                  <IoClose className="h-5 w-5 text-white/50 hover:text-white" />
-                </button>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2 sm:gap-4">
+        {/* Right side header content */}
+        <div className="flex items-center space-x-1 sm:space-x-3">
+          {/* DESKTOP Icons: Hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2 sm:gap-4">
             {/* Create Room Button */}
             <m.button
               className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#00FFFF]/20 to-[#FF00E6]/20 rounded-md border border-[#00FFFF]/30 text-[#00FFFF] font-medium text-sm"
@@ -446,33 +412,36 @@ export default function RoomsPage() {
               </m.button>
             </Link>
           </div>
+
+          {/* MOBILE Menu Icon: Just keep this for mobile header */}
+          <button
+            onClick={toggleMobileHeaderMenu}
+            className="md:hidden z-50 text-white hover:text-[#00FFFF] transition-colors p-2 rounded-full"
+            aria-label="Open menu"
+            aria-haspopup="true"
+            aria-expanded={isMobileHeaderMenuOpen}
+            aria-controls="mobile-header-menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
         </div>
       </div>
       
       {/* Main content with responsive sidebar */}
       <div className="pt-16 flex flex-col md:flex-row min-h-screen">
-        {/* Sidebar - overlay on mobile, fixed on desktop */}
+        {/* Sidebar - hidden on mobile, visible on desktop */}
         <aside 
           ref={sidebarRef}
-          className={`
-            fixed md:relative top-0 left-0 z-30 
-            h-full md:h-auto w-[280px] 
+          className="hidden md:block fixed md:relative top-0 left-0 z-30 
+            h-[100vh] md:h-auto w-[280px] 
             bg-black/95 md:bg-black/40 backdrop-blur-md
             border-r border-[#00FFFF]/20
-            transform transition-transform duration-300 ease-in-out
-            pt-20 md:pt-4 px-4 pb-6
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          `}
+            pt-16 md:pt-4 pb-6"
         >
-          {/* Close button inside sidebar (mobile only) */}
-          <button
-            onClick={toggleSidebar}
-            className="absolute top-4 right-4 md:hidden p-2 rounded-full bg-[#00FFFF]/20 text-white hover:text-[#00FFFF] transition-colors"
-            aria-label="Close sidebar"
-          >
-            <IoClose size={20} />
-          </button>
-          <div className="p-6 flex flex-col gap-6 h-full">
+          {/* Sidebar content only - no toggle buttons */}
+          <div className="p-4 flex flex-col gap-6 h-full overflow-y-auto">
             <div>
               <h2 className="text-lg font-orbitron mb-4 text-[#00FFFF]" id="categories-heading">CATEGORIES</h2>
               <div className="space-y-2" role="list" aria-labelledby="categories-heading">
@@ -749,14 +718,45 @@ export default function RoomsPage() {
         onMarkAsRead={markAsRead}
       />
 
-      {/* Backdrop for mobile sidebar - ensure it only shows on mobile and disappears when sidebar is closed */}
-      {isSidebarOpen && isMobileView && (
-        <div 
-          className="fixed inset-0 bg-black/70 z-20 md:hidden"
-          onClick={toggleSidebar}
-          aria-hidden="true"
-        />
-      )}
+      {/* Add mobile header menu dropdown here */}
+      <AnimatePresence>
+        {isMobileHeaderMenuOpen && (
+          <m.div
+            id="mobile-header-menu"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-[65px] right-4 z-50 w-60 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl md:hidden"
+          >
+            <div className="flex flex-col p-2 space-y-1">
+              <button onClick={() => { handleCreateRoom(); toggleMobileHeaderMenu(); }} className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-md text-sm"> 
+                <IoAddOutline className="h-4 w-4" /> Create Room 
+              </button>
+              <button onClick={() => { handleFriendsClick(); toggleMobileHeaderMenu(); }} className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-md text-sm relative"> 
+                <IoPeopleOutline className="h-4 w-4" /> Friends 
+                {unreadRequestsCount > 0 && (<span className="absolute top-1 right-1 w-3 h-3 bg-[#FF00E6] rounded-full text-[10px]"></span>)} 
+              </button>
+              <button onClick={() => { handleChatsClick(); toggleMobileHeaderMenu(); }} className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-md text-sm"> 
+                <IoChatbubbleOutline className="h-4 w-4" /> Chats 
+              </button>
+              <button onClick={() => { setIsShortcutsModalOpen(true); toggleMobileHeaderMenu(); }} className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-md text-sm"> 
+                <IoKeyOutline className="h-4 w-4" /> Shortcuts 
+              </button>
+              <Link href="/settings" onClick={toggleMobileHeaderMenu} className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-md text-sm"> 
+                <IoSettingsOutline className="h-4 w-4" /> Settings 
+              </Link>
+              <button onClick={() => { toggleNotifications(); toggleMobileHeaderMenu(); }} className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-md text-sm relative"> 
+                <IoNotificationsOutline className="h-4 w-4" /> Notifications 
+                {unreadCount > 0 && (<span className="absolute top-1 right-1 w-3 h-3 bg-[#FF00E6] rounded-full text-[10px]"></span>)} 
+              </button>
+              <Link href="/profile" onClick={toggleMobileHeaderMenu} className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-md text-sm"> 
+                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#00FFFF]/20 to-[#FF00E6]/20 border border-white/10 flex items-center justify-center text-[10px]">U</div> Profile 
+              </Link>
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
