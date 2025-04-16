@@ -1,0 +1,67 @@
+/* Force background grids to be visible - higher specificity override */
+.bg-grid {
+  background-image: linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px) !important;
+  background-size: 30px 30px !important;
+  z-index: 0;
+}
+
+/* Ensure animations are immediately visible and running */
+.animate-pulse,
+.animate-pulse-slow,
+.animate-pulse-slower {
+  animation-play-state: running !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  will-change: opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Animation definitions with stronger specificity */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.1 !important; }
+  50% { opacity: 0.4 !important; }
+}
+
+@keyframes pulse-slower {
+  0%, 100% { opacity: 0.1 !important; }
+  50% { opacity: 0.3 !important; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite !important;
+}
+
+.animate-pulse-slower {
+  animation: pulse-slower 12s ease-in-out infinite !important;
+}
+
+/* Force animation application */
+.animation-active {
+  animation-play-state: running !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force animations to be immediately visible without waiting for browser paint cycles */
+html body .animate-pulse,
+html body .animate-pulse-slow,
+html body .animate-pulse-slower,
+html body [class*="shadow-[0_0_"] {
+  animation-delay: 0ms !important;
+  will-change: opacity, transform, animation;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Fix for Safari hidden animations */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  html body .animate-pulse, 
+  html body .animate-pulse-slow, 
+  html body .animate-pulse-slower {
+    animation-play-state: running !important;
+    animation-delay: -1ms !important;
+    opacity: 1 !important;
+  }
+} 

@@ -1,7 +1,6 @@
 import './globals.css'
 import 'aos/dist/aos.css';
 import type { Metadata } from 'next'
-import { usePathname } from 'next/navigation'
 import AnimationProvider from '@/components/AnimationProvider'
 import SmoothScroll from '@/components/ScrollTriggerSetup'
 import { Inter, Orbitron } from 'next/font/google'
@@ -9,7 +8,6 @@ import { SoundProvider } from '@/components/SoundProvider'
 import FloatingChatbotController from '@/components/FloatingChatbotController'
 import { UserProvider } from '@/contexts/UserContext'
 import { FriendProvider } from '@/contexts/FriendContext'
-import Header from '@/components/Header'
 import AOSInit from '@/components/AOSInit'
 
 // Initialize the fonts

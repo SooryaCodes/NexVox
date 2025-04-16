@@ -13,7 +13,6 @@ import setupNavigationOptimizations from "@/utils/navigation-optimizer";
 import LoadingScreen from "@/components/LoadingScreen";
 // Import AOS
 import AOS from "aos";
-import "aos/dist/aos.css";
 
 // Import page sections
 import HeroSection from "@/components/home/HeroSection";
@@ -33,7 +32,6 @@ const SoundEffectsController = () => {
   
   // Initialize navigation optimizations on component mount
   useEffect(() => {
-    // Initialize navigation optimizations
     setupNavigationOptimizations();
   }, [playTransition]);
   
@@ -53,60 +51,43 @@ export default function Home() {
   useEffect(() => {
     setIsMounted(true);
     
-    // Initialize AOS
-    AOS.init({
-      duration: 800,
-      once: false,
-      mirror: true,
-      offset: 50,
-      easing: 'ease-out-cubic',
-    });
-    
-    // Force refresh AOS after a short delay
-    setTimeout(() => {
-      AOS.refresh();
-    }, 100);
-    
-    // Force a refresh on window resize to fix background elements
+    // Simple handler for resizing
     const handleResize = () => {
       AOS.refresh();
-      // Force repaint of background elements
-      const backgroundElements = document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower');
-      backgroundElements.forEach(el => {
-        // Trigger reflow
-        const element = el as HTMLElement;
-        element.classList.remove('animate-pulse', 'animate-pulse-slow', 'animate-pulse-slower');
-        void element.offsetWidth; // Force reflow
-        // Re-add the animation class based on what was removed
-        if (element.className.includes('pulse-slower')) {
-          element.classList.add('animate-pulse-slower');
-        } else if (element.className.includes('pulse-slow')) {
-          element.classList.add('animate-pulse-slow');
-        } else {
-          element.classList.add('animate-pulse');
-        }
+      
+      // Force background elements to be visible
+      document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower').forEach(el => {
+        (el as HTMLElement).style.opacity = '1';
       });
     };
     
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
   
   // Refresh AOS when page finishes loading
   useEffect(() => {
     if (!isLoading) {
+      // Refresh AOS after loading completes
+      AOS.refresh();
+      
+      // Ensure background elements are visible
       setTimeout(() => {
-        AOS.refresh();
-        // Force repaint of background elements when loading completes
-        const backgroundElements = document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower');
-        backgroundElements.forEach(el => {
-          // Reset animation
+        // Make animated elements visible
+        document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower').forEach(el => {
+          (el as HTMLElement).style.opacity = '1';
+        });
+        
+        // Ensure each section's grid is visible
+        document.querySelectorAll('.bg-grid').forEach(el => {
           const element = el as HTMLElement;
-          const animation = element.className.includes('pulse-slower') ? 'animate-pulse-slower' : 
-                           element.className.includes('pulse-slow') ? 'animate-pulse-slow' : 'animate-pulse';
-          element.style.animation = 'none';
-          void element.offsetWidth; // Force reflow
-          element.style.animation = '';
+          element.style.backgroundImage = `
+            linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px)`;
+          element.style.backgroundSize = '30px 30px';
         });
       }, 500);
     }
@@ -181,9 +162,18 @@ export default function Home() {
           />
           
           {/* Animated accent dots */}
-          <div className="absolute top-[20%] left-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse"></div>
-          <div className="absolute top-[60%] left-[80%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse-slower"></div>
-          <div className="absolute top-[80%] left-[30%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slow"></div>
+          <div 
+            className="absolute top-[20%] left-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse"
+            style={{ opacity: 1 }}
+          ></div>
+          <div 
+            className="absolute top-[60%] left-[80%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse-slower"
+            style={{ opacity: 1 }}
+          ></div>
+          <div 
+            className="absolute top-[80%] left-[30%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slow"
+            style={{ opacity: 1 }}
+          ></div>
           
           {/* Gradient overlay for depth */}
           <div 

@@ -63,10 +63,40 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
             // Play completion sound when reaching 100%
             playCustom('completion', '/audios/accept-loading-resolve.mp3');
             
+            // Apply background styles manually to all sections
+            document.querySelectorAll('.bg-grid').forEach(el => {
+              const element = el as HTMLElement;
+              element.style.backgroundImage = `
+                linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px)`;
+              element.style.backgroundSize = '30px 30px';
+            });
+            
+            // Ensure all animated elements are visible
+            document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower').forEach(el => {
+              (el as HTMLElement).style.opacity = '1';
+            });
+            
             // Set timeout to hide loading screen after completion effect
             setTimeout(() => {
               setShowScreen(false);
-              if (onLoadingComplete) onLoadingComplete();
+              
+              // Callback to parent when loading is complete
+              if (onLoadingComplete) {
+                // Apply styles before letting parent know loading is complete
+                setTimeout(() => {
+                  // Fix backgrounds directly
+                  const features = document.getElementById('features');
+                  if (features) {
+                    features.style.backgroundImage = `
+                      linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px)`;
+                    features.style.backgroundSize = '30px 30px';
+                  }
+                  
+                  onLoadingComplete();
+                }, 0);
+              }
               
               // Stop and cleanup audio
               if (audioRef.current) {
@@ -95,7 +125,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
         }
       };
     }
-  }, [isLoading, playCustom, isClient]);
+  }, [isLoading, playCustom, isClient, onLoadingComplete]);
 
   // Clean up on unmount
   useEffect(() => {
