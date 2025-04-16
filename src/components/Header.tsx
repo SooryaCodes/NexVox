@@ -6,7 +6,6 @@ import { m, AnimatePresence } from 'framer-motion';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
 import { IoMenuOutline, IoClose } from "react-icons/io5";
-import HeaderUserMenu from '@/components/HeaderUserMenu';
 import { useNavigation } from '@/hooks/useNavigation';
 import { throttle } from '@/utils/performance';
 
@@ -104,11 +103,6 @@ const Header = memo(() => {
       height: "auto",
       transition: { duration: 0.2 }
     }
-  };
-
-  const mobileItemVariants = {
-    closed: { opacity: 0 },
-    open: { opacity: 1 }
   };
 
   const buttonVariants = {
@@ -224,8 +218,36 @@ const Header = memo(() => {
               <SoundToggle />
             </div>
             
-            {/* Replace auth buttons with HeaderUserMenu for authenticated users */}
-            <HeaderUserMenu />
+            {/* Auth buttons for all users */}
+            <div className="flex items-center space-x-2">
+              <m.div
+                variants={buttonVariants}
+                initial="normal"
+                whileHover="hover"
+              >
+                <Link 
+                  href="/login" 
+                  className="px-4 py-1.5 text-sm rounded-md border border-[#0ff]/60 text-[#0ff] hover:bg-[#0ff]/10 transition-colors"
+                  onClick={(e) => handleNavClick(e)}
+                >
+                  Login
+                </Link>
+              </m.div>
+              
+              <m.div
+                variants={buttonVariants}
+                initial="normal"
+                whileHover="hover"
+              >
+                <Link 
+                  href="/register" 
+                  className="px-4 py-1.5 text-sm rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium hover:opacity-90 transition-opacity"
+                  onClick={(e) => handleNavClick(e)}
+                >
+                  Register
+                </Link>
+              </m.div>
+            </div>
           </nav>
           
           {/* Mobile menu button */}
@@ -276,6 +298,24 @@ const Header = memo(() => {
                   </Link>
                 </m.div>
               ))}
+              
+              {/* Auth buttons in mobile menu */}
+              <div className="mt-4 grid grid-cols-2 gap-2 px-4 pb-2">
+                <Link
+                  href="/login"
+                  className="py-2 text-center rounded-md border border-[#0ff]/60 text-[#0ff]"
+                  onClick={(e) => handleNavClick(e, true)}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="py-2 text-center rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium"
+                  onClick={(e) => handleNavClick(e, true)}
+                >
+                  Register
+                </Link>
+              </div>
             </div>
           </m.div>
         )}

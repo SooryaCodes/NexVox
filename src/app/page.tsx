@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import AnimatedTitle from "@/components/AnimatedTitle";
 import FuturisticButton from "@/components/FuturisticButton";
-import ScrollReveal from "@/components/ScrollReveal";
 import Header from "@/components/Header";
 import AudioWaveform from "@/components/AudioWaveform";
 import NeonGrid from "@/components/NeonGrid";
@@ -82,13 +81,6 @@ const SoundEffectsController = () => {
   useEffect(() => {
     // Initialize navigation optimizations
     setupNavigationOptimizations();
-    
-    // Remove the initial transition sound on load
-    // const timer = setTimeout(() => {
-    //   playTransition();
-    // }, 1000);
-    
-    // return () => clearTimeout(timer);
   }, [playTransition]);
   
   return null; // This component doesn't render anything
@@ -151,7 +143,7 @@ export default function Home() {
       {/* Enhanced backgrounds - ensure z-index is proper */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         {/* Particle background with animated dots */}
-      <ParticlesBackground />
+        <ParticlesBackground />
         
         {/* Vibrant grid with proper density and visibility like the first image */}
         <NeonGrid 
@@ -205,23 +197,18 @@ export default function Home() {
         
         <div className="max-w-7xl mx-auto text-center z-10 pt-16 relative">
           {/* Text content - reduce vertical padding to center better */}
-          <m.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-6 sm:mb-8" /* Reduced bottom margin */
-          >
+          <div className="mb-6 sm:mb-8">
             <AnimatedTitle 
               titles={headlines} 
-              className="text-3xl sm:text-5xl md:text-7xl font-bold text-[#00FFFF] font-orbitron glow mb-3 sm:mb-4" /* Reduced bottom margin */
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-[#00FFFF] font-orbitron glow mb-3 sm:mb-4" /* Improved mobile text scaling */
             />
             <ShimmeringText
               text="The next-generation voice platform where the world meets in real-time"
-              className="text-lg sm:text-xl md:text-2xl mb-6 max-w-3xl mx-auto px-2" /* Reduced bottom margin */
+              className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 max-w-3xl mx-auto px-2" /* Improved mobile text scaling */
               variant="gradient"
               as="p"
             />
-          </m.div>
+          </div>
           
           {/* Move buttons above waveform */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center items-center mb-8">
@@ -244,12 +231,7 @@ export default function Home() {
           </div>
           
           {/* Audio waveform visualization */}
-          <m.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="mt-6"
-          >
+          <div className="mt-6">
             <p className="text-sm mb-2 opacity-60">Live global audio activity</p>
             <div className="flex justify-center">
               <AudioWaveform 
@@ -289,37 +271,6 @@ export default function Home() {
                     <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
                   </svg>
                 </div>
-              </div>
-            </div>
-          </m.div>
-          
-          {/* Remove the absolute positioned scroll indicator since we moved it */}
-          {/* Enhanced Scroll indicator with cyberpunk style */}
-          <div className="absolute bottom-10 left-0 right-0 flex justify-center items-center" style={{ display: 'none' }}>
-            <div className="flex flex-col items-center">
-              <p className="mb-3 text-sm font-orbitron tracking-wider text-[#00FFFF]/80">SCROLL TO EXPLORE</p>
-              
-              {/* Cyberpunk styled scroll indicator */}
-              <div className="relative h-14 w-6 border border-[#00FFFF]/50 rounded-full flex justify-center overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-full w-full bg-gradient-to-b from-black/20 to-black/10 backdrop-blur-sm"></div>
-                
-                {/* Animated dot */}
-                <div className="absolute top-1 w-3 h-3 rounded-full animate-scroll-pulse">
-                  <div className="w-full h-full rounded-full bg-[#00FFFF] shadow-[0_0_10px_#00FFFF]"></div>
-                </div>
-                
-                {/* Glow effect at bottom */}
-                <div className="absolute bottom-1 w-3 h-1 rounded-full bg-[#00FFFF]/30 blur-sm"></div>
-              </div>
-              
-              {/* Arrow indicators */}
-              <div className="relative mt-2 flex flex-col">
-                <svg width="14" height="8" viewBox="0 0 14 8" className="mb-1 text-[#00FFFF]/80 animate-arrow-pulse-1">
-                  <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                </svg>
-                <svg width="14" height="8" viewBox="0 0 14 8" className="text-[#00FFFF]/50 animate-arrow-pulse-2">
-                  <path d="M1 1L7 7L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                </svg>
               </div>
             </div>
           </div>
@@ -424,26 +375,23 @@ export default function Home() {
       />
 
       {/* Features Section */}
-      <section ref={featuresRef} id="features" className="py-24 px-8 relative bg-grid">
+      <section ref={featuresRef} id="features" className="py-24 px-4 sm:px-8 relative bg-grid">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#9D00FF]/10 to-black"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <ScrollReveal>
+          <div>
             <GlitchText
               text="Experience the Future of Voice"
-              className="text-4xl font-orbitron text-center mb-16"
+              className="text-3xl sm:text-4xl font-orbitron text-center mb-16"
               color="cyan"
               intensity="medium"
               activeOnView={true}
             />
-          </ScrollReveal>
+          </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
             {features.map((feature, index) => (
-              <ScrollReveal 
-                key={feature.title} 
-                delay={index * 0.1}
-              >
+              <div key={feature.title}>
                 <FeatureCard
                   title={feature.title}
                   description={feature.description}
@@ -451,77 +399,75 @@ export default function Home() {
                   iconPath={feature.iconPath}
                   className="h-full"
                 />
-              </ScrollReveal>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Interactive App Demo */}
-      <section id="rooms" className="py-24 px-8 relative scanlines">
+      <section id="rooms" className="py-24 px-4 sm:px-8 relative scanlines">
         <div className="max-w-7xl mx-auto">
-          <ScrollReveal>
+          <div>
             <GlitchText
               text="Experience NexVox"
-              className="text-4xl font-orbitron text-center mb-16"
+              className="text-3xl sm:text-4xl font-orbitron text-center mb-16"
               color="cyan"
               intensity="high"
               activeOnView={true}
             />
-          </ScrollReveal>
+          </div>
           
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            <ScrollReveal direction="left">
-              <div className="space-y-8">
-                <ShimmeringText
-                  text="Intuitive Interface"
-                  className="text-3xl font-orbitron mb-4"
-                  variant="cyan"
-                  as="h3"
+            <div className="space-y-8">
+              <ShimmeringText
+                text="Intuitive Interface"
+                className="text-2xl sm:text-3xl font-orbitron mb-4"
+                variant="cyan"
+                as="h3"
+              />
+              <p className="text-base sm:text-lg opacity-80">Our interface is designed for seamless interaction. Experience a platform that responds to your needs with minimal learning curve.</p>
+              <ul className="space-y-4">
+                <m.li 
+                  className="flex items-center gap-3"
+                  whileHover={{ x: 10, color: "#00FFFF" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <span className="text-[#00FFFF]">✓</span>
+                  <span>Simple room navigation</span>
+                </m.li>
+                <m.li 
+                  className="flex items-center gap-3"
+                  whileHover={{ x: 10, color: "#00FFFF" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <span className="text-[#00FFFF]">✓</span>
+                  <span>One-click microphone controls</span>
+                </m.li>
+                <m.li 
+                  className="flex items-center gap-3"
+                  whileHover={{ x: 10, color: "#00FFFF" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <span className="text-[#00FFFF]">✓</span>
+                  <span>Responsive audio indicators</span>
+                </m.li>
+              </ul>
+              
+              {/* Audio activity indicator */}
+              <div>
+                <p className="text-sm mb-2 opacity-60">Live voice activity</p>
+                <AudioWaveform 
+                  width={300} 
+                  height={40} 
+                  bars={30} 
+                  color="#00FFFF" 
+                  activeColor="#FF00E6" 
                 />
-                <p className="text-lg opacity-80">Our interface is designed for seamless interaction. Experience a platform that responds to your needs with minimal learning curve.</p>
-                <ul className="space-y-4">
-                  <m.li 
-                    className="flex items-center gap-3"
-                    whileHover={{ x: 10, color: "#00FFFF" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <span className="text-[#00FFFF]">✓</span>
-                    <span>Simple room navigation</span>
-                  </m.li>
-                  <m.li 
-                    className="flex items-center gap-3"
-                    whileHover={{ x: 10, color: "#00FFFF" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <span className="text-[#00FFFF]">✓</span>
-                    <span>One-click microphone controls</span>
-                  </m.li>
-                  <m.li 
-                    className="flex items-center gap-3"
-                    whileHover={{ x: 10, color: "#00FFFF" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <span className="text-[#00FFFF]">✓</span>
-                    <span>Responsive audio indicators</span>
-                  </m.li>
-                </ul>
-                
-                {/* Audio activity indicator */}
-                <div>
-                  <p className="text-sm mb-2 opacity-60">Live voice activity</p>
-                  <AudioWaveform 
-                    width={300} 
-                    height={40} 
-                    bars={30} 
-                    color="#00FFFF" 
-                    activeColor="#FF00E6" 
-                  />
-                </div>
               </div>
-            </ScrollReveal>
+            </div>
             
-            <ScrollReveal direction="right">
+            <div>
               <GlassmorphicCard
                 gradient="cyan-purple"
                 glowOnHover={true}
@@ -533,29 +479,29 @@ export default function Home() {
                   showTooltips={true}
                 />
               </GlassmorphicCard>
-            </ScrollReveal>
+            </div>
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-24 px-8 relative">
+      <section id="how-it-works" className="py-24 px-4 sm:px-8 relative">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-[#9D00FF]/10 to-black"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <ScrollReveal>
+          <div>
             <ShimmeringText
               text="How NexVox Works"
-              className="text-4xl font-orbitron text-center mb-16"
+              className="text-3xl sm:text-4xl font-orbitron text-center mb-16"
               variant="gradient"
               as="h2"
             />
-          </ScrollReveal>
+          </div>
           
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="order-2 md:order-1">
               <div className="space-y-12">
-                <ScrollReveal direction="left" delay={0.1}>
+                <div>
                   <m.div 
                     className="flex gap-4 items-start"
                     whileHover={{ x: 10 }}
@@ -567,9 +513,9 @@ export default function Home() {
                       <p className="opacity-80">Choose your username and customize your animated avatar to represent you in voice rooms.</p>
                     </div>
                   </m.div>
-                </ScrollReveal>
+                </div>
                 
-                <ScrollReveal direction="left" delay={0.3}>
+                <div>
                   <m.div 
                     className="flex gap-4 items-start"
                     whileHover={{ x: 10 }}
@@ -581,9 +527,9 @@ export default function Home() {
                       <p className="opacity-80">Explore a variety of voice rooms organized by topic, language, or vibe.</p>
                     </div>
                   </m.div>
-                </ScrollReveal>
+                </div>
                 
-                <ScrollReveal direction="left" delay={0.5}>
+                <div>
                   <m.div 
                     className="flex gap-4 items-start"
                     whileHover={{ x: 10 }}
@@ -595,11 +541,11 @@ export default function Home() {
                       <p className="opacity-80">Drop into any room and start connecting with people from around the world in real-time.</p>
                     </div>
                   </m.div>
-                </ScrollReveal>
+                </div>
               </div>
             </div>
             
-            <ScrollReveal direction="right" className="order-1 md:order-2">
+            <div className="order-1 md:order-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                 <AmbientRoom 
                   roomName="Synthwave Dreams" 
@@ -626,28 +572,28 @@ export default function Home() {
                   className="h-48"
                 />
               </div>
-            </ScrollReveal>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="py-24 px-8 relative">
+      <section id="testimonials" className="py-24 px-4 sm:px-8 relative">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-[#FF00E6]/10 to-black"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-        <ScrollReveal>
+          <div>
             <ShimmeringText
               text="What Users Say"
-              className="text-4xl font-orbitron text-center mb-16"
+              className="text-3xl sm:text-4xl font-orbitron text-center mb-16"
               variant="gradient"
               as="h2"
             />
-        </ScrollReveal>
+          </div>
         
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
             {testimonials.map((testimonial) => (
-              <ScrollReveal key={testimonial.name} delay={0.1}>
+              <div key={testimonial.name}>
                 <HolographicCard className="p-6 h-full">
                   <div className="flex flex-col h-full">
                     <div className="mb-4">
@@ -662,16 +608,16 @@ export default function Home() {
                             />
                           </div>
                         </div>
-                      <div>
-                            <p className="font-semibold text-[#00FFFF]">{testimonial.name}</p>
-                            <p className="text-sm text-gray-400">{testimonial.location}</p>
+                        <div>
+                          <p className="font-semibold text-[#00FFFF]">{testimonial.name}</p>
+                          <p className="text-sm text-gray-400">{testimonial.location}</p>
+                        </div>
                       </div>
                     </div>
-                      </div>
-                    </div>
-                  </HolographicCard>
-                </ScrollReveal>
-              ))}
+                  </div>
+                </HolographicCard>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -686,7 +632,7 @@ export default function Home() {
       />
 
       {/* JOIN LIVE ROOMS - NEW SECTION */}
-      <section id="live-rooms" className="py-24 px-8 relative min-h-screen flex items-center">
+      <section id="live-rooms" className="py-24 px-4 sm:px-8 relative min-h-screen flex items-center">
         {/* Gradient background effect */}
         <div className="absolute inset-0 z-0 opacity-40">
           <div className="absolute inset-0 bg-gradient-to-br from-[#FF00E6]/20 via-black to-[#00FFFF]/20"></div>
@@ -695,67 +641,61 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <ScrollReveal>
+          <div>
             <GlitchText
               text="Join Live Rooms"
-              className="text-5xl font-orbitron text-center mb-6"
+              className="text-4xl sm:text-5xl font-orbitron text-center mb-6"
               color="pink"
               intensity="high"
               activeOnView={true}
             />
-            <p className="text-center opacity-80 mb-16 max-w-4xl mx-auto text-lg">
+            <p className="text-center opacity-80 mb-16 max-w-4xl mx-auto text-base sm:text-lg">
               We&apos;re revolutionizing how people connect across the globe.
             </p>
-          </ScrollReveal>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <ScrollReveal direction="up" delay={0.1}>
-              <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-[#FF00E6]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(255,0,230,0.3)]">
-                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#FF00E6]/20 to-transparent rounded-xl flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#FF00E6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-orbitron mb-4 text-[#FF00E6]">Global Access</h3>
-                <p className="opacity-80">Connect with people from every corner of the world, breaking down geographical barriers in real-time voice conversations.</p>
-                <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#FF00E6] animate-pulse"></span>
-                  <span>12,546 online now</span>
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#FF00E6]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(255,0,230,0.3)]">
+              <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#FF00E6]/20 to-transparent rounded-xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#FF00E6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                </svg>
               </div>
-            </ScrollReveal>
+              <h3 className="text-xl sm:text-2xl font-orbitron mb-4 text-[#FF00E6]">Global Access</h3>
+              <p className="opacity-80">Connect with people from every corner of the world, breaking down geographical barriers in real-time voice conversations.</p>
+              <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#FF00E6] animate-pulse"></span>
+                <span>12,546 online now</span>
+              </div>
+            </div>
             
-            <ScrollReveal direction="up" delay={0.2}>
-              <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-[#9D00FF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(157,0,255,0.3)]">
-                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-xl flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#9D00FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9.663 17h4.673M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-orbitron mb-4 text-[#9D00FF]">Themed Rooms</h3>
-                <p className="opacity-80">Explore a universe of &quot;sonic meeting spaces&quot; designed for global collaboration.</p>
-                <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse"></span>
-                  <span>543 active rooms</span>
-                </div>
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#9D00FF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(157,0,255,0.3)]">
+              <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#9D00FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9.663 17h4.673M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
               </div>
-            </ScrollReveal>
+              <h3 className="text-xl sm:text-2xl font-orbitron mb-4 text-[#9D00FF]">Themed Rooms</h3>
+              <p className="opacity-80">Explore a universe of &quot;sonic meeting spaces&quot; designed for global collaboration.</p>
+              <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse"></span>
+                <span>543 active rooms</span>
+              </div>
+            </div>
             
-            <ScrollReveal direction="up" delay={0.3}>
-              <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 border border-[#00FFFF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)]">
-                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-xl flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-orbitron mb-4 text-[#00FFFF]">24/7 Availability</h3>
-                <p className="opacity-80">Join conversations any time, day or night. With users across all time zones, there&apos;s always an active room waiting for you.</p>
-                <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#00FFFF] animate-pulse"></span>
-                  <span>Always online</span>
-                </div>
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#00FFFF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)]">
+              <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
-            </ScrollReveal>
+              <h3 className="text-xl sm:text-2xl font-orbitron mb-4 text-[#00FFFF]">24/7 Availability</h3>
+              <p className="opacity-80">Join conversations any time, day or night. With users across all time zones, there&apos;s always an active room waiting for you.</p>
+              <div className="mt-6 bg-black/60 rounded-lg py-2 px-4 text-sm inline-flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#00FFFF] animate-pulse"></span>
+                <span>Always online</span>
+              </div>
+            </div>
           </div>
           
           <div className="mt-16 flex justify-center">
@@ -772,7 +712,7 @@ export default function Home() {
       </section>
 
       {/* SPATIAL AUDIO EXPERIENCE - NEW SECTION */}
-      <section id="spatial-audio" className="py-24 px-8 relative min-h-screen flex items-center">
+      <section id="spatial-audio" className="py-24 px-4 sm:px-8 relative min-h-screen flex items-center">
         {/* Gradient background */}
         <div className="absolute inset-0 z-0 opacity-40">
           <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
@@ -781,156 +721,152 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <ScrollReveal direction="left">
-              <div>
-                <GlitchText
-                  text="Spatial Audio Experience"
-                  className="text-4xl font-orbitron mb-6"
-                  color="cyan"
-                  intensity="medium"
-                  activeOnView={true}
-                />
+          <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+            <div>
+              <GlitchText
+                text="Spatial Audio Experience"
+                className="text-3xl sm:text-4xl font-orbitron mb-6"
+                color="cyan"
+                intensity="medium"
+                activeOnView={true}
+              />
+              
+              <p className="text-base sm:text-lg opacity-80 mb-8">
+                NexVox brings conversations to life with immersive spatial audio technology that places each voice in a virtual environment, creating a sense of presence that traditional audio cannot match.
+              </p>
+              
+              <div className="space-y-6 sm:space-y-8">
+                <m.div 
+                  className="flex gap-4 sm:gap-6 items-start"
+                  whileHover={{ x: 10 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                >
+                  <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-orbitron mb-2 text-[#00FFFF]">Room Positioning</h3>
+                    <p className="opacity-80 text-sm sm:text-base">Voices are positioned in a virtual space, so you can hear where people are &quot;sitting&quot; in the room, making group conversations more natural.</p>
+                  </div>
+                </m.div>
                 
-                <p className="text-lg opacity-80 mb-8">
-                  NexVox brings conversations to life with immersive spatial audio technology that places each voice in a virtual environment, creating a sense of presence that traditional audio cannot match.
-                </p>
+                <m.div 
+                  className="flex gap-4 sm:gap-6 items-start"
+                  whileHover={{ x: 10 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                >
+                  <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-orbitron mb-2 text-[#00FFFF]">Directional Sound</h3>
+                    <p className="opacity-80 text-sm sm:text-base">Experience audio that pans left and right based on a speaker&apos;s virtual position, creating an immersive soundscape that mimics real-world acoustics.</p>
+                  </div>
+                </m.div>
                 
-                <div className="space-y-8">
-                  <m.div 
-                    className="flex gap-6 items-start"
-                    whileHover={{ x: 10 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                  >
-                    <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Room Positioning</h3>
-                      <p className="opacity-80">Voices are positioned in a virtual space, so you can hear where people are &quot;sitting&quot; in the room, making group conversations more natural.</p>
-                    </div>
-                  </m.div>
-                  
-                  <m.div 
-                    className="flex gap-6 items-start"
-                    whileHover={{ x: 10 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                  >
-                    <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Directional Sound</h3>
-                      <p className="opacity-80">Experience audio that pans left and right based on a speaker&apos;s virtual position, creating an immersive soundscape that mimics real-world acoustics.</p>
-                    </div>
-                  </m.div>
-                  
-                  <m.div 
-                    className="flex gap-6 items-start"
-                    whileHover={{ x: 10 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                  >
-                    <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <circle cx="12" cy="12" r="4"></circle>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-orbitron mb-2 text-[#00FFFF]">Distance Perception</h3>
-                      <p className="opacity-80">Voices naturally fade as virtual distance increases, allowing you to focus on nearby conversations while still being aware of others in the room.</p>
-                    </div>
-                  </m.div>
-                </div>
+                <m.div 
+                  className="flex gap-4 sm:gap-6 items-start"
+                  whileHover={{ x: 10 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                >
+                  <div className="bg-gradient-to-r from-[#00FFFF] to-transparent p-3 rounded-xl flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <circle cx="12" cy="12" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-orbitron mb-2 text-[#00FFFF]">Distance Perception</h3>
+                    <p className="opacity-80 text-sm sm:text-base">Voices naturally fade as virtual distance increases, allowing you to focus on nearby conversations while still being aware of others in the room.</p>
+                  </div>
+                </m.div>
               </div>
-            </ScrollReveal>
+            </div>
             
-            <ScrollReveal direction="right">
-              <div className="relative h-96">
-                {/* Spatial audio visualization */}
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl border border-[#00FFFF]/20 overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative w-64 h-64">
-                      {/* Center user */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#00FFFF] to-[#0088FF] border-4 border-black flex items-center justify-center animate-pulse">
-                          <span className="text-black font-bold">YOU</span>
-                        </div>
+            <div className="relative h-72 sm:h-96 mt-8 md:mt-0">
+              {/* Spatial audio visualization */}
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl border border-[#00FFFF]/20 overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative w-48 h-48 sm:w-64 sm:h-64">
+                    {/* Center user */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-[#00FFFF] to-[#0088FF] border-4 border-black flex items-center justify-center animate-pulse">
+                        <span className="text-black font-bold text-xs sm:text-base">YOU</span>
                       </div>
+                    </div>
+                    
+                    {/* Surrounding users in a circle */}
+                    {[...Array(8)].map((_, i) => {
+                      const angle = (i * Math.PI * 2) / 8;
+                      const radius = 100;
+                      const x = Math.cos(angle) * radius;
+                      const y = Math.sin(angle) * radius;
+                      const colors = [
+                        'from-[#00FFFF] to-[#0088FF]',
+                        'from-[#9D00FF] to-[#FF00E6]',
+                        'from-[#FF00E6] to-[#FF3300]'
+                      ];
+                      const colorIndex = i % colors.length;
                       
-                      {/* Surrounding users in a circle */}
-                      {[...Array(8)].map((_, i) => {
-                        const angle = (i * Math.PI * 2) / 8;
-                        const radius = 100;
-                        const x = Math.cos(angle) * radius;
-                        const y = Math.sin(angle) * radius;
-                        const colors = [
-                          'from-[#00FFFF] to-[#0088FF]',
-                          'from-[#9D00FF] to-[#FF00E6]',
-                          'from-[#FF00E6] to-[#FF3300]'
-                        ];
-                        const colorIndex = i % colors.length;
-                        
-                        return (
-                          <m.div
-                            key={i}
-                            className="absolute w-12 h-12"
-                            animate={{
-                              x: [x - 6 + Math.random() * 5, x + 6 + Math.random() * 5],
-                              y: [y - 6 + Math.random() * 5, y + 6 + Math.random() * 5],
-                            }}
-                            transition={{
-                              duration: 3 + Math.random() * 2,
-                              repeat: Infinity,
-                              repeatType: 'reverse',
-                              ease: 'easeInOut'
-                            }}
-                            style={{ left: 'calc(50% - 24px)', top: 'calc(50% - 24px)' }}
-                          >
-                            <div className={`w-full h-full rounded-full bg-gradient-to-r ${colors[colorIndex]} border-2 border-black flex items-center justify-center`}>
-                              <span className="text-black font-bold text-xs">{String.fromCharCode(65 + i)}</span>
+                      return (
+                        <m.div
+                          key={i}
+                          className="absolute w-8 h-8 sm:w-12 sm:h-12"
+                          animate={{
+                            x: [x - 6 + Math.random() * 5, x + 6 + Math.random() * 5],
+                            y: [y - 6 + Math.random() * 5, y + 6 + Math.random() * 5],
+                          }}
+                          transition={{
+                            duration: 3 + Math.random() * 2,
+                            repeat: Infinity,
+                            repeatType: 'reverse',
+                            ease: 'easeInOut'
+                          }}
+                          style={{ left: 'calc(50% - 24px)', top: 'calc(50% - 24px)' }}
+                        >
+                          <div className={`w-full h-full rounded-full bg-gradient-to-r ${colors[colorIndex]} border-2 border-black flex items-center justify-center`}>
+                            <span className="text-black font-bold text-xs">{String.fromCharCode(65 + i)}</span>
+                          </div>
+                          
+                          {/* Sound waves for active speakers */}
+                          {(i === 2 || i === 5 || i === 7) && (
+                            <div className="absolute inset-0 -z-10">
+                              <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping"></div>
+                              <div className="absolute inset-0 rounded-full border border-white/10 animate-pulse"></div>
                             </div>
-                            
-                            {/* Sound waves for active speakers */}
-                            {(i === 2 || i === 5 || i === 7) && (
-                              <div className="absolute inset-0 -z-10">
-                                <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping"></div>
-                                <div className="absolute inset-0 rounded-full border border-white/10 animate-pulse"></div>
-                              </div>
-                            )}
-                          </m.div>
-                        );
-                      })}
-                      
-                      {/* Connecting lines */}
-                      <svg className="absolute inset-0 w-full h-full z-0">
-                        <circle cx="50%" cy="50%" r="100" fill="none" stroke="#00FFFF" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" />
-                      </svg>
-                    </div>
+                          )}
+                        </m.div>
+                      );
+                    })}
+                    
+                    {/* Connecting lines */}
+                    <svg className="absolute inset-0 w-full h-full z-0">
+                      <circle cx="50%" cy="50%" r="100" fill="none" stroke="#00FFFF" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" />
+                    </svg>
                   </div>
-                  
-                  {/* Label */}
-                  <div className="absolute bottom-4 left-0 right-0 text-center">
-                    <div className="inline-block bg-black/60 px-4 py-2 rounded-full text-[#00FFFF] text-sm border border-[#00FFFF]/30">
-                      3D Spatial Positioning
-                    </div>
+                </div>
+                
+                {/* Label */}
+                <div className="absolute bottom-4 left-0 right-0 text-center">
+                  <div className="inline-block bg-black/60 px-4 py-2 rounded-full text-[#00FFFF] text-sm border border-[#00FFFF]/30">
+                    3D Spatial Positioning
                   </div>
                 </div>
               </div>
-            </ScrollReveal>
+            </div>
           </div>
         </div>
       </section>
 
       {/* NEW AMBIENT ROOMS SHOWCASE */}
-      <section id="ambient-rooms" className="py-24 px-8 relative">
+      <section id="ambient-rooms" className="py-24 px-4 sm:px-8 relative">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-[#9D00FF]/10 via-black to-[#00FFFF]/10"></div>
         </div>
@@ -938,75 +874,69 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <ScrollReveal>
+          <div>
             <ShimmeringText
               text="Discover Ambient Rooms"
-              className="text-4xl font-orbitron text-center mb-6"
+              className="text-3xl sm:text-4xl font-orbitron text-center mb-6"
               variant="gradient"
               as="h2"
             />
-            <p className="text-center mb-16 max-w-2xl mx-auto">
+            <p className="text-center mb-16 max-w-2xl mx-auto text-sm sm:text-base">
               Explore specially designed voice environments with unique visual and audio characteristics
             </p>
-          </ScrollReveal>
+          </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ScrollReveal direction="up" delay={0.1}>
-              <Link href="/rooms">
-                <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
-                  <AmbientRoom 
-                    roomName="Neon District"
-                    roomType="music"
-                    className="absolute inset-0 w-full h-full"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
-                    <h3 className="text-xl font-orbitron text-[#00FFFF] mb-2">Neon District</h3>
-                    <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      A cyberpunk-themed lounge with ambient city sounds and neon aesthetics.
-                    </p>
-                  </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <Link href="/rooms">
+              <div className="relative h-64 sm:h-80 rounded-xl overflow-hidden group cursor-pointer">
+                <AmbientRoom 
+                  roomName="Neon District"
+                  roomType="music"
+                  className="absolute inset-0 w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                  <h3 className="text-xl font-orbitron text-[#00FFFF] mb-2">Neon District</h3>
+                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    A cyberpunk-themed lounge with ambient city sounds and neon aesthetics.
+                  </p>
                 </div>
-              </Link>
-            </ScrollReveal>
+              </div>
+            </Link>
             
-            <ScrollReveal direction="up" delay={0.2}>
-              <Link href="/rooms">
-                <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
-                  <AmbientRoom 
-                    roomName="Quantum Realm"
-                    roomType="conversation"
-                    className="absolute inset-0 w-full h-full"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
-                    <h3 className="text-xl font-orbitron text-[#9D00FF] mb-2">Quantum Realm</h3>
-                    <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      An abstract space with quantum visualizations and ethereal audio textures.
-                    </p>
-                  </div>
+            <Link href="/rooms">
+              <div className="relative h-64 sm:h-80 rounded-xl overflow-hidden group cursor-pointer">
+                <AmbientRoom 
+                  roomName="Quantum Realm"
+                  roomType="conversation"
+                  className="absolute inset-0 w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                  <h3 className="text-xl font-orbitron text-[#9D00FF] mb-2">Quantum Realm</h3>
+                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    An abstract space with quantum visualizations and ethereal audio textures.
+                  </p>
                 </div>
-              </Link>
-            </ScrollReveal>
+              </div>
+            </Link>
             
-            <ScrollReveal direction="up" delay={0.3}>
-              <Link href="/rooms">
-                <div className="relative h-80 rounded-xl overflow-hidden group cursor-pointer">
-                  <AmbientRoom 
-                    roomName="Digital Oasis"
-                    roomType="chill"
-                    className="absolute inset-0 w-full h-full"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
-                    <h3 className="text-xl font-orbitron text-[#FF00E6] mb-2">Digital Oasis</h3>
-                    <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      A calming digital environment with water elements and relaxing audio.
-                    </p>
-                  </div>
+            <Link href="/rooms">
+              <div className="relative h-64 sm:h-80 rounded-xl overflow-hidden group cursor-pointer">
+                <AmbientRoom 
+                  roomName="Digital Oasis"
+                  roomType="chill"
+                  className="absolute inset-0 w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-0 translate-y-8">
+                  <h3 className="text-xl font-orbitron text-[#FF00E6] mb-2">Digital Oasis</h3>
+                  <p className="text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    A calming digital environment with water elements and relaxing audio.
+                  </p>
                 </div>
-              </Link>
-            </ScrollReveal>
+              </div>
+            </Link>
           </div>
           
           <div className="mt-16 text-center">
@@ -1022,32 +952,25 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-8 relative">
+      <section className="py-24 px-4 sm:px-8 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <ScrollReveal>
-            <m.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="mb-10"
-            >
-              <ShimmeringText
-                text="Ready to Connect Globally?"
-                className="text-4xl md:text-5xl font-orbitron mb-6"
-                variant="gradient"
-                as="h2"
-              />
-              <p className="text-xl opacity-80 mb-10 max-w-3xl mx-auto">Join thousands of users already experiencing the future of voice communication</p>
-            </m.div>
-          </ScrollReveal>
+          <div>
+            <ShimmeringText
+              text="Ready to Connect Globally?"
+              className="text-3xl sm:text-4xl md:text-5xl font-orbitron mb-6"
+              variant="gradient"
+              as="h2"
+            />
+            <p className="text-base sm:text-lg md:text-xl opacity-80 mb-10 max-w-3xl mx-auto">Join thousands of users already experiencing the future of voice communication</p>
+          </div>
           
           <div className="mb-12 flex justify-center">
             <FuturisticButton 
               text="Start for Free" 
               type="neon"
-              className="px-10 py-4 text-lg"
+              className="px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg"
               glitchEffect={true}
               rippleEffect={true}
               accessibilityLabel="Get started with NexVox"
@@ -1057,14 +980,14 @@ export default function Home() {
           </div>
           
           {/* Email subscription with sound effects */}
-          <ScrollReveal direction="up">
+          <div>
             <GlassmorphicCard
               gradient="cyan-purple"
-              className="py-6 px-8 max-w-md mx-auto"
+              className="py-6 px-6 sm:px-8 max-w-md mx-auto"
             >
               <ShimmeringText
                 text="Stay Updated"
-                className="text-xl mb-4 font-orbitron"
+                className="text-lg sm:text-xl mb-4 font-orbitron"
                 variant="cyan"
                 as="h3"
               />
@@ -1086,7 +1009,7 @@ export default function Home() {
                 </m.button>
               </div>
             </GlassmorphicCard>
-          </ScrollReveal>
+          </div>
           
           {/* Waveform effect for CTA */}
           <div className="max-w-xl mx-auto mt-12">
@@ -1096,19 +1019,19 @@ export default function Home() {
               bars={150} 
               color="#9D00FF" 
               activeColor="#00FFFF" 
-              className="transform scale-90 md:scale-100"
+              className="transform scale-75 sm:scale-90 md:scale-100"
             />
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-8 relative border-t border-white/10">
+      <footer className="py-16 px-4 sm:px-8 relative border-t border-white/10">
         <div className="absolute inset-0 opacity-10">
           <NeonGrid color="#9D00FF" secondaryColor="#00FFFF" density={40} opacity={0.1} />
         </div>
         
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 relative z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
           <div>
             <GlitchText
               text="NexVox"
