@@ -1,15 +1,20 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React from 'react';
 import GlitchText from "@/components/GlitchText";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import AppMockup from "@/components/AppMockup";
 import AudioWaveform from "@/components/AudioWaveform";
 import ShimmeringText from "@/components/ShimmeringText";
 import soundEffects from "@/utils/soundEffects";
+import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 const ExperienceSection: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const [sectionRef, isVisible] = useScrollAnimation<HTMLElement>({
+    threshold: 0.1,
+    once: true,
+    rootMargin: "0px 0px -10% 0px"
+  });
   
   return (
     <section ref={sectionRef} id="rooms" className="py-24 px-4 sm:px-8 relative scanlines">
@@ -32,7 +37,7 @@ const ExperienceSection: React.FC = () => {
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="mb-16">
+        <div className={getAnimationClasses(isVisible, 'up')}>
           <GlitchText
             text="Experience NexVox"
             className="text-3xl sm:text-4xl font-orbitron text-center mb-4"
@@ -46,7 +51,7 @@ const ExperienceSection: React.FC = () => {
         </div>
         
         <div className="grid md:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
+          <div className={`space-y-8 ${getAnimationClasses(isVisible, 'left', 150)}`}>
             <ShimmeringText
               text="Intuitive Interface"
               className="text-2xl sm:text-3xl font-orbitron mb-4 text-[#00FFFF]"
@@ -88,7 +93,7 @@ const ExperienceSection: React.FC = () => {
             </div>
           </div>
           
-          <div className="transform transition-all duration-500 hover:scale-105">
+          <div className={`transform transition-all duration-500 hover:scale-105 ${getAnimationClasses(isVisible, 'right', 200)}`}>
             <GlassmorphicCard
               gradient="cyan-purple"
               glowOnHover={true}

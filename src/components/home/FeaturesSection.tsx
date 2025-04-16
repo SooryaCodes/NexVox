@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useRef } from 'react';
-import { m, useInView } from 'framer-motion';
+import React from 'react';
 import GlitchText from "@/components/GlitchText";
 import FeatureCard from "@/components/FeatureCard";
 import { features } from '@/data/features';
+import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 const FeaturesSection: React.FC = () => {
-  const featuresRef = useRef<HTMLElement>(null);
-  const isInView = useInView(featuresRef, { once: false, amount: 0.3 });
+  const [featuresRef, isVisible] = useScrollAnimation<HTMLElement>({
+    threshold: 0.3,
+    once: true
+  });
 
   return (
     <section 
@@ -30,11 +32,7 @@ const FeaturesSection: React.FC = () => {
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-        >
+        <div className={getAnimationClasses(isVisible, 'up')}>
           <GlitchText
             text="Experience the Future of Voice"
             className="text-3xl sm:text-4xl font-orbitron text-center mb-16"
@@ -42,19 +40,13 @@ const FeaturesSection: React.FC = () => {
             intensity="medium"
             activeOnView={true}
           />
-        </m.div>
+        </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
           {features.map((feature, index) => (
-            <m.div 
+            <div 
               key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ 
-                duration: 0.6, 
-                ease: "easeOut", 
-                delay: 0.2 + (index * 0.1) 
-              }}
+              className={getAnimationClasses(isVisible, 'up', 200, index)}
             >
               <FeatureCard
                 title={feature.title}
@@ -63,7 +55,7 @@ const FeaturesSection: React.FC = () => {
                 iconPath={feature.iconPath}
                 className="h-full transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)]"
               />
-            </m.div>
+            </div>
           ))}
         </div>
       </div>
@@ -80,4 +72,4 @@ const FeaturesSection: React.FC = () => {
   );
 };
 
-export default FeaturesSection; 
+export default FeaturesSection;

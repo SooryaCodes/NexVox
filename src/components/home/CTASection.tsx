@@ -1,18 +1,23 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React from 'react';
 import ShimmeringText from "@/components/ShimmeringText";
 import FuturisticButton from "@/components/FuturisticButton";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import AudioWaveform from "@/components/AudioWaveform";
 import soundEffects from "@/utils/soundEffects";
+import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 interface CTASectionProps {
   onStartForFree: () => void;
 }
 
 const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const [sectionRef, isVisible] = useScrollAnimation<HTMLElement>({
+    threshold: 0.2,
+    once: true,
+    rootMargin: "0px 0px -10% 0px"
+  });
   
   return (
     <section ref={sectionRef} className="py-24 px-4 sm:px-8 relative">
@@ -35,7 +40,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
       </div>
       
       <div className="max-w-4xl mx-auto text-center relative z-10">
-        <div className="opacity-0 animate-fadeIn" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
+        <div className={getAnimationClasses(isVisible, 'up')}>
           <ShimmeringText
             text="Ready to Connect Globally?"
             className="text-3xl sm:text-4xl md:text-5xl font-orbitron mb-6"
@@ -47,7 +52,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
           </p>
         </div>
         
-        <div className="mb-12 flex justify-center opacity-0 animate-fadeIn" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
+        <div className={`mb-12 flex justify-center ${getAnimationClasses(isVisible, 'up', 150)}`}>
           <FuturisticButton 
             text="Start for Free" 
             type="neon"
@@ -61,7 +66,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
         </div>
         
         {/* Email subscription with sound effects */}
-        <div className="opacity-0 animate-fadeIn" style={{ animationDelay: "400ms", animationFillMode: "forwards" }}>
+        <div className={getAnimationClasses(isVisible, 'up', 300)}>
           <GlassmorphicCard
             gradient="cyan-purple"
             className="py-6 px-6 sm:px-8 max-w-md mx-auto hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
@@ -90,7 +95,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
         </div>
         
         {/* Waveform effect for CTA */}
-        <div className="max-w-xl mx-auto mt-12 opacity-0 animate-fadeIn" style={{ animationDelay: "700ms", animationFillMode: "forwards" }}>
+        <div className={`max-w-xl mx-auto mt-12 ${getAnimationClasses(isVisible, 'up', 450)}`}>
           <AudioWaveform 
             width={600} 
             height={100} 

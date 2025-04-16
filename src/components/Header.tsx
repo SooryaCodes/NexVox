@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { m, AnimatePresence } from 'framer-motion';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
-import { IoMenuOutline, IoClose } from "react-icons/io5";
+import { IoMenuOutline, IoClose, IoVolumeHigh, IoVolumeMute, IoLogInOutline, IoPersonAddOutline } from "react-icons/io5";
 import { useNavigation } from '@/hooks/useNavigation';
 import { throttle } from '@/utils/performance';
 
@@ -165,7 +165,7 @@ const Header = memo(() => {
 
   return (
     <m.header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? 'bg-black/80 backdrop-blur-md border-b border-[#0ff]/10' : 'bg-transparent'
       } ${isNavigating ? 'pointer-events-none opacity-80' : ''}`}
       variants={headerVariants}
@@ -219,40 +219,31 @@ const Header = memo(() => {
             </div>
             
             {/* Auth buttons for all users */}
-            <div className="flex items-center space-x-3">
-              <m.div
-                variants={buttonVariants}
-                initial="normal"
-                whileHover="hover"
-              >
+            <div className="flex items-center space-x-4">
+              <div className="transform transition-transform hover:scale-105 duration-300">
                 <Link 
                   href="/login" 
-                  className="px-4 py-2 text-sm rounded-md border border-[#0ff]/60 text-[#0ff] hover:bg-[#0ff]/10 transition-colors backdrop-blur-sm flex items-center gap-2"
+                  className="relative group px-5 py-2.5 text-sm rounded-md border border-[#00FFFF]/40 bg-black/50 text-[#00FFFF] flex items-center gap-2 overflow-hidden backdrop-blur-sm shadow-lg"
                   onClick={(e) => handleNavClick(e)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                  </svg>
-                  <span>Login</span>
+                  <span className="absolute inset-0 w-0 bg-gradient-to-r from-[#00FFFF]/20 to-transparent -skew-x-12 group-hover:w-full transform transition-all duration-300 ease-out"></span>
+                  <IoLogInOutline className="h-4 w-4 relative z-10" />
+                  <span className="relative z-10">Login</span>
                 </Link>
-              </m.div>
+              </div>
               
-              <m.div
-                variants={buttonVariants}
-                initial="normal"
-                whileHover="hover"
-              >
+              <div className="transform transition-transform hover:scale-105 duration-300">
                 <Link 
                   href="/register" 
-                  className="px-4 py-2 text-sm rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(0,255,255,0.3)] flex items-center gap-2"
+                  className="relative group px-5 py-2.5 text-sm rounded-md overflow-hidden bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] flex items-center gap-2 font-medium text-black shadow-lg"
                   onClick={(e) => handleNavClick(e)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                  <span>Register</span>
+                  <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300"></span>
+                  <IoPersonAddOutline className="h-4 w-4 relative z-10" />
+                  <span className="relative z-10">Register</span>
+                  <span className="absolute -inset-[1px] bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] rounded-md blur opacity-50 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-x"></span>
                 </Link>
-              </m.div>
+              </div>
             </div>
           </nav>
           
@@ -306,25 +297,21 @@ const Header = memo(() => {
               ))}
               
               {/* Auth buttons in mobile menu */}
-              <div className="mt-4 grid grid-cols-2 gap-2 px-4 pb-2">
+              <div className="mt-4 grid grid-cols-2 gap-3 px-4 pb-2">
                 <Link
                   href="/login"
-                  className="py-2 text-center rounded-md border border-[#0ff]/60 text-[#0ff] flex items-center justify-center gap-2"
+                  className="py-2.5 text-center rounded-md border border-[#00FFFF]/40 bg-black/30 text-[#00FFFF] flex items-center justify-center gap-2 backdrop-blur-sm"
                   onClick={(e) => handleNavClick(e, true)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                  </svg>
+                  <IoLogInOutline className="h-4 w-4" />
                   <span>Login</span>
                 </Link>
                 <Link
                   href="/register"
-                  className="py-2 text-center rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium flex items-center justify-center gap-2"
+                  className="py-2.5 text-center rounded-md bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-black font-medium flex items-center justify-center gap-2 shadow-md"
                   onClick={(e) => handleNavClick(e, true)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
+                  <IoPersonAddOutline className="h-4 w-4" />
                   <span>Register</span>
                 </Link>
               </div>
@@ -339,3 +326,17 @@ const Header = memo(() => {
 Header.displayName = 'Header';
 
 export default Header; 
+
+{/* Add CSS for the animated gradient button */}
+<style jsx global>{`
+  @keyframes gradient-x {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .animate-gradient-x {
+    background-size: 200% 100%;
+    animation: gradient-x 8s ease infinite;
+  }
+`}</style> 

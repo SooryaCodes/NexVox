@@ -170,7 +170,7 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-// Sound toggle button component
+// Sound toggle button component with improved icons
 export const SoundToggle: React.FC = () => {
   const { soundsEnabled, setSoundsEnabled } = useSoundContext();
 
@@ -184,22 +184,26 @@ export const SoundToggle: React.FC = () => {
   };
 
   return (
-    <button
-      onClick={toggleSound}
-      className="flex items-center justify-center p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/20 hover:border-[#00FFFF]/50 transition-colors"
-      aria-label={soundsEnabled ? "Mute sounds" : "Enable sounds"}
-    >
-      {soundsEnabled ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M18.95 5.05a9 9 0 010 13.9M4.582 9.582C3.29 10.874 3.29 13.126 4.582 14.418c1.292 1.292 3.544 1.292 4.836 0M6 18l8-8 6 6" />
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15.414a2 2 0 11-2.828-2.828L5.586 15.414zM15 5l-7 7-3-3 7-7 3 3z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2 2m0 0l2 2m-2-2l-2 2m0 0l-2-2m2 2l2-2m0 0l-2-2" />
-        </svg>
-      )}
-    </button>
+    <div className="relative group">
+      <button
+        onClick={toggleSound}
+        className="flex items-center justify-center p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/20 hover:border-[#00FFFF]/50 transition-colors hover:bg-[#00FFFF]/10"
+        aria-label={soundsEnabled ? "Mute sounds" : "Enable sounds"}
+      >
+        {soundsEnabled ? (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M18.95 5.05a9 9 0 010 13.9M12 8v8M9 12h6" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#FF00E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15.414a2 2 0 11-2.828-2.828L5.586 15.414zM12 6v12M18 12H6" />
+          </svg>
+        )}
+      </button>
+      <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-32 p-2 bg-black/80 backdrop-blur-md rounded border border-[#00FFFF]/30 text-xs text-center text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        {soundsEnabled ? "Sound On" : "Sound Off"}
+      </div>
+    </div>
   );
 };
 

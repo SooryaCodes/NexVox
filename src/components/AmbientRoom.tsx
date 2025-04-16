@@ -206,10 +206,7 @@ const AmbientRoom = ({
     <m.div
       ref={containerRef}
       className={`group relative rounded-2xl overflow-hidden ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}

@@ -23,34 +23,37 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
   
   const rooms = [
     { 
-      name: "Neon District", 
+      id: 1,
+      name: "Cyber Lounge", 
       type: "music", 
       color: "#FF00E6", 
-      participants: 128,
+      participants: 4,
       badgeText: "MUSIC",
-      description: "A cyberpunk-themed lounge with ambient city sounds and neon aesthetics."
+      description: "Join this room to connect with others in a voice-based chat experience."
     },
     { 
-      name: "Quantum Realm", 
+      id: 2,
+      name: "Neon Dojo", 
       type: "conversation", 
       color: "#9D00FF", 
-      participants: 145,
-      badgeText: "CONVERSATION",
-      description: "An abstract space with quantum visualizations and ethereal audio textures."
+      participants: 1,
+      badgeText: "CONVERSATION", 
+      description: "Join this room to connect with others in a voice-based chat experience."
     },
     { 
-      name: "Digital Oasis", 
+      id: 3,
+      name: "Virtual Nexus", 
       type: "chill", 
       color: "#FF00E6", 
-      participants: 96,
+      participants: 2,
       badgeText: "CHILL",
-      description: "A calming digital environment with water elements and relaxing audio."
+      description: "Join this room to connect with others in a voice-based chat experience."
     }
   ];
 
-  const handleJoinRoom = (roomName: string) => {
+  const handleJoinRoom = (roomId: number) => {
     soundEffects.playClick();
-    router.push(`/rooms/${roomName.toLowerCase().replace(/\s+/g, '-')}`);
+    router.push(`/rooms/${roomId}`);
   };
   
   return (
@@ -230,7 +233,7 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
                         className="w-full py-2 text-sm"
                         rippleEffect={true}
                         glitchEffect={true}
-                        onClick={() => handleJoinRoom(room.name)}
+                        onClick={() => handleJoinRoom(room.id)}
                       />
                     </m.div>
                   </div>
