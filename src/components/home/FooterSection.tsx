@@ -6,7 +6,11 @@ import GlitchText from "@/components/GlitchText";
 import NeonGrid from "@/components/NeonGrid";
 import soundEffects from "@/utils/soundEffects";
 
-const FooterSection: React.FC = () => {
+interface FooterSectionProps {
+  onNavigate?: (route: string) => boolean;
+}
+
+const FooterSection: React.FC<FooterSectionProps> = ({ onNavigate }) => {
   return (
     <footer className="py-16 px-4 sm:px-8 relative border-t border-white/10">
       <div className="absolute inset-0 opacity-10">
@@ -54,11 +58,22 @@ const FooterSection: React.FC = () => {
                        item === "About" ? "/#how-it-works" : 
                        "#"}
                   key={itemIndex}
+                  onClick={(e) => {
+                    const path = item === "Rooms" ? "/rooms" : 
+                                item === "Features" ? "/#features" :
+                                item === "Community" ? "/#testimonials" :
+                                item === "About" ? "/#how-it-works" : 
+                                "#";
+                    if (onNavigate && !path.includes('#')) {
+                      e.preventDefault();
+                      onNavigate(path);
+                    }
+                    soundEffects.playClick();
+                  }}
                 >
                   <li 
                     className="cursor-pointer animated-underline hover:text-[#00FFFF] hover:translate-x-2 transition-all duration-300"
                     onMouseEnter={() => soundEffects.playHover()}
-                    onClick={() => soundEffects.playClick()}
                   >
                     {item}
                   </li>
