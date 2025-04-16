@@ -585,3 +585,99 @@ canvas.particle-canvas {
   transform: translateY(-10px);
   box-shadow: 0 0 20px rgba(var(--neon-cyan), 0.5);
 }
+
+/* Background element animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes pulse-slower {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+.animate-pulse-slower {
+  animation: pulse-slower 12s ease-in-out infinite;
+}
+
+@keyframes scroll-pulse {
+  0% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(9px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.8; }
+}
+
+.animate-scroll-pulse {
+  animation: scroll-pulse 1.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+@keyframes arrow-pulse-1 {
+  0%, 100% { opacity: 0.8; transform: translateY(0); }
+  50% { opacity: 0.5; transform: translateY(2px); }
+}
+
+@keyframes arrow-pulse-2 {
+  0%, 100% { opacity: 0.5; transform: translateY(0); }
+  50% { opacity: 0.3; transform: translateY(2px); }
+}
+
+.animate-arrow-pulse-1 {
+  animation: arrow-pulse-1 1.5s ease-in-out infinite;
+}
+
+.animate-arrow-pulse-2 {
+  animation: arrow-pulse-2 1.5s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+/* Z-index utilities for consistent background layering */
+.z-bg-base {
+  z-index: 0;
+  transform: translateZ(0); /* Fix for Safari/Chrome stacking context */
+}
+
+.z-bg-gradient {
+  z-index: 1;
+  transform: translateZ(1px); /* Fix for Safari/Chrome stacking context */
+}
+
+.z-bg-elements {
+  z-index: 2;
+  transform: translateZ(2px); /* Fix for Safari/Chrome stacking context */
+}
+
+.z-bg-accent {
+  z-index: 3;
+  transform: translateZ(3px); /* Fix for Safari/Chrome stacking context */
+}
+
+.z-content {
+  z-index: 10;
+  transform: translateZ(10px); /* Fix for Safari/Chrome stacking context */
+}
+
+/* Fix for stacking context issues */
+.force-reflow {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.force-animation-refresh {
+  animation-play-state: paused !important;
+  animation-play-state: running !important;
+}
+
+/* Fix for Safari animation issues */
+@supports (-webkit-hyphens:none) {
+  .animate-pulse,
+  .animate-pulse-slow,
+  .animate-pulse-slower {
+    transform: translateZ(0);
+    will-change: opacity;
+  }
+}

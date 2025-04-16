@@ -15,10 +15,10 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
   return (
     <section className="py-24 px-4 sm:px-8 relative">
       {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/20 via-black to-[#9D00FF]/20 z-0"></div>
       
       {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
         {/* Accent dots */}
         <div className="absolute top-[15%] right-[20%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse"></div>
         <div className="absolute bottom-[20%] left-[25%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slower"></div>

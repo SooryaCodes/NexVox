@@ -7,7 +7,7 @@ import AmbientRoom from "@/components/AmbientRoom";
 const HowItWorksSection = () => {
   return (
     <section id="how-it-works" className="py-24 px-4 sm:px-8 relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-[#9D00FF]/10 to-black"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-[#9D00FF]/10 to-black z-0"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div data-aos="fade-up" data-aos-duration="800">

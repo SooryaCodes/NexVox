@@ -58,13 +58,13 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
   return (
     <section ref={sectionRef} id="ambient-rooms" className="py-24 px-4 sm:px-8 relative">
       {/* Background */}
-      <div className="absolute inset-0 bg-black">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#9D00FF]/10 via-black to-[#FF00E6]/10"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
+      <div className="absolute inset-0 bg-black z-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#9D00FF]/10 via-black to-[#FF00E6]/10 z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black z-0"></div>
       </div>
       
       {/* NeonGrid background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-1">
         <NeonGrid 
           color="#FF00E6" 
           secondaryColor="#9D00FF" 
@@ -75,7 +75,7 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
       </div>
       
       {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-2">
         {/* Animated accent dots */}
         <div className="absolute top-[10%] right-[25%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse-slow"></div>
         <div className="absolute bottom-[15%] left-[10%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slower"></div>

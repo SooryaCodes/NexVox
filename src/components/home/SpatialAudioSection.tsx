@@ -13,13 +13,13 @@ const SpatialAudioSection: React.FC = () => {
     >
       {/* Gradient background */}
       <div className="absolute inset-0 z-0 opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 via-black to-[#9D00FF]/20 z-0"></div>
       </div>
       
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-1"></div>
       
       {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-2">
         {/* Animated accent lines */}
         <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#00FFFF]/30 to-transparent left-1/5 animate-pulse-slow"></div>
         <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#9D00FF]/30 to-transparent right-1/5 animate-pulse-slower"></div>

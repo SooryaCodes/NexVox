@@ -13,10 +13,10 @@ const LiveRoomsSection: React.FC<LiveRoomsSectionProps> = ({ onBrowseRooms }) =>
     <section id="live-rooms" className="py-24 px-4 sm:px-8 relative min-h-screen flex items-center">
       {/* Gradient background effect */}
       <div className="absolute inset-0 z-0 opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FF00E6]/20 via-black to-[#00FFFF]/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF00E6]/20 via-black to-[#00FFFF]/20 z-0"></div>
       </div>
       
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-1"></div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         <div data-aos="fade-up" data-aos-duration="800">

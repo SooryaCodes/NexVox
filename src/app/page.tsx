@@ -61,6 +61,35 @@ export default function Home() {
       offset: 50,
       easing: 'ease-out-cubic',
     });
+    
+    // Force refresh AOS after a short delay
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
+    
+    // Force a refresh on window resize to fix background elements
+    const handleResize = () => {
+      AOS.refresh();
+      // Force repaint of background elements
+      const backgroundElements = document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower');
+      backgroundElements.forEach(el => {
+        // Trigger reflow
+        const element = el as HTMLElement;
+        element.classList.remove('animate-pulse', 'animate-pulse-slow', 'animate-pulse-slower');
+        void element.offsetWidth; // Force reflow
+        // Re-add the animation class based on what was removed
+        if (element.className.includes('pulse-slower')) {
+          element.classList.add('animate-pulse-slower');
+        } else if (element.className.includes('pulse-slow')) {
+          element.classList.add('animate-pulse-slow');
+        } else {
+          element.classList.add('animate-pulse');
+        }
+      });
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   
   // Refresh AOS when page finishes loading
@@ -68,6 +97,17 @@ export default function Home() {
     if (!isLoading) {
       setTimeout(() => {
         AOS.refresh();
+        // Force repaint of background elements when loading completes
+        const backgroundElements = document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower');
+        backgroundElements.forEach(el => {
+          // Reset animation
+          const element = el as HTMLElement;
+          const animation = element.className.includes('pulse-slower') ? 'animate-pulse-slower' : 
+                           element.className.includes('pulse-slow') ? 'animate-pulse-slow' : 'animate-pulse';
+          element.style.animation = 'none';
+          void element.offsetWidth; // Force reflow
+          element.style.animation = '';
+        });
       }, 500);
     }
   }, [isLoading]);

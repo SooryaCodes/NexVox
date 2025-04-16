@@ -15,10 +15,10 @@ const TestimonialsSection: React.FC = () => {
       className="py-24 px-4 sm:px-8 relative"
     >
       {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-[#FF00E6]/10 to-black"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-[#FF00E6]/10 to-black z-0"></div>
       
       {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
         {/* Accent dots */}
         <div className="absolute top-[20%] left-[10%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse"></div>
         <div className="absolute bottom-[30%] right-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse-slower"></div>
