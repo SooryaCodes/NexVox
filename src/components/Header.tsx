@@ -6,67 +6,69 @@ import { m, AnimatePresence } from 'framer-motion';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
 import { IoMenuOutline, IoClose, IoLogInOutline, IoPersonAddOutline } from "react-icons/io5";
-import { useNavigation } from '@/hooks/useNavigation';
+import { useRouter } from 'next/navigation';
 import { throttle } from '@/utils/performance';
 import { buttonSounds } from '@/utils/sectionSoundEffects';
+import HardNavLink from './HardNavLink';
 
-// Memoized Header component for better performance
-const Header = memo(() => {
-  const { isNavigating, navigate } = useNavigation();
+interface HeaderProps {
+  onNavigate?: (route: string) => boolean;
+}
+
+// Header component
+const Header = memo<HeaderProps>(({ onNavigate }) => {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentPath, setCurrentPath] = useState('');
   const [currentHash, setCurrentHash] = useState('');
 
-  // Optimized scroll handler with reduced throttle time
+  // Handle scroll to update header appearance
   const handleScroll = useCallback(throttle(() => {
     setIsScrolled(window.scrollY > 20);
-  }, 50), []);
+  }, 100), []);
   
-  // Close mobile menu on resize to desktop - faster response
+  // Close mobile menu on resize to desktop
   const handleResize = useCallback(throttle(() => {
     if (window.innerWidth >= 768 && isMobileMenuOpen) {
       setIsMobileMenuOpen(false);
     }
-  }, 100), [isMobileMenuOpen]);
+  }, 200), [isMobileMenuOpen]);
   
   useEffect(() => {
-    // Set current path on component mount and when URL changes
+    // Set current path on component mount
     setCurrentPath(window.location.pathname);
     setCurrentHash(window.location.hash);
 
-    // Setup URL change detection with optimized event names
     const handleRouteChange = () => {
       setCurrentPath(window.location.pathname);
       setCurrentHash(window.location.hash);
     };
 
     window.addEventListener('popstate', handleRouteChange);
-    window.addEventListener('navigation-end', handleRouteChange);
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize); 
     
     return () => {
       window.removeEventListener('popstate', handleRouteChange);
-      window.removeEventListener('navigation-end', handleRouteChange);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
     };
   }, [handleScroll, handleResize]);
 
-  // Immediately close mobile menu on route change
+  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [currentPath]);
 
   const navItems = [
     { name: 'Features', href: '/#features' },
-    { name: 'Rooms', href: '/rooms' }, 
+    { name: 'Rooms', href: '/rooms' },
     { name: 'How It Works', href: '/#how-it-works' },
     { name: 'Testimonials', href: '/#testimonials' },
   ];
 
-  // Simplified animation variants for better performance
+  // Animation variants
   const headerVariants = {
     initial: { y: -100, opacity: 0 },
     animate: { 
@@ -76,7 +78,7 @@ const Header = memo(() => {
         type: "spring", 
         stiffness: 300, 
         damping: 30,
-        duration: 0.3
+        delay: 0.1
       }
     }
   };
@@ -86,7 +88,11 @@ const Header = memo(() => {
     hover: { 
       scale: 1.05, 
       color: "#00FFFF",
-      transition: { duration: 0.2 }
+      transition: { 
+        type: "spring", 
+        stiffness: 400,
+        damping: 10
+      }
     }
   };
 
@@ -95,7 +101,11 @@ const Header = memo(() => {
     hover: { 
       scale: 1.05,
       color: "#00FFFF",
-      transition: { duration: 0.2 }
+      transition: { 
+        type: "spring", 
+        stiffness: 400,
+        damping: 10
+      }
     }
   };
 
@@ -116,7 +126,11 @@ const Header = memo(() => {
     normal: { scale: 1 },
     hover: { 
       scale: 1.05, 
-      transition: { duration: 0.2 }
+      transition: { 
+        type: "spring", 
+        stiffness: 400,
+        damping: 10
+      }
     }
   };
 
@@ -125,24 +139,59 @@ const Header = memo(() => {
     setIsMobileMenuOpen(prev => !prev);
   }, []);
   
-  // Optimized navigation handler with instant response
+  // Navigation handler with custom navigation support
   const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, isMobile: boolean = false) => {
     e.preventDefault();
     const href = e.currentTarget.getAttribute('href') || '/';
     
-    // Play subtle click sound - but don't wait for it to finish
-    setTimeout(() => soundEffects.playClick('soft'), 0);
+    // Play subtle click sound
+    soundEffects.playClick('soft');
     
-    // First close mobile menu if needed - for instant UI feedback
+    // Close mobile menu if needed
     if (isMobile) {
       setIsMobileMenuOpen(false);
     }
     
-    // Use our optimized navigation function immediately
-    requestAnimationFrame(() => navigate(href));
+    // Try to use custom navigation if provided (for home page)
+    if (onNavigate && onNavigate(href)) {
+      return; // Navigation handled by custom handler
+    }
     
-  }, [navigate]);
+    // Handle hash navigation for scrolling
+    if (href.includes('#')) {
+      const [path, hash] = href.split('#');
+      const currentPath = window.location.pathname;
+      
+      // If only changing hash on same page
+      if (path === '' || path === currentPath) {
+        const element = document.getElementById(hash);
+        if (element) {
+          // Smooth scroll to element
+          element.scrollIntoView({ behavior: 'smooth' });
+          
+          // Update URL without full navigation
+          window.history.pushState({}, '', href);
+          return;
+        }
+      }
+    }
+    
+    // Handle route change with more aggressive approach
+    try {
+      // First try the router
+      router.push(href);
+      
+      // Then use location directly as backup after a brief delay
+      setTimeout(() => {
+        window.location.href = href;
+      }, 200);
+    } catch (error) {
+      console.error('Navigation failed, using direct approach', error);
+      window.location.href = href;
+    }
+  }, [router, onNavigate]);
 
+  // Check if a nav item is active
   const isNavItemActive = useCallback((href: string) => {
     if (href.includes('#') && currentPath === '/') {
       // Check hash for homepage sections
@@ -154,9 +203,9 @@ const Header = memo(() => {
 
   return (
     <m.header 
-      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-200 ${
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? 'bg-black/80 backdrop-blur-md border-b border-[#0ff]/10' : 'bg-transparent'
-      } ${isNavigating ? 'pointer-events-none opacity-80' : ''}`}
+      }`}
       variants={headerVariants}
       initial="initial"
       animate="animate"
@@ -170,13 +219,13 @@ const Header = memo(() => {
             initial="normal"
             whileHover="hover"
           >
-            <Link 
+            <HardNavLink 
               href="/" 
-              onClick={handleNavClick} 
+              onClick={(e) => handleNavClick(e)} 
               className="font-orbitron text-xl sm:text-2xl font-bold text-[#0ff] glow flex items-center"
             >
               <span className="relative z-10">Nex<span className="text-purple-400">Vox</span></span>
-            </Link>
+            </HardNavLink>
           </m.div>
           
           {/* Desktop Navigation */}
@@ -188,9 +237,9 @@ const Header = memo(() => {
                 initial="normal"
                 whileHover="hover"
               >
-                <Link 
+                <HardNavLink
                   href={item.href} 
-                  className={`text-sm lg:text-base transition-colors duration-200 ${
+                  className={`text-sm lg:text-base transition-colors duration-300 ${
                     isNavItemActive(item.href) 
                       ? 'text-[#0ff] font-semibold' 
                       : 'text-white/80 hover:text-[#0ff]'
@@ -199,7 +248,7 @@ const Header = memo(() => {
                   aria-current={isNavItemActive(item.href) ? 'page' : undefined}
                 >
                   {item.name}
-                </Link>
+                </HardNavLink>
               </m.div>
             ))}
           
@@ -213,43 +262,39 @@ const Header = memo(() => {
                 variants={buttonVariants}
                 initial="normal"
                 whileHover="hover"
+                onClick={buttonSounds.secondary}
                 className="group"
               >
-                <Link 
+                <HardNavLink 
                   href="/login" 
-                  className="px-5 py-2.5 text-sm rounded-md bg-black/60 border border-[#00FFFF]/50 text-[#00FFFF] hover:bg-[#00FFFF]/10 transition-all duration-200 backdrop-blur-sm flex items-center gap-2 shadow-[0_0_10px_rgba(0,255,255,0.2)] hover:shadow-[0_0_15px_rgba(0,255,255,0.4)] group-hover:scale-105"
-                  onClick={(e) => {
-                    buttonSounds.secondary();
-                    handleNavClick(e);
-                  }}
+                  className="px-5 py-2.5 text-sm rounded-md bg-black/60 border border-[#00FFFF]/50 text-[#00FFFF] hover:bg-[#00FFFF]/10 transition-all duration-300 backdrop-blur-sm flex items-center gap-2 shadow-[0_0_10px_rgba(0,255,255,0.2)] hover:shadow-[0_0_15px_rgba(0,255,255,0.4)] group-hover:scale-105"
+                  onClick={(e) => handleNavClick(e)}
                 >
-                  <IoLogInOutline className="h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
+                  <IoLogInOutline className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
                   <span>Login</span>
-                </Link>
+                </HardNavLink>
               </m.div>
               
               <m.div
                 variants={buttonVariants}
                 initial="normal"
                 whileHover="hover"
+                onClick={buttonSounds.primary}
                 className="group"
               >
-                <Link 
+                <HardNavLink 
                   href="/register" 
                   className="relative px-5 py-2.5 text-sm rounded-md overflow-hidden group"
-                  onClick={(e) => {
-                    buttonSounds.primary();
-                    handleNavClick(e);
-                  }}
+                  onClick={(e) => handleNavClick(e)}
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] opacity-80 animate-gradient-x"></span>
                   <span className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-20 transition-opacity"></span>
-                  <span className="relative flex items-center gap-2 font-medium text-white group-hover:scale-105 transition-transform duration-200">
-                    <IoPersonAddOutline className="h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
+                  <span className="relative flex items-center gap-2 font-medium text-white group-hover:scale-105 transition-transform duration-300">
+                    <IoPersonAddOutline className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
                     Register
                   </span>
                   <span className="absolute inset-0 rounded-md shadow-[0_0_15px_rgba(157,0,255,0.5)] opacity-70 group-hover:opacity-100 transition-opacity"></span>
-                </Link>
+                </HardNavLink>
               </m.div>
             </div>
           </nav>
@@ -287,11 +332,11 @@ const Header = memo(() => {
             exit="closed"
           >
             <div className="px-4 pt-2 pb-3 space-y-1 bg-black/90 backdrop-blur-md border-b border-white/10">
-              {navItems.map((item) => (
+              {navItems.map((item, idx) => (
                 <m.div key={item.name}>
-                  <Link
+                  <HardNavLink
                     href={item.href}
-                    className={`block py-2.5 px-4 rounded-md text-base font-medium transition-colors duration-200 ${
+                    className={`block py-2.5 px-4 rounded-md text-base font-medium transition-colors duration-300 ${
                       isNavItemActive(item.href) 
                         ? 'text-[#0ff] bg-white/5' 
                         : 'text-white/80 hover:text-[#0ff] hover:bg-white/5'
@@ -299,30 +344,30 @@ const Header = memo(() => {
                     onClick={(e) => handleNavClick(e, true)}
                   >
                     <span>{item.name}</span>
-                  </Link>
+                  </HardNavLink>
                 </m.div>
               ))}
               
               {/* Mobile Auth Buttons */}
               <div className="flex items-center justify-center space-x-3 pt-4 pb-2">
-                <Link 
+                <HardNavLink 
                   href="/login" 
-                  className="px-5 py-2.5 text-sm rounded-md bg-black/60 border border-[#00FFFF]/50 text-[#00FFFF] hover:bg-[#00FFFF]/10 transition-all duration-200 backdrop-blur-sm flex items-center gap-2 shadow-[0_0_10px_rgba(0,255,255,0.2)] hover:shadow-[0_0_15px_rgba(0,255,255,0.4)]"
+                  className="px-5 py-2.5 text-sm rounded-md bg-black/60 border border-[#00FFFF]/50 text-[#00FFFF] hover:bg-[#00FFFF]/10 transition-all duration-300 backdrop-blur-sm flex items-center gap-2 shadow-[0_0_10px_rgba(0,255,255,0.2)] hover:shadow-[0_0_15px_rgba(0,255,255,0.4)]"
                   onClick={(e) => {
-                    buttonSounds.secondary();
                     handleNavClick(e, true);
+                    buttonSounds.secondary();
                   }}
                 >
                   <IoLogInOutline className="h-4 w-4" />
                   <span>Login</span>
-                </Link>
+                </HardNavLink>
                 
-                <Link 
+                <HardNavLink 
                   href="/register" 
                   className="relative px-5 py-2.5 text-sm rounded-md overflow-hidden group"
                   onClick={(e) => {
-                    buttonSounds.primary();
                     handleNavClick(e, true);
+                    buttonSounds.primary();
                   }}
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] opacity-80 animate-gradient-x"></span>
@@ -332,7 +377,7 @@ const Header = memo(() => {
                     Register
                   </span>
                   <span className="absolute inset-0 rounded-md shadow-[0_0_15px_rgba(157,0,255,0.5)] opacity-70 group-hover:opacity-100 transition-opacity"></span>
-                </Link>
+                </HardNavLink>
               </div>
             </div>
           </m.div>

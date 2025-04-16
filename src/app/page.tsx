@@ -8,11 +8,12 @@ import Header from "@/components/Header";
 import NeonGrid from "@/components/NeonGrid";
 import CyberMarquee from "@/components/CyberMarquee";
 import useSoundEffects from "@/hooks/useSoundEffects";
-import { useNavigation } from "@/hooks/useNavigation";
-import setupNavigationOptimizations from "@/utils/navigation-optimizer";
 import LoadingScreen from "@/components/LoadingScreen";
+import PageTransition from "@/components/PageTransition";
+import useHomeNavigation from "@/hooks/useHomeNavigation";
 // Import AOS
 import AOS from "aos";
+import 'aos/dist/aos.css';
 
 // Import page sections
 import HeroSection from "@/components/home/HeroSection";
@@ -25,6 +26,7 @@ import AmbientRoomsSection from "@/components/home/AmbientRoomsSection";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import CTASection from "@/components/home/CTASection";
 import FooterSection from "@/components/home/FooterSection";
+import setupNavigationOptimizations from "@/utils/navigation-optimizer";
 
 // Sound Effects Hook Component
 const SoundEffectsController = () => {
@@ -33,32 +35,42 @@ const SoundEffectsController = () => {
   // Initialize navigation optimizations on component mount
   useEffect(() => {
     setupNavigationOptimizations();
-  }, [playTransition]);
+  }, []);
   
   return null; // This component doesn't render anything
 };
 
 export default function Home() {
   const router = useRouter();
-  const { navigate, isNavigating } = useNavigation();
   const mainRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const scrollOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   
+  // Use special home navigation
+  const { 
+    navigateTo, 
+    isTransitioning, 
+    targetRoute, 
+    completeTransition 
+  } = useHomeNavigation();
+  
   // Set isMounted to true when component mounts client-side
   useEffect(() => {
     setIsMounted(true);
     
+    // Initialize AOS
+    AOS.init({
+      once: false,
+      duration: 800,
+      easing: 'ease-out-cubic',
+      offset: 100
+    });
+    
     // Simple handler for resizing
     const handleResize = () => {
       AOS.refresh();
-      
-      // Force background elements to be visible
-      document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower').forEach(el => {
-        (el as HTMLElement).style.opacity = '1';
-      });
     };
     
     window.addEventListener('resize', handleResize);
@@ -74,29 +86,16 @@ export default function Home() {
       // Refresh AOS after loading completes
       AOS.refresh();
       
-      // Ensure background elements are visible
+      // Ensure animations are properly initialized
       setTimeout(() => {
-        // Make animated elements visible
-        document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower').forEach(el => {
-          (el as HTMLElement).style.opacity = '1';
-        });
-        
-        // Ensure each section's grid is visible
-        document.querySelectorAll('.bg-grid').forEach(el => {
-          const element = el as HTMLElement;
-          element.style.backgroundImage = `
-            linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px)`;
-          element.style.backgroundSize = '30px 30px';
-        });
-      }, 500);
+        AOS.refreshHard();
+      }, 300);
     }
   }, [isLoading]);
   
-  // Optimized navigation handlers using the new hook
+  // Navigation handlers using the transition system
   const handleExploreRooms = () => {
-    // Force immediate navigation to rooms page
-    navigate("/rooms");
+    navigateTo('/rooms');
   };
   
   const handleLearnMore = () => {
@@ -105,18 +104,15 @@ export default function Home() {
   };
   
   const handleBrowseRooms = () => {
-    // Force immediate navigation to rooms page
-    navigate("/rooms");
+    navigateTo('/rooms');
   };
   
   const handleExploreAllRooms = () => {
-    // Force immediate navigation to rooms page
-    navigate("/rooms");
+    navigateTo('/rooms');
   };
   
   const handleStartForFree = () => {
-    // Force immediate navigation to register page
-    navigate("/register");
+    navigateTo('/register');
   };
 
   // Handle loading completion
@@ -136,13 +132,19 @@ export default function Home() {
         onLoadingComplete={handleLoadingComplete} 
       />
       
+      {/* Page transition component */}
+      <PageTransition 
+        isOpen={isTransitioning}
+        targetRoute={targetRoute}
+        onTransitionComplete={completeTransition}
+      />
+      
       <div 
         ref={mainRef} 
         className={`min-h-screen bg-black text-white overflow-x-hidden ${isLoading ? 'hidden' : ''}`}
-        aria-busy={isNavigating ? "true" : "false"}
       >
         {/* Header included only on homepage */}
-        <Header />
+        <Header onNavigate={navigateTo} />
         
         {/* Sound effects controller (invisible) */}
         <SoundEffectsController />
@@ -164,15 +166,12 @@ export default function Home() {
           {/* Animated accent dots */}
           <div 
             className="absolute top-[20%] left-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse"
-            style={{ opacity: 1 }}
           ></div>
           <div 
             className="absolute top-[60%] left-[80%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse-slower"
-            style={{ opacity: 1 }}
           ></div>
           <div 
             className="absolute top-[80%] left-[30%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slow"
-            style={{ opacity: 1 }}
           ></div>
           
           {/* Gradient overlay for depth */}
@@ -238,7 +237,7 @@ export default function Home() {
         />
 
         {/* Footer */}
-        <FooterSection />
+        <FooterSection onNavigate={navigateTo} />
         
         {/* Add animations to style block */}
         <style jsx global>{`

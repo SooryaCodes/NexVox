@@ -307,7 +307,7 @@ export default function RoomsPage() {
         
         {/* Logo/Title */}
         <h1 className="text-xl font-orbitron text-[#00FFFF] glow">
-          <Link href="/">Nex<span className="text-[#FF00E6]">Vox</span></Link> Rooms
+          <Link href="/">Nex<span className="text-[#FF00E6]">Vox</span> Rooms</Link>
         </h1>
         
         {/* Rest of header content */}
