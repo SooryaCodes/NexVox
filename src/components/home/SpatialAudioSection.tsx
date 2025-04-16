@@ -1,27 +1,77 @@
 "use client";
 
-import React from 'react';
-import { m } from "framer-motion";
+import React, { useRef } from 'react';
+import { m, useInView } from "framer-motion";
 
 const SpatialAudioSection: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
+  
   return (
-    <section id="spatial-audio" className="py-24 px-4 sm:px-8 relative min-h-screen flex items-center">
-      {/* Black background */}
-      <div className="absolute inset-0 bg-black"></div>
+    <section 
+      ref={sectionRef}
+      id="spatial-audio" 
+      className="py-24 px-4 sm:px-8 relative min-h-screen flex items-center"
+    >
+      {/* Gradient background */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
+      </div>
+      
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0"></div>
+      
+      {/* Background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Animated accent lines */}
+        <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#00FFFF]/30 to-transparent left-1/5 animate-pulse-slow"></div>
+        <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#9D00FF]/30 to-transparent right-1/5 animate-pulse-slower"></div>
+        
+        {/* Horizontal accent lines */}
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-[#00FFFF]/20 to-transparent top-1/3 animate-pulse-slower"></div>
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-[#9D00FF]/20 to-transparent bottom-1/3 animate-pulse-slow"></div>
+        
+        {/* Accent dots */}
+        <div className="absolute top-[25%] right-[10%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse"></div>
+        <div className="absolute bottom-[20%] left-[20%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slower"></div>
+        
+        {/* Subtle blobs */}
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-[#00FFFF]/5 blur-[120px] -top-10 right-0"></div>
+        <div className="absolute w-[400px] h-[400px] rounded-full bg-[#9D00FF]/5 blur-[120px] bottom-0 left-20"></div>
+      </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-          <div>
-            <h2 className="text-3xl sm:text-4xl font-orbitron mb-6 text-[#00FFFF]">
+          <m.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <m.h2 
+              className="text-3xl sm:text-4xl font-orbitron mb-6 text-[#00FFFF]"
+              initial={{ opacity: 0, y: -20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+            >
               Spatial Audio Experience
-            </h2>
+            </m.h2>
             
-            <p className="text-base sm:text-lg opacity-80 mb-8">
+            <m.p 
+              className="text-base sm:text-lg opacity-80 mb-8"
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 0.8 } : { opacity: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+            >
               NexVox brings conversations to life with immersive spatial audio technology that places each voice in a virtual environment, creating a sense of presence that traditional audio cannot match.
-            </p>
+            </m.p>
             
             <div className="space-y-6 sm:space-y-8">
-              <div className="flex gap-4 sm:gap-6 items-start">
+              <m.div 
+                className="flex gap-4 sm:gap-6 items-start"
+                initial={{ opacity: 0, x: -30 }}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}
+                whileHover={{ x: 10 }}
+              >
                 <div className="bg-gradient-to-br from-[#00FFFF]/30 to-transparent rounded-full p-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center flex-shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -32,9 +82,15 @@ const SpatialAudioSection: React.FC = () => {
                   <h3 className="text-lg sm:text-xl font-orbitron mb-2 text-[#00FFFF]">Room Positioning</h3>
                   <p className="opacity-80 text-sm sm:text-base">Voices are positioned in a virtual space, so you can hear where people are &quot;sitting&quot; in the room, making group conversations more natural.</p>
                 </div>
-              </div>
+              </m.div>
               
-              <div className="flex gap-4 sm:gap-6 items-start">
+              <m.div 
+                className="flex gap-4 sm:gap-6 items-start"
+                initial={{ opacity: 0, x: -30 }}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: 0.3 }}
+                whileHover={{ x: 10 }}
+              >
                 <div className="bg-gradient-to-br from-[#00FFFF]/30 to-transparent rounded-full p-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center flex-shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -46,9 +102,15 @@ const SpatialAudioSection: React.FC = () => {
                   <h3 className="text-lg sm:text-xl font-orbitron mb-2 text-[#00FFFF]">Directional Sound</h3>
                   <p className="opacity-80 text-sm sm:text-base">Experience audio that pans left and right based on a speaker&apos;s virtual position, creating an immersive soundscape that mimics real-world acoustics.</p>
                 </div>
-              </div>
+              </m.div>
               
-              <div className="flex gap-4 sm:gap-6 items-start">
+              <m.div 
+                className="flex gap-4 sm:gap-6 items-start"
+                initial={{ opacity: 0, x: -30 }}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: 0.4 }}
+                whileHover={{ x: 10 }}
+              >
                 <div className="bg-gradient-to-br from-[#00FFFF]/30 to-transparent rounded-full p-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center flex-shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -59,11 +121,16 @@ const SpatialAudioSection: React.FC = () => {
                   <h3 className="text-lg sm:text-xl font-orbitron mb-2 text-[#00FFFF]">Distance Perception</h3>
                   <p className="opacity-80 text-sm sm:text-base">Voices naturally fade as virtual distance increases, allowing you to focus on nearby conversations while still being aware of others in the room.</p>
                 </div>
-              </div>
+              </m.div>
             </div>
-          </div>
+          </m.div>
           
-          <div className="relative h-72 sm:h-96 mt-8 md:mt-0">
+          <m.div 
+            className="relative h-72 sm:h-96 mt-8 md:mt-0"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
+          >
             {/* Spatial audio visualization */}
             <div className="absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl border border-[#00FFFF]/20 overflow-hidden">
               <div className="absolute inset-0 flex items-center justify-center">
@@ -128,12 +195,23 @@ const SpatialAudioSection: React.FC = () => {
               
               {/* Label */}
               <div className="absolute bottom-4 left-0 right-0 text-center">
-                <div className="inline-block bg-black/60 px-4 py-2 rounded-full text-[#00FFFF] text-sm border border-[#00FFFF]/30">
+                <m.div 
+                  className="inline-block bg-black/60 px-4 py-2 rounded-full text-[#00FFFF] text-sm border border-[#00FFFF]/30"
+                  animate={{ 
+                    boxShadow: ['0 0 0px rgba(0, 255, 255, 0)', '0 0 10px rgba(0, 255, 255, 0.5)', '0 0 0px rgba(0, 255, 255, 0)'],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    ease: 'easeInOut'
+                  }}
+                >
                   3D Spatial Positioning
-                </div>
+                </m.div>
               </div>
             </div>
-          </div>
+          </m.div>
         </div>
       </div>
     </section>

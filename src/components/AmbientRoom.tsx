@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useEffect, useState } from 'react';
 import { m } from 'framer-motion';
 import { gsap } from 'gsap';
@@ -22,6 +24,12 @@ const AmbientRoom = ({
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+  
+  // Set isClient to true when component mounts (client-side)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   // Get room type colors and icons
   const getRoomTypeDetails = () => {
@@ -124,7 +132,7 @@ const AmbientRoom = ({
 
   // Animate sound wave
   useEffect(() => {
-    if (!soundwaveRef.current) return;
+    if (!isClient || !soundwaveRef.current) return;
     
     const bars = soundwaveRef.current.querySelectorAll('.sound-bar');
     
@@ -145,11 +153,11 @@ const AmbientRoom = ({
     return () => {
       gsap.killTweensOf(bars);
     };
-  }, []);
-  
+  }, [isClient]);
+
   // Create ambient particles animation
   useEffect(() => {
-    if (!visualizerRef.current) return;
+    if (!isClient || !visualizerRef.current) return;
     
     const visualizer = visualizerRef.current;
     const particles = 20;
@@ -200,7 +208,19 @@ const AmbientRoom = ({
     return () => {
       gsap.killTweensOf(visualizer.childNodes);
     };
-  }, [roomDetails.primaryColor, roomDetails.secondaryColor]);
+  }, [roomDetails.primaryColor, roomDetails.secondaryColor, isClient]);
+
+  // Only render client-side content when we're in the browser
+  if (!isClient) {
+    return (
+      <div 
+        className={`relative rounded-2xl overflow-hidden ${className}`}
+        style={{ 
+          background: `linear-gradient(135deg, ${roomDetails.primaryColor}10, ${roomDetails.secondaryColor}10)`,
+        }}
+      />
+    );
+  }
 
   return (
     <m.div

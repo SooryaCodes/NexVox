@@ -19,6 +19,7 @@ import SpatialAudioSection from "@/components/home/SpatialAudioSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import LiveRoomsSection from "@/components/home/LiveRoomsSection";
 import AmbientRoomsSection from "@/components/home/AmbientRoomsSection";
+import HowItWorksSection from "@/components/home/HowItWorksSection";
 import CTASection from "@/components/home/CTASection";
 import FooterSection from "@/components/home/FooterSection";
 
@@ -141,6 +142,9 @@ export default function Home() {
       <LiveRoomsSection 
         onBrowseRooms={handleBrowseRooms}
       />
+
+      {/* How It Works Section */}
+      <HowItWorksSection />
 
       {/* Spatial Audio Section */}
       <SpatialAudioSection />

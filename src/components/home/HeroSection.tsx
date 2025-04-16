@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef } from 'react';
-import { m, useScroll, useTransform } from 'framer-motion';
 import FuturisticButton from "@/components/FuturisticButton";
 import ShimmeringText from "@/components/ShimmeringText";
 import AudioWaveform from "@/components/AudioWaveform";
@@ -20,8 +19,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   onLearnMore
 }) => {
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll();
-  const scrollOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
   
   const headlines = [
     "Connect Globally with NexVox",
@@ -128,8 +125,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               width={500} 
               height={80} 
               bars={100} 
-              color="#00FFFF" 
-              activeColor="#FF00E6" 
+              color="#FF00E6" 
+              activeColor="#00FFFF" 
               className="transform scale-75 md:scale-100 max-w-full"
             />
           </div>

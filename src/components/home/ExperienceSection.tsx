@@ -1,19 +1,35 @@
 "use client";
 
-import React from 'react';
-import { m } from "framer-motion";
+import React, { useRef } from 'react';
 import GlitchText from "@/components/GlitchText";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import AppMockup from "@/components/AppMockup";
 import AudioWaveform from "@/components/AudioWaveform";
 import ShimmeringText from "@/components/ShimmeringText";
+import soundEffects from "@/utils/soundEffects";
 
 const ExperienceSection: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  
   return (
-    <section id="rooms" className="py-24 px-4 sm:px-8 relative">
+    <section ref={sectionRef} id="rooms" className="py-24 px-4 sm:px-8 relative scanlines">
       {/* Grid background */}
       <div className="absolute inset-0 bg-grid"></div>
       <div className="absolute inset-0 bg-black/50"></div>
+      
+      {/* Background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Accent dots */}
+        <div className="absolute top-[15%] right-[20%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse"></div>
+        <div className="absolute bottom-[25%] left-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse-slower"></div>
+        
+        {/* Subtle blobs */}
+        <div className="absolute w-[400px] h-[400px] rounded-full bg-[#00FFFF]/5 blur-[80px] top-0 left-10"></div>
+        <div className="absolute w-[350px] h-[350px] rounded-full bg-[#FF00E6]/5 blur-[100px] bottom-0 right-0"></div>
+        
+        {/* Animated lines */}
+        <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#00FFFF]/20 to-transparent right-1/4 animate-pulse-slow"></div>
+      </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="mb-16">
@@ -48,15 +64,14 @@ const ExperienceSection: React.FC = () => {
                 { id: 2, feature: "One-click microphone controls" },
                 { id: 3, feature: "Responsive audio indicators" }
               ].map(item => (
-                <m.div 
+                <div 
                   key={item.id}
-                  className="flex items-center gap-3"
-                  whileHover={{ x: 10, color: "#00FFFF" }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="flex items-center gap-3 transition-all duration-300 hover:translate-x-2 hover:text-[#00FFFF]"
+                  onMouseEnter={() => soundEffects.playHover()}
                 >
                   <span className="text-[#00FFFF]">✓</span>
                   <span>{item.feature}</span>
-                </m.div>
+                </div>
               ))}
             </div>
             
@@ -67,25 +82,51 @@ const ExperienceSection: React.FC = () => {
                 width={300} 
                 height={40} 
                 bars={30} 
-                color="#FF00E6" 
-                activeColor="#00FFFF" 
+                color="#00FFFF" 
+                activeColor="#FF00E6" 
               />
             </div>
           </div>
           
-          <GlassmorphicCard
-            gradient="cyan-purple"
-            glowOnHover={true}
-            className="p-4"
-          >
-            <AppMockup
-              roomName="Cyber Lounge"
-              className="mx-auto"
-              showTooltips={true}
-            />
-          </GlassmorphicCard>
+          <div className="transform transition-all duration-500 hover:scale-105">
+            <GlassmorphicCard
+              gradient="cyan-purple"
+              glowOnHover={true}
+              className="p-4 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)] transition-all duration-300"
+            >
+              <AppMockup
+                roomName="Cyber Lounge"
+                className="mx-auto"
+                showTooltips={true}
+              />
+            </GlassmorphicCard>
+          </div>
         </div>
       </div>
+      
+      {/* Style for scanlines and grid */}
+      <style jsx global>{`
+        .scanlines::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: repeating-linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(0, 255, 255, 0.05) 0.5px,
+            transparent 1px
+          );
+          background-size: 100% 4px;
+          pointer-events: none;
+          z-index: 10;
+        }
+        
+        .bg-grid {
+          background-image: linear-gradient(to right, rgba(0, 255, 255, 0.07) 1px, transparent 1px),
+                           linear-gradient(to bottom, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
+          background-size: 25px 25px;
+        }
+      `}</style>
     </section>
   );
 };

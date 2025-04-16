@@ -1,7 +1,6 @@
 "use client";
 
-import React from 'react';
-import { m } from "framer-motion";
+import React, { useRef } from 'react';
 import ShimmeringText from "@/components/ShimmeringText";
 import FuturisticButton from "@/components/FuturisticButton";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
@@ -13,22 +12,42 @@ interface CTASectionProps {
 }
 
 const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
+  const sectionRef = useRef<HTMLElement>(null);
+  
   return (
-    <section className="py-24 px-4 sm:px-8 relative">
+    <section ref={sectionRef} className="py-24 px-4 sm:px-8 relative">
+      {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
       
+      {/* Background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Accent dots */}
+        <div className="absolute top-[15%] right-[20%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse"></div>
+        <div className="absolute bottom-[20%] left-[25%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slower"></div>
+        
+        {/* Subtle blobs */}
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-[#00FFFF]/5 blur-[100px] -top-20 left-0"></div>
+        <div className="absolute w-[400px] h-[400px] rounded-full bg-[#9D00FF]/5 blur-[120px] bottom-0 right-0"></div>
+        
+        {/* Animated lines */}
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-[#00FFFF]/20 to-transparent top-1/3 animate-pulse-slower"></div>
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-[#9D00FF]/20 to-transparent bottom-1/3 animate-pulse-slow"></div>
+      </div>
+      
       <div className="max-w-4xl mx-auto text-center relative z-10">
-        <div>
+        <div className="opacity-0 animate-fadeIn" style={{ animationDelay: "0ms", animationFillMode: "forwards" }}>
           <ShimmeringText
             text="Ready to Connect Globally?"
             className="text-3xl sm:text-4xl md:text-5xl font-orbitron mb-6"
             variant="gradient"
             as="h2"
           />
-          <p className="text-base sm:text-lg md:text-xl opacity-80 mb-10 max-w-3xl mx-auto">Join thousands of users already experiencing the future of voice communication</p>
+          <p className="text-base sm:text-lg md:text-xl opacity-80 mb-10 max-w-3xl mx-auto">
+            Join thousands of users already experiencing the future of voice communication
+          </p>
         </div>
         
-        <div className="mb-12 flex justify-center">
+        <div className="mb-12 flex justify-center opacity-0 animate-fadeIn" style={{ animationDelay: "300ms", animationFillMode: "forwards" }}>
           <FuturisticButton 
             text="Start for Free" 
             type="neon"
@@ -42,10 +61,10 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
         </div>
         
         {/* Email subscription with sound effects */}
-        <div>
+        <div className="opacity-0 animate-fadeIn" style={{ animationDelay: "400ms", animationFillMode: "forwards" }}>
           <GlassmorphicCard
             gradient="cyan-purple"
-            className="py-6 px-6 sm:px-8 max-w-md mx-auto"
+            className="py-6 px-6 sm:px-8 max-w-md mx-auto hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
           >
             <ShimmeringText
               text="Stay Updated"
@@ -56,22 +75,43 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
               <input 
                 type="email" 
                 placeholder="Your email address" 
-                className="w-full bg-black/50 border border-[#00FFFF]/30 rounded-md px-4 py-3 focus:outline-none focus:border-[#00FFFF] text-white"
+                className="w-full bg-black/50 border border-[#00FFFF]/30 rounded-md px-4 py-3 focus:outline-none focus:border-[#00FFFF] text-white transition-all duration-300 focus:shadow-[0_0_0_2px_rgba(0,255,255,0.3)]"
                 aria-label="Email subscription"
               />
-              <m.button 
-                className="mt-3 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-3 w-full hover:opacity-90 font-orbitron" 
+              <button 
+                className="mt-3 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-3 w-full hover:opacity-90 font-orbitron transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(0,255,255,0.5)] active:scale-[0.98]" 
                 aria-label="Subscribe"
-                whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)" }}
-                whileTap={{ scale: 0.98 }}
                 onClick={() => soundEffects.loadAndPlay('subscribe', '/audios/final-accept.mp3')}
               >
                 Subscribe
-              </m.button>
+              </button>
             </div>
           </GlassmorphicCard>
         </div>
+        
+        {/* Waveform effect for CTA */}
+        <div className="max-w-xl mx-auto mt-12 opacity-0 animate-fadeIn" style={{ animationDelay: "700ms", animationFillMode: "forwards" }}>
+          <AudioWaveform 
+            width={600} 
+            height={100} 
+            bars={150} 
+            color="#9D00FF" 
+            activeColor="#00FFFF" 
+            className="transform scale-75 sm:scale-90 md:scale-100"
+          />
+        </div>
       </div>
+      
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.7s ease-out;
+        }
+      `}</style>
     </section>
   );
 };
