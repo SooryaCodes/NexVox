@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { m, motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import Image from 'next/image';
 
 interface FeatureCardProps {
@@ -81,10 +81,6 @@ const FeatureCard = ({
     <m.div 
       ref={cardRef}
       className={`group relative h-full rounded-xl p-px overflow-hidden ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{

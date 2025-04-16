@@ -219,7 +219,7 @@ const Header = memo(() => {
             </div>
             
             {/* Auth buttons for all users */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <m.div
                 variants={buttonVariants}
                 initial="normal"
@@ -227,10 +227,13 @@ const Header = memo(() => {
               >
                 <Link 
                   href="/login" 
-                  className="px-4 py-1.5 text-sm rounded-md border border-[#0ff]/60 text-[#0ff] hover:bg-[#0ff]/10 transition-colors"
+                  className="px-4 py-2 text-sm rounded-md border border-[#0ff]/60 text-[#0ff] hover:bg-[#0ff]/10 transition-colors backdrop-blur-sm flex items-center gap-2"
                   onClick={(e) => handleNavClick(e)}
                 >
-                  Login
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Login</span>
                 </Link>
               </m.div>
               
@@ -241,10 +244,13 @@ const Header = memo(() => {
               >
                 <Link 
                   href="/register" 
-                  className="px-4 py-1.5 text-sm rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium hover:opacity-90 transition-opacity"
+                  className="px-4 py-2 text-sm rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(0,255,255,0.3)] flex items-center gap-2"
                   onClick={(e) => handleNavClick(e)}
                 >
-                  Register
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  <span>Register</span>
                 </Link>
               </m.div>
             </div>
@@ -303,17 +309,23 @@ const Header = memo(() => {
               <div className="mt-4 grid grid-cols-2 gap-2 px-4 pb-2">
                 <Link
                   href="/login"
-                  className="py-2 text-center rounded-md border border-[#0ff]/60 text-[#0ff]"
+                  className="py-2 text-center rounded-md border border-[#0ff]/60 text-[#0ff] flex items-center justify-center gap-2"
                   onClick={(e) => handleNavClick(e, true)}
                 >
-                  Login
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Login</span>
                 </Link>
                 <Link
                   href="/register"
-                  className="py-2 text-center rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium"
+                  className="py-2 text-center rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium flex items-center justify-center gap-2"
                   onClick={(e) => handleNavClick(e, true)}
                 >
-                  Register
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  <span>Register</span>
                 </Link>
               </div>
             </div>

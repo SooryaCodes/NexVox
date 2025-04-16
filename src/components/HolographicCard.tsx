@@ -130,10 +130,6 @@ const HolographicCard = ({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      viewport={{ once: true, margin: '-50px' }}
       style={calculateStyles()}
     >
       {/* Card background with holographic effect */}
