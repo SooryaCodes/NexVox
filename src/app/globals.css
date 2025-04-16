@@ -337,10 +337,15 @@ canvas.particle-canvas {
 
 @keyframes scanline {
   0% {
-    background-position: 0 0;
+    transform: translateY(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
   }
   100% {
-    background-position: 0 100%;
+    transform: translateY(100vh);
+    opacity: 0;
   }
 }
 
@@ -411,13 +416,19 @@ canvas.particle-canvas {
 /* Floating animation */
 @keyframes float {
   0% {
-    transform: translateY(0px);
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-10px) translateX(10px);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(0) translateX(20px);
+  }
+  75% {
+    transform: translateY(10px) translateX(10px);
   }
   100% {
-    transform: translateY(0px);
+    transform: translateY(0) translateX(0);
   }
 }
 
@@ -680,5 +691,18 @@ canvas.particle-canvas {
     transform: translateZ(0);
     will-change: opacity;
   }
+}
+
+@keyframes qrscan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(400%);
+  }
+}
+
+.animate-qrscan {
+  animation: qrscan 3s ease-in-out infinite;
 }
 

@@ -9,6 +9,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
 import Image from "next/image";
 import { IoSettingsOutline } from "react-icons/io5";
+import { FaTwitter, FaFacebook, FaLinkedin, FaWhatsapp, FaTelegram, FaLink, FaCopy, FaShareAlt } from "react-icons/fa";
 
 // Import types
 import { User, Room, ChatMessage, TABS, aiResponses, quickReplies } from "@/types/room";
@@ -27,6 +28,7 @@ import ParticipantsTab from "@/components/rooms/voice/ParticipantsTab";
 import SettingsTab from "@/components/rooms/voice/SettingsTab";
 import ProfileTab from "@/components/rooms/voice/ProfileTab";
 import PublicUserProfileCard from "@/components/rooms/voice/PublicUserProfileCard";
+import RoomShareModal from "@/components/rooms/RoomShareModal";
 
 // Import data
 import roomsData from "../../data/rooms.json";
@@ -196,6 +198,8 @@ export default function RoomPage() {
   const [toasts, setToasts] = useState<Array<{id: string, message: string, type: 'success' | 'error' | 'warning'}>>([]);
   
   const { playClick, playSuccess, playError, playTransition, playComplete } = useSoundEffects();
+  
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   
   const addToast = React.useCallback((message: string, type: 'success' | 'error' | 'warning' = 'success') => {
     const id = Date.now().toString();
@@ -531,6 +535,11 @@ export default function RoomPage() {
       badges: contextUser.badges || prev.badges
     }));
   }, [contextUser]);
+  
+  const toggleShareModal = () => {
+    playClick();
+    setIsShareModalOpen(!isShareModalOpen);
+  };
   
   if (loading) {
     return (
@@ -930,7 +939,7 @@ export default function RoomPage() {
         </div>
       </div>
       
-      {/* Enhanced Control toolbar with SVG icons */}
+      {/* Enhanced Control toolbar with Share button added */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-20 w-auto max-w-full px-4 sm:px-0">
         <m.div
           initial={{ y: 100, opacity: 0 }}
@@ -969,6 +978,15 @@ export default function RoomPage() {
             onClick={handleRaiseHand}
             color="#9D00FF"
             isActive={handRaised}
+          />
+          
+          {/* Share Button */}
+          <ControlButton
+            icon={<FaShareAlt className="h-5 w-5 sm:h-6 sm:w-6" />}
+            label="Share room"
+            onClick={toggleShareModal}
+            color="#00FFFF"
+            isActive={isShareModalOpen}
           />
           
           {/* Show/hide control buttons based on screen size */}
@@ -1196,6 +1214,15 @@ export default function RoomPage() {
           </m.div>
         )}
       </AnimatePresence>
+      
+      {/* Room Share Modal */}
+      <RoomShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        roomId={roomId} 
+        roomName={room?.name || "Voice Room"} 
+        addToast={addToast}
+      />
     </main>
   );
 }
