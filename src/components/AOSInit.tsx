@@ -17,8 +17,8 @@ const AOSInit = () => {
       mirror: true,
       offset: 50,
       delay: 0,
-      // Important: Disable AOS on mobile to prevent style conflicts
-      disable: window.innerWidth < 768
+      // Allow AOS on mobile but with adjusted settings
+      disable: false
     });
 
     // Setup function to handle section backgrounds directly
