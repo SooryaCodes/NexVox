@@ -8,6 +8,7 @@ import AnimatedTitle from "@/components/AnimatedTitle";
 import NeonGrid from "@/components/NeonGrid";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import soundEffects from "@/utils/soundEffects";
+import { useSectionSoundEffects } from '@/utils/sectionSoundEffects';
 import { forceBackgroundRefresh, triggerResizeEvent } from "@/utils/triggerResize";
 
 interface HeroSectionProps {
@@ -19,7 +20,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   onExploreRooms,
   onLearnMore
 }) => {
-  const heroRef = useRef<HTMLDivElement>(null);
+  const heroRef = useSectionSoundEffects('hero', true, 'transition');
   
   const headlines = [
     "Connect Globally with NexVox",
@@ -56,6 +57,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       };
     }
   }, []);
+
+  // Enhance button handlers with sound effects
+  const handleExploreRooms = () => {
+    soundEffects.playClick('heavy');
+    onExploreRooms();
+  };
+  
+  const handleLearnMore = () => {
+    soundEffects.playClick();
+    onLearnMore();
+  };
 
   return (
     <section 
@@ -145,14 +157,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             rippleEffect={true}
             accessibilityLabel="Explore NexVox voice rooms"
             soundEffect="special"
-            onClick={onExploreRooms}
+            onClick={handleExploreRooms}
           />
           <FuturisticButton 
             text="Learn More" 
             type="secondary"
             accessibilityLabel="Learn more about NexVox features"
             soundEffect="default"
-            onClick={onLearnMore}
+            onClick={handleLearnMore}
           />
         </div>
         

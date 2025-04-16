@@ -5,35 +5,36 @@ import GlitchText from "@/components/GlitchText";
 import FeatureCard from "@/components/FeatureCard";
 import { features } from '@/data/features';
 import { forceBackgroundRefresh, triggerResizeEvent } from '@/utils/triggerResize';
+import { useSectionSoundEffects, buttonSounds } from '@/utils/sectionSoundEffects';
 
 const FeaturesSection: React.FC = () => {
-  const featuresRef = useRef<HTMLElement>(null);
-
+  // Use our custom hook for section sound effects
+  const sectionRef = useSectionSoundEffects('features', true, 'select');
+  
   // Ensure background elements are visible
   useEffect(() => {
     // Force refresh when the component mounts
     forceBackgroundRefresh();
     
     // Add intersection observer to trigger refresh when section comes into view
-    if (featuresRef.current) {
+    if (sectionRef.current) {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
               // When section comes into view, force background refresh
               forceBackgroundRefresh();
-              
             }
           });
         },
         { threshold: 0.1 }
       );
       
-      observer.observe(featuresRef.current);
+      observer.observe(sectionRef.current);
       
       return () => {
-        if (featuresRef.current) {
-          observer.unobserve(featuresRef.current);
+        if (sectionRef.current) {
+          observer.unobserve(sectionRef.current);
         }
       };
     }
@@ -41,7 +42,7 @@ const FeaturesSection: React.FC = () => {
 
   return (
     <section 
-      ref={featuresRef} 
+      ref={sectionRef} 
       id="features" 
       className="py-24 px-4 sm:px-8 relative bg-grid"
       onMouseEnter={() => triggerResizeEvent()} // Trigger resize on mouse enter as fallback
@@ -80,6 +81,8 @@ const FeaturesSection: React.FC = () => {
               data-aos="fade-up"
               data-aos-delay={index * 100}
               data-aos-duration="800"
+              onClick={buttonSounds.tertiary}
+              className="cursor-pointer"
             >
               <FeatureCard
                 title={feature.title}

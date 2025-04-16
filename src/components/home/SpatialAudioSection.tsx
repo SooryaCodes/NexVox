@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React from 'react';
+import soundEffects from '@/utils/soundEffects';
+import { useSectionSoundEffects, handleClickSound, buttonSounds } from '@/utils/sectionSoundEffects';
 
 const SpatialAudioSection: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useSectionSoundEffects('spatial-audio', true, 'oscillation');
   
   return (
     <section 
@@ -65,6 +67,7 @@ const SpatialAudioSection: React.FC = () => {
                 className="flex gap-4 sm:gap-6 items-start hover:translate-x-2 transition-transform duration-300"
                 data-aos="fade-up"
                 data-aos-delay="400"
+                onClick={() => handleClickSound('soft')}
               >
                 <div className="bg-gradient-to-br from-[#00FFFF]/30 to-transparent rounded-full p-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center flex-shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -82,6 +85,7 @@ const SpatialAudioSection: React.FC = () => {
                 className="flex gap-4 sm:gap-6 items-start hover:translate-x-2 transition-transform duration-300"
                 data-aos="fade-up"
                 data-aos-delay="500"
+                onClick={() => handleClickSound('soft')}
               >
                 <div className="bg-gradient-to-br from-[#00FFFF]/30 to-transparent rounded-full p-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center flex-shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -100,6 +104,7 @@ const SpatialAudioSection: React.FC = () => {
                 className="flex gap-4 sm:gap-6 items-start hover:translate-x-2 transition-transform duration-300"
                 data-aos="fade-up"
                 data-aos-delay="600"
+                onClick={() => handleClickSound('soft')}
               >
                 <div className="bg-gradient-to-br from-[#00FFFF]/30 to-transparent rounded-full p-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center flex-shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -127,14 +132,96 @@ const SpatialAudioSection: React.FC = () => {
                 <div className="relative w-48 h-48 sm:w-64 sm:h-64">
                   {/* Center user */}
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-[#00FFFF] to-[#0088FF] border-4 border-black flex items-center justify-center animate-pulse">
+                    <div 
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-[#00FFFF] to-[#0088FF] border-4 border-black flex items-center justify-center animate-pulse"
+                      data-aos="zoom-in"
+                      data-aos-delay="600"
+                      onClick={buttonSounds.primary}
+                    >
                       <span className="text-black font-bold text-xs sm:text-base">YOU</span>
+                    </div>
+                    {/* Audio waves around center user */}
+                    <div className="absolute -inset-4 rounded-full border-4 border-[#00FFFF]/20 animate-ping-slow"></div>
+                    <div className="absolute -inset-8 rounded-full border-2 border-[#00FFFF]/10 animate-ping-slower"></div>
+                  </div>
+                  
+                  {/* Orbital paths */}
+                  <svg className="absolute inset-0 w-full h-full z-0 animate-spin-very-slow">
+                    <circle cx="50%" cy="50%" r="80" fill="none" stroke="#00FFFF" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" />
+                    <circle cx="50%" cy="50%" r="120" fill="none" stroke="#9D00FF" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" />
+                  </svg>
+                  
+                  {/* Orbital users */}
+                  {/* User 1 */}
+                  <div 
+                    className="absolute top-[15%] right-[30%] z-10"
+                    data-aos="fade-down-left"
+                    data-aos-delay="800"
+                  >
+                    <div 
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-[#FF00E6] to-[#9D00FF] flex items-center justify-center animate-pulse-slow relative group cursor-pointer"
+                      onClick={buttonSounds.icon}
+                    >
+                      <span className="text-white text-xs">P1</span>
+                      <div className="absolute -inset-1 rounded-full border border-[#9D00FF]/30 animate-ping-slow opacity-70"></div>
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black/80 px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Alex</div>
                     </div>
                   </div>
                   
-                  {/* Visualization content kept simple */}
-                  <svg className="absolute inset-0 w-full h-full z-0">
-                    <circle cx="50%" cy="50%" r="100" fill="none" stroke="#00FFFF" strokeWidth="1" strokeDasharray="5 5" strokeOpacity="0.3" />
+                  {/* User 2 */}
+                  <div 
+                    className="absolute bottom-[20%] right-[20%] z-10"
+                    data-aos="fade-up-left"
+                    data-aos-delay="1000"
+                  >
+                    <div 
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-[#00FFFF] to-[#00E6FF] flex items-center justify-center animate-pulse-slower relative group cursor-pointer"
+                      onClick={buttonSounds.icon}
+                    >
+                      <span className="text-black text-xs">P2</span>
+                      <div className="absolute -inset-1 rounded-full border border-[#00FFFF]/30 animate-ping-slower opacity-70"></div>
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black/80 px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Taylor</div>
+                    </div>
+                  </div>
+                  
+                  {/* User 3 */}
+                  <div 
+                    className="absolute top-[30%] left-[15%] z-10"
+                    data-aos="fade-down-right" 
+                    data-aos-delay="1200"
+                  >
+                    <div 
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-[#FF9D00] to-[#FFE600] flex items-center justify-center animate-pulse relative group cursor-pointer"
+                      onClick={buttonSounds.icon}
+                    >
+                      <span className="text-black text-xs">P3</span>
+                      <div className="absolute -inset-1 rounded-full border border-[#FFE600]/30 animate-ping opacity-70"></div>
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black/80 px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Jordan</div>
+                    </div>
+                  </div>
+                  
+                  {/* User 4 - far away/faded to show distance */}
+                  <div 
+                    className="absolute bottom-[10%] left-[30%] z-10"
+                    data-aos="fade-up-right"
+                    data-aos-delay="1400"
+                  >
+                    <div 
+                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-[#00FF9D]/70 to-[#00FFE6]/70 flex items-center justify-center animate-pulse-slow relative group opacity-60 cursor-pointer"
+                      onClick={buttonSounds.icon}
+                    >
+                      <span className="text-black text-xs">P4</span>
+                      <div className="absolute -inset-1 rounded-full border border-[#00FFE6]/20 animate-ping-slower opacity-50"></div>
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black/80 px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Morgan</div>
+                    </div>
+                  </div>
+                  
+                  {/* Sound indicator lines */}
+                  <svg className="absolute inset-0 w-full h-full z-0 animate-pulse-slow">
+                    <line x1="50%" y1="50%" x2="70%" y2="15%" stroke="#FF00E6" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
+                    <line x1="50%" y1="50%" x2="80%" y2="80%" stroke="#00FFFF" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
+                    <line x1="50%" y1="50%" x2="15%" y2="30%" stroke="#FFE600" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
+                    <line x1="50%" y1="50%" x2="30%" y2="90%" stroke="#00FFE6" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.2" />
                   </svg>
                 </div>
               </div>
@@ -142,9 +229,10 @@ const SpatialAudioSection: React.FC = () => {
               {/* Label */}
               <div className="absolute bottom-4 left-0 right-0 text-center">
                 <div 
-                  className="inline-block bg-black/60 px-4 py-2 rounded-full text-[#00FFFF] text-sm border border-[#00FFFF]/30"
+                  className="inline-block bg-black/60 px-4 py-2 rounded-full text-[#00FFFF] text-sm border border-[#00FFFF]/30 cursor-pointer"
                   data-aos="fade-up"
                   data-aos-delay="800"
+                  onClick={buttonSounds.secondary}
                 >
                   Virtual Room Positioning
                 </div>

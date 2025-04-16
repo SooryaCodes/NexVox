@@ -95,8 +95,8 @@ export default function Home() {
   
   // Optimized navigation handlers using the new hook
   const handleExploreRooms = () => {
-    // Force immediate navigation to rooms page without transition sound
-    navigate("/rooms", { skipTransition: true });
+    // Force immediate navigation to rooms page
+    navigate("/rooms");
   };
   
   const handleLearnMore = () => {
@@ -105,18 +105,18 @@ export default function Home() {
   };
   
   const handleBrowseRooms = () => {
-    // Force immediate navigation to rooms page without transition sound
-    navigate("/rooms", { skipTransition: true });
+    // Force immediate navigation to rooms page
+    navigate("/rooms");
   };
   
   const handleExploreAllRooms = () => {
-    // Force immediate navigation to rooms page without transition sound
-    navigate("/rooms", { skipTransition: true });
+    // Force immediate navigation to rooms page
+    navigate("/rooms");
   };
   
   const handleStartForFree = () => {
-    // Force immediate navigation to register page without transition sound
-    navigate("/register", { skipTransition: true });
+    // Force immediate navigation to register page
+    navigate("/register");
   };
 
   // Handle loading completion

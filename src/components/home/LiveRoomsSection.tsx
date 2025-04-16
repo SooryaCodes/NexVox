@@ -3,14 +3,28 @@
 import React from 'react';
 import GlitchText from "@/components/GlitchText";
 import FuturisticButton from "@/components/FuturisticButton";
+import { useSectionSoundEffects, buttonSounds } from '@/utils/sectionSoundEffects';
+import soundEffects from '@/utils/soundEffects';
 
 interface LiveRoomsSectionProps {
   onBrowseRooms: () => void;
 }
 
 const LiveRoomsSection: React.FC<LiveRoomsSectionProps> = ({ onBrowseRooms }) => {
+  const sectionRef = useSectionSoundEffects('live-rooms', true, 'whoosh');
+  
+  // Enhance button handler with sound effect
+  const handleBrowseRooms = () => {
+    soundEffects.playClick('heavy');
+    onBrowseRooms();
+  };
+  
   return (
-    <section id="live-rooms" className="py-24 px-4 sm:px-8 relative min-h-screen flex items-center">
+    <section 
+      ref={sectionRef}
+      id="live-rooms" 
+      className="py-24 px-4 sm:px-8 relative min-h-screen flex items-center"
+    >
       {/* Gradient background effect */}
       <div className="absolute inset-0 z-0 opacity-40">
         <div className="absolute inset-0 bg-gradient-to-br from-[#FF00E6]/20 via-black to-[#00FFFF]/20 z-0"></div>
@@ -34,10 +48,11 @@ const LiveRoomsSection: React.FC<LiveRoomsSectionProps> = ({ onBrowseRooms }) =>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <div 
-            className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#FF00E6]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(255,0,230,0.3)]"
+            className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#FF00E6]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(255,0,230,0.3)] cursor-pointer"
             data-aos="fade-up"
             data-aos-duration="800"
             data-aos-delay="100"
+            onClick={buttonSounds.tertiary}
           >
             <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#FF00E6]/20 to-transparent rounded-xl flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#FF00E6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -49,10 +64,11 @@ const LiveRoomsSection: React.FC<LiveRoomsSectionProps> = ({ onBrowseRooms }) =>
           </div>
           
           <div 
-            className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#9D00FF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(157,0,255,0.3)]"
+            className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#9D00FF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(157,0,255,0.3)] cursor-pointer"
             data-aos="fade-up"
             data-aos-duration="800"
             data-aos-delay="200"
+            onClick={buttonSounds.tertiary}
           >
             <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#9D00FF]/20 to-transparent rounded-xl flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#9D00FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -64,10 +80,11 @@ const LiveRoomsSection: React.FC<LiveRoomsSectionProps> = ({ onBrowseRooms }) =>
           </div>
           
           <div 
-            className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#00FFFF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)]"
+            className="bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[#00FFFF]/20 transform transition-transform hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)] cursor-pointer"
             data-aos="fade-up"
             data-aos-duration="800"
             data-aos-delay="300"
+            onClick={buttonSounds.tertiary}
           >
             <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00FFFF]/20 to-transparent rounded-xl flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -92,7 +109,7 @@ const LiveRoomsSection: React.FC<LiveRoomsSectionProps> = ({ onBrowseRooms }) =>
             rippleEffect={true}
             accessibilityLabel="Browse all available rooms"
             soundEffect="click"
-            onClick={onBrowseRooms}
+            onClick={handleBrowseRooms}
           />
         </div>
       </div>

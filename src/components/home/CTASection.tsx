@@ -6,14 +6,27 @@ import FuturisticButton from "@/components/FuturisticButton";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import AudioWaveform from "@/components/AudioWaveform";
 import soundEffects from "@/utils/soundEffects";
+import { useSectionSoundEffects } from '@/utils/sectionSoundEffects';
 
 interface CTASectionProps {
   onStartForFree: () => void;
 }
 
 const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
+  const sectionRef = useSectionSoundEffects('cta', true, 'whoosh');
+  
+  // Enhance button handler with sound effect
+  const handleStartForFree = () => {
+    soundEffects.playClick('heavy');
+    onStartForFree();
+  };
+  
   return (
-    <section className="py-24 px-4 sm:px-8 relative">
+    <section 
+      ref={sectionRef}
+      id="cta" 
+      className="py-24 px-4 sm:px-8 relative"
+    >
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/20 via-black to-[#9D00FF]/20 z-0"></div>
       
@@ -54,7 +67,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
             rippleEffect={true}
             accessibilityLabel="Get started with NexVox"
             soundEffect="success"
-            onClick={onStartForFree}
+            onClick={handleStartForFree}
           />
         </div>
         
