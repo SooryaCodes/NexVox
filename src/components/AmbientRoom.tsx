@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef, useEffect, useState } from 'react';
 import { m } from 'framer-motion';
 import { gsap } from 'gsap';
@@ -24,12 +22,6 @@ const AmbientRoom = ({
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
-  const [isClient, setIsClient] = useState(false);
-  
-  // Set isClient to true when component mounts (client-side)
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
   
   // Get room type colors and icons
   const getRoomTypeDetails = () => {
@@ -132,7 +124,7 @@ const AmbientRoom = ({
 
   // Animate sound wave
   useEffect(() => {
-    if (!isClient || !soundwaveRef.current) return;
+    if (!soundwaveRef.current) return;
     
     const bars = soundwaveRef.current.querySelectorAll('.sound-bar');
     
@@ -153,11 +145,11 @@ const AmbientRoom = ({
     return () => {
       gsap.killTweensOf(bars);
     };
-  }, [isClient]);
-
+  }, []);
+  
   // Create ambient particles animation
   useEffect(() => {
-    if (!isClient || !visualizerRef.current) return;
+    if (!visualizerRef.current) return;
     
     const visualizer = visualizerRef.current;
     const particles = 20;
@@ -208,24 +200,16 @@ const AmbientRoom = ({
     return () => {
       gsap.killTweensOf(visualizer.childNodes);
     };
-  }, [roomDetails.primaryColor, roomDetails.secondaryColor, isClient]);
-
-  // Only render client-side content when we're in the browser
-  if (!isClient) {
-    return (
-      <div 
-        className={`relative rounded-2xl overflow-hidden ${className}`}
-        style={{ 
-          background: `linear-gradient(135deg, ${roomDetails.primaryColor}10, ${roomDetails.secondaryColor}10)`,
-        }}
-      />
-    );
-  }
+  }, [roomDetails.primaryColor, roomDetails.secondaryColor]);
 
   return (
     <m.div
       ref={containerRef}
       className={`group relative rounded-2xl overflow-hidden ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      viewport={{ once: true }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
@@ -264,47 +248,120 @@ const AmbientRoom = ({
         }}
       >
         {/* Room header */}
-        <div className="flex items-center justify-between mb-auto">
-          <div className="flex items-center">
-            <div className="mr-3 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ color: roomDetails.primaryColor }}>
-              {roomDetails.icon}
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div 
+                className="w-6 h-6 rounded-full flex items-center justify-center" 
+                style={{ backgroundColor: `${roomDetails.primaryColor}20` }}
+              >
+                <div className="text-white">
+                  {roomDetails.icon}
+                </div>
+              </div>
+              <h3 
+                className="text-lg font-orbitron"
+                style={{ color: roomDetails.primaryColor }}
+              >
+                {roomName}
+              </h3>
             </div>
-            <h3 
-              className="text-lg font-orbitron"
-              style={{ color: roomDetails.primaryColor }}
-            >
-              {roomName}
-            </h3>
+            <p className="text-sm opacity-70 flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              <span>{participantCount} listening</span>
+            </p>
           </div>
           
-          {/* Participant count */}
-          <div className="bg-black/50 px-2 py-1 rounded-full text-xs flex items-center">
-            <span className="w-2 h-2 rounded-full bg-green-400 mr-1.5"></span>
-            <span>{participantCount}</span>
+          <div 
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors duration-300`}
+            style={{ 
+              backgroundColor: `${roomDetails.primaryColor}20`,
+              color: roomDetails.primaryColor
+            }}
+          >
+            {roomType.toUpperCase()}
           </div>
         </div>
         
-        {/* Audio visualizer at the bottom */}
-        <div className="mt-auto">
-          <div 
-            ref={soundwaveRef}
-            className="h-12 flex items-end justify-between space-x-0.5"
-          >
-            {/* Generate sound bars */}
-            {[...Array(30)].map((_, idx) => (
-              <div
-                key={idx}
-                className="sound-bar w-1 bg-gradient-to-t rounded-sm"
-                style={{ 
-                  height: `${10 + Math.random() * 20}px`,
-                  backgroundColor: idx % 2 === 0 ? roomDetails.primaryColor : roomDetails.secondaryColor,
-                  opacity: 0.6 + Math.random() * 0.4
-                }}
-              ></div>
-            ))}
+        {/* User avatars */}
+        <div className="flex -space-x-2 mb-6">
+          {[...Array(5)].map((_, i) => (
+            <div 
+              key={i} 
+              className="w-8 h-8 rounded-full border-2 border-black overflow-hidden"
+              style={{ 
+                background: `linear-gradient(135deg, ${i % 2 ? roomDetails.primaryColor : roomDetails.secondaryColor}, #000)` 
+              }}
+            >
+              <div className="w-full h-full flex items-center justify-center text-xs text-white font-bold">
+                {String.fromCharCode(65 + i)}
+              </div>
+            </div>
+          ))}
+          <div className="w-8 h-8 rounded-full bg-black/60 border-2 border-black flex items-center justify-center text-xs">
+            <span className="opacity-70">+{participantCount - 5}</span>
           </div>
         </div>
+        
+        {/* Audio visualizer */}
+        <div
+          ref={soundwaveRef}
+          className="mt-auto h-20 flex items-end justify-between px-4"
+        >
+          {[...Array(18)].map((_, i) => (
+            <div
+              key={i}
+              className="sound-bar w-1 h-5 rounded-t-sm"
+              style={{ 
+                backgroundColor: i % 2 === 0 
+                  ? roomDetails.primaryColor
+                  : roomDetails.secondaryColor,
+                opacity: 0.7
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Action buttons */}
+        <div className="mt-4 flex justify-between">
+          <div 
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors duration-300 cursor-pointer`}
+            style={{ 
+              backgroundColor: `${roomDetails.primaryColor}10`,
+              color: roomDetails.primaryColor
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+            </svg>
+            <span className="text-xs font-medium">Join Room</span>
+          </div>
+          
+          <div 
+            className="p-2 rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+            </svg>
+          </div>
+        </div>
+        
+        {/* Hover message */}
+        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'} transform ${isHovered ? 'translate-y-0' : 'translate-y-8'}`}>
+          <p className="text-center text-sm">Press to join this room</p>
+        </div>
       </m.div>
+      
+      {/* Border */}
+      <div 
+        className="absolute inset-0 rounded-2xl border border-white/10 pointer-events-none"
+        style={{
+          boxShadow: isHovered 
+            ? `0 0 20px 0 ${roomDetails.primaryColor}30` 
+            : 'none',
+          transition: 'box-shadow 0.3s ease'
+        }}
+      />
     </m.div>
   );
 };

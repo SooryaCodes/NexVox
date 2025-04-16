@@ -29,11 +29,6 @@ const AudioWaveform = ({
   const [barHeights, setBarHeights] = useState<number[]>([]);
   const requestRef = useRef<number | undefined>(undefined);
   const previousTimeRef = useRef<number | undefined>(undefined);
-  const [isClient, setIsClient] = useState(false);
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
   
   // Generate random heights for each bar
   useEffect(() => {
@@ -53,7 +48,7 @@ const AudioWaveform = ({
   
   // Animate the waveform
   useEffect(() => {
-    if (!isClient || !isPlaying) return;
+    if (!isPlaying) return;
     
     const animate = (time: number) => {
       if (previousTimeRef.current !== undefined) {
@@ -83,15 +78,11 @@ const AudioWaveform = ({
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [isPlaying, isClient]);
+  }, [isPlaying]);
   
   // Calculate the total width required
   const totalWidth = bars * (barWidth + gap) - gap;
   const scaleFactor = width / totalWidth;
-  
-  if (!isClient) {
-    return <div className={`flex items-center justify-center ${className}`} style={{ width, height }}></div>;
-  }
   
   return (
     <div className={`flex items-center justify-center ${className}`} style={{ width, height }}>

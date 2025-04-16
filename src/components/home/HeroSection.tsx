@@ -126,7 +126,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               height={80} 
               bars={100} 
               color="#FF00E6" 
-              activeColor="#00FFFF" 
+              activeColor="#FF00E6" 
               className="transform scale-75 md:scale-100 max-w-full"
             />
           </div>

@@ -13,12 +13,12 @@ const ExperienceSection: React.FC = () => {
   
   return (
     <section ref={sectionRef} id="rooms" className="py-24 px-4 sm:px-8 relative scanlines">
-      {/* Grid background */}
-      <div className="absolute inset-0 bg-grid"></div>
-      <div className="absolute inset-0 bg-black/50"></div>
+      {/* Grid background - Fixed z-index */}
+      <div className="absolute inset-0 bg-grid z-0"></div>
+      <div className="absolute inset-0 bg-black/50 z-1"></div>
       
       {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden z-2">
         {/* Accent dots */}
         <div className="absolute top-[15%] right-[20%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse"></div>
         <div className="absolute bottom-[25%] left-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse-slower"></div>
@@ -122,8 +122,8 @@ const ExperienceSection: React.FC = () => {
         }
         
         .bg-grid {
-          background-image: linear-gradient(to right, rgba(0, 255, 255, 0.07) 1px, transparent 1px),
-                           linear-gradient(to bottom, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
+          background-image: linear-gradient(to right, rgba(157, 0, 255, 0.05) 1px, transparent 1px),
+                           linear-gradient(to bottom, rgba(157, 0, 255, 0.05) 1px, transparent 1px);
           background-size: 25px 25px;
         }
       `}</style>
