@@ -6,21 +6,14 @@ import FuturisticButton from "@/components/FuturisticButton";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import AudioWaveform from "@/components/AudioWaveform";
 import soundEffects from "@/utils/soundEffects";
-import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 interface CTASectionProps {
   onStartForFree: () => void;
 }
 
 const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
-  const [sectionRef, isVisible] = useScrollAnimation<HTMLElement>({
-    threshold: 0.2,
-    once: true,
-    rootMargin: "0px 0px -10% 0px"
-  });
-  
   return (
-    <section ref={sectionRef} className="py-24 px-4 sm:px-8 relative">
+    <section className="py-24 px-4 sm:px-8 relative">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/20 via-black to-[#9D00FF]/20"></div>
       
@@ -40,7 +33,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
       </div>
       
       <div className="max-w-4xl mx-auto text-center relative z-10">
-        <div className={getAnimationClasses(isVisible, 'up')}>
+        <div data-aos="fade-up" data-aos-duration="800">
           <ShimmeringText
             text="Ready to Connect Globally?"
             className="text-3xl sm:text-4xl md:text-5xl font-orbitron mb-6"
@@ -52,7 +45,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
           </p>
         </div>
         
-        <div className={`mb-12 flex justify-center ${getAnimationClasses(isVisible, 'up', 150)}`}>
+        <div className="mb-12 flex justify-center" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
           <FuturisticButton 
             text="Start for Free" 
             type="neon"
@@ -66,7 +59,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
         </div>
         
         {/* Email subscription with sound effects */}
-        <div className={getAnimationClasses(isVisible, 'up', 300)}>
+        <div data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
           <GlassmorphicCard
             gradient="cyan-purple"
             className="py-6 px-6 sm:px-8 max-w-md mx-auto hover:shadow-[0_0_30px_rgba(0,255,255,0.2)] transition-all duration-300"
@@ -95,7 +88,12 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
         </div>
         
         {/* Waveform effect for CTA */}
-        <div className={`max-w-xl mx-auto mt-12 ${getAnimationClasses(isVisible, 'up', 450)}`}>
+        <div 
+          className="max-w-xl mx-auto mt-12"
+          data-aos="fade-up"
+          data-aos-duration="800"
+          data-aos-delay="400"
+        >
           <AudioWaveform 
             width={600} 
             height={100} 
@@ -106,17 +104,6 @@ const CTASection: React.FC<CTASectionProps> = ({ onStartForFree }) => {
           />
         </div>
       </div>
-      
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.7s ease-out;
-        }
-      `}</style>
     </section>
   );
 };

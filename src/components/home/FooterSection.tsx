@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { m } from "framer-motion";
 import Link from "next/link";
 import GlitchText from "@/components/GlitchText";
 import NeonGrid from "@/components/NeonGrid";
@@ -27,22 +26,15 @@ const FooterSection: React.FC = () => {
           
           <div className="mt-6 flex gap-4">
             {['X', 'F', 'I'].map((icon, index) => (
-              <m.a 
+              <a 
                 key={index}
                 href="#" 
-                className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#00FFFF] hover:text-[#00FFFF]"
-                whileHover={{ 
-                  scale: 1.1, 
-                  boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)",
-                  color: "#00FFFF",
-                  borderColor: "#00FFFF" 
-                }}
-                whileTap={{ scale: 0.95 }}
+                className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#00FFFF] hover:text-[#00FFFF] transition-all duration-300 hover:scale-110 hover:shadow-[0_0_10px_rgba(0,255,255,0.5)]"
                 onMouseEnter={() => soundEffects.playHover()}
                 onClick={() => soundEffects.playClick()}
               >
                 <span>{icon}</span>
-              </m.a>
+              </a>
             ))}
           </div>
         </div>
@@ -63,15 +55,13 @@ const FooterSection: React.FC = () => {
                        "#"}
                   key={itemIndex}
                 >
-                  <m.li 
-                    className="cursor-pointer animated-underline"
-                    whileHover={{ color: "#00FFFF", x: 5 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  <li 
+                    className="cursor-pointer animated-underline hover:text-[#00FFFF] hover:translate-x-2 transition-all duration-300"
                     onMouseEnter={() => soundEffects.playHover()}
                     onClick={() => soundEffects.playClick()}
                   >
                     {item}
-                  </m.li>
+                  </li>
                 </Link>
               ))}
             </ul>
@@ -87,15 +77,13 @@ const FooterSection: React.FC = () => {
               className="w-full bg-black border border-[#00FFFF]/30 rounded-md px-4 py-2 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] transition-all"
               aria-label="Email subscription"
             />
-            <m.button 
-              className="mt-2 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-2 w-full hover:opacity-90 font-orbitron" 
+            <button 
+              className="mt-2 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-2 w-full hover:opacity-90 font-orbitron transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(0,255,255,0.5)] active:scale-[0.98]" 
               aria-label="Subscribe"
-              whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)" }}
-              whileTap={{ scale: 0.98 }}
               onClick={() => soundEffects.loadAndPlay('subscribe-footer', '/audios/final-accept.mp3')}
             >
               Subscribe
-            </m.button>
+            </button>
           </div>
         </div>
       </div>

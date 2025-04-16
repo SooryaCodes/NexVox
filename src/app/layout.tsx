@@ -1,4 +1,5 @@
 import './globals.css'
+import 'aos/dist/aos.css';
 import type { Metadata } from 'next'
 import { usePathname } from 'next/navigation'
 import AnimationProvider from '@/components/AnimationProvider'
@@ -9,6 +10,7 @@ import FloatingChatbotController from '@/components/FloatingChatbotController'
 import { UserProvider } from '@/contexts/UserContext'
 import { FriendProvider } from '@/contexts/FriendContext'
 import Header from '@/components/Header'
+import AOSInit from '@/components/AOSInit'
 
 // Initialize the fonts
 const inter = Inter({
@@ -40,6 +42,7 @@ export default function RootLayout({
           <UserProvider>
             <FriendProvider>
               <SmoothScroll />
+              <AOSInit />
               
               <div className="flex flex-col min-h-screen">
                 <AnimationProvider>

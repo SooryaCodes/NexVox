@@ -1,29 +1,24 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import GlitchText from "@/components/GlitchText";
 import GlassmorphicCard from "@/components/GlassmorphicCard";
 import AppMockup from "@/components/AppMockup";
 import AudioWaveform from "@/components/AudioWaveform";
 import ShimmeringText from "@/components/ShimmeringText";
 import soundEffects from "@/utils/soundEffects";
-import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 const ExperienceSection: React.FC = () => {
-  const [sectionRef, isVisible] = useScrollAnimation<HTMLElement>({
-    threshold: 0.1,
-    once: true,
-    rootMargin: "0px 0px -10% 0px"
-  });
+  const sectionRef = useRef<HTMLElement>(null);
   
   return (
     <section ref={sectionRef} id="rooms" className="py-24 px-4 sm:px-8 relative scanlines">
-      {/* Grid background - Fixed z-index */}
-      <div className="absolute inset-0 bg-grid z-0"></div>
-      <div className="absolute inset-0 bg-black/50 z-1"></div>
+      {/* Grid background */}
+      <div className="absolute inset-0 bg-grid"></div>
+      <div className="absolute inset-0 bg-black/50"></div>
       
       {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden z-2">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Accent dots */}
         <div className="absolute top-[15%] right-[20%] w-2 h-2 rounded-full bg-[#FF00E6] opacity-70 shadow-[0_0_10px_#FF00E6] animate-pulse"></div>
         <div className="absolute bottom-[25%] left-[15%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse-slower"></div>
@@ -37,7 +32,7 @@ const ExperienceSection: React.FC = () => {
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className={getAnimationClasses(isVisible, 'up')}>
+        <div className="mb-16" data-aos="fade-up" data-aos-duration="800">
           <GlitchText
             text="Experience NexVox"
             className="text-3xl sm:text-4xl font-orbitron text-center mb-4"
@@ -51,7 +46,7 @@ const ExperienceSection: React.FC = () => {
         </div>
         
         <div className="grid md:grid-cols-2 gap-16 items-center">
-          <div className={`space-y-8 ${getAnimationClasses(isVisible, 'left', 150)}`}>
+          <div className="space-y-8" data-aos="fade-right" data-aos-duration="1000">
             <ShimmeringText
               text="Intuitive Interface"
               className="text-2xl sm:text-3xl font-orbitron mb-4 text-[#00FFFF]"
@@ -59,11 +54,11 @@ const ExperienceSection: React.FC = () => {
               as="h3"
             />
             
-            <p className="text-base sm:text-lg opacity-80">
+            <p className="text-base sm:text-lg opacity-80" data-aos="fade-up" data-aos-delay="200">
               Our interface is designed for seamless interaction. Experience a platform that responds to your needs with minimal learning curve.
             </p>
             
-            <div className="space-y-4">
+            <div className="space-y-4" data-aos="fade-up" data-aos-delay="300">
               {[
                 { id: 1, feature: "Simple room navigation" },
                 { id: 2, feature: "One-click microphone controls" },
@@ -73,6 +68,8 @@ const ExperienceSection: React.FC = () => {
                   key={item.id}
                   className="flex items-center gap-3 transition-all duration-300 hover:translate-x-2 hover:text-[#00FFFF]"
                   onMouseEnter={() => soundEffects.playHover()}
+                  data-aos="fade-up"
+                  data-aos-delay={300 + item.id * 100}
                 >
                   <span className="text-[#00FFFF]">✓</span>
                   <span>{item.feature}</span>
@@ -81,7 +78,7 @@ const ExperienceSection: React.FC = () => {
             </div>
             
             {/* Audio activity indicator */}
-            <div>
+            <div data-aos="fade-up" data-aos-delay="700">
               <p className="text-sm mb-2 opacity-60">Live voice activity</p>
               <AudioWaveform 
                 width={300} 
@@ -93,7 +90,12 @@ const ExperienceSection: React.FC = () => {
             </div>
           </div>
           
-          <div className={`transform transition-all duration-500 hover:scale-105 ${getAnimationClasses(isVisible, 'right', 200)}`}>
+          <div 
+            className="transform transition-all duration-500 hover:scale-105"
+            data-aos="fade-left"
+            data-aos-duration="1200"
+            data-aos-delay="300"
+          >
             <GlassmorphicCard
               gradient="cyan-purple"
               glowOnHover={true}
@@ -127,8 +129,8 @@ const ExperienceSection: React.FC = () => {
         }
         
         .bg-grid {
-          background-image: linear-gradient(to right, rgba(157, 0, 255, 0.05) 1px, transparent 1px),
-                           linear-gradient(to bottom, rgba(157, 0, 255, 0.05) 1px, transparent 1px);
+          background-image: linear-gradient(to right, rgba(0, 255, 255, 0.07) 1px, transparent 1px),
+                           linear-gradient(to bottom, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
           background-size: 25px 25px;
         }
       `}</style>

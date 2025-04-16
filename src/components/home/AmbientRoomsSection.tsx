@@ -2,7 +2,6 @@
 
 import React, { useRef, useState } from 'react';
 import { useRouter } from "next/navigation";
-import { m, useMotionValue, AnimatePresence } from "framer-motion";
 import ShimmeringText from "@/components/ShimmeringText";
 import AmbientRoom from "@/components/AmbientRoom";
 import FuturisticButton from "@/components/FuturisticButton";
@@ -93,7 +92,7 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <div>
+        <div data-aos="fade-up" data-aos-duration="800">
           <GlitchText
             text="Discover Ambient Rooms"
             className="text-3xl sm:text-4xl font-orbitron text-center mb-6"
@@ -120,22 +119,17 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
         
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
           {rooms.map((room, index) => (
-            <m.div
+            <div
               key={room.name}
-              className="rounded-xl overflow-hidden transform transition-all duration-300"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
+              className="rounded-xl overflow-hidden transform transition-all duration-300 hover:-translate-y-2"
+              data-aos="fade-up"
+              data-aos-duration="800"
+              data-aos-delay={index * 100}
               onMouseEnter={() => {
                 setHoveredRoom(room.name);
                 soundEffects.playHover();
               }}
               onMouseLeave={() => setHoveredRoom(null)}
-              whileHover={{ 
-                y: -10,
-                transition: { duration: 0.3 }
-              }}
             >
               <GlassmorphicCard
                 gradient="purple-pink"
@@ -163,17 +157,11 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
                       <h3 className="text-xl text-white font-orbitron mb-1">
                         <span className="relative">
                           {room.name}
-                          <AnimatePresence>
-                            {hoveredRoom === room.name && (
-                              <m.span 
-                                className="absolute -bottom-1 left-0 h-[2px] bg-gradient-to-r from-[#FF00E6] to-[#9D00FF]"
-                                initial={{ width: 0 }}
-                                animate={{ width: '100%' }}
-                                exit={{ width: 0 }}
-                                transition={{ duration: 0.3 }}
-                              />
-                            )}
-                          </AnimatePresence>
+                          {hoveredRoom === room.name && (
+                            <span 
+                              className="absolute -bottom-1 left-0 h-[2px] bg-gradient-to-r from-[#FF00E6] to-[#9D00FF] w-full"
+                            />
+                          )}
                         </span>
                       </h3>
                     </div>
@@ -199,34 +187,23 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
                         ];
                       
                         return (
-                          <m.div 
+                          <div 
                             key={i} 
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${avatarColors[i % avatarColors.length]} border border-black/30`}
-                            whileHover={{ 
-                              scale: 1.2, 
-                              boxShadow: '0 0 10px rgba(255, 0, 230, 0.6)' 
-                            }}
-                            initial={{ x: i * -5, scale: 0.9 }}
-                            animate={{ x: 0, scale: 1 }}
-                            transition={{ delay: i * 0.05 }}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${avatarColors[i % avatarColors.length]} border border-black/30 transition-transform duration-300 hover:scale-125 hover:shadow-[0_0_10px_rgba(255,0,230,0.6)]`}
+                            style={{ transform: `translateX(${i * -5}px)` }}
                           >
                             {String.fromCharCode(65 + i)}
-                          </m.div>
+                          </div>
                         );
                       })}
-                      <m.div 
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white bg-black/60 border border-[#FF00E6]/30"
-                        whileHover={{ scale: 1.2 }}
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white bg-black/60 border border-[#FF00E6]/30 transition-transform duration-300 hover:scale-110"
                       >
                         +{room.participants - 5}
-                      </m.div>
+                      </div>
                     </div>
                     
-                    <m.div 
-                      className="mt-auto"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
+                    <div className="mt-auto hover:scale-[1.03] transition-transform duration-300 active:scale-[0.97]">
                       <FuturisticButton
                         text="Join Room"
                         type="neon"
@@ -235,31 +212,29 @@ const AmbientRoomsSection: React.FC<AmbientRoomsSectionProps> = ({ onExploreAllR
                         glitchEffect={true}
                         onClick={() => handleJoinRoom(room.id)}
                       />
-                    </m.div>
+                    </div>
                   </div>
                 </div>
               </GlassmorphicCard>
-            </m.div>
+            </div>
           ))}
         </div>
         
-        <m.div 
+        <div 
           className="mt-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          data-aos="fade-up"
+          data-aos-duration="800"
+          data-aos-delay="300"
         >
           <FuturisticButton 
             text="Explore All Rooms" 
-            type="neon"
-            rippleEffect={true}
+            type="secondary"
             glitchEffect={true}
             accessibilityLabel="Explore all ambient rooms"
+            soundEffect="click"
             onClick={onExploreAllRooms}
-            className="border border-[#FF00E6]/30 hover:border-[#FF00E6]/60"
           />
-        </m.div>
+        </div>
       </div>
     </section>
   );

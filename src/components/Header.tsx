@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { m, AnimatePresence } from 'framer-motion';
 import soundEffects from '@/utils/soundEffects';
 import { SoundToggle } from '@/components/SoundProvider';
-import { IoMenuOutline, IoClose, IoVolumeHigh, IoVolumeMute, IoLogInOutline, IoPersonAddOutline } from "react-icons/io5";
+import { IoMenuOutline, IoClose, IoLogInOutline, IoPersonAddOutline } from "react-icons/io5";
 import { useNavigation } from '@/hooks/useNavigation';
 import { throttle } from '@/utils/performance';
 
@@ -219,31 +219,41 @@ const Header = memo(() => {
             </div>
             
             {/* Auth buttons for all users */}
-            <div className="flex items-center space-x-4">
-              <div className="transform transition-transform hover:scale-105 duration-300">
+            <div className="flex items-center space-x-3">
+              <m.div
+                variants={buttonVariants}
+                initial="normal"
+                whileHover="hover"
+              >
                 <Link 
                   href="/login" 
-                  className="relative group px-5 py-2.5 text-sm rounded-md border border-[#00FFFF]/40 bg-black/50 text-[#00FFFF] flex items-center gap-2 overflow-hidden backdrop-blur-sm shadow-lg"
+                  className="px-5 py-2.5 text-sm rounded-md bg-black/50 border border-[#00FFFF]/40 text-[#00FFFF] hover:bg-[#00FFFF]/10 transition-all duration-300 backdrop-blur-sm flex items-center gap-2 shadow-[0_0_10px_rgba(0,255,255,0.1)] hover:shadow-[0_0_15px_rgba(0,255,255,0.3)]"
                   onClick={(e) => handleNavClick(e)}
                 >
-                  <span className="absolute inset-0 w-0 bg-gradient-to-r from-[#00FFFF]/20 to-transparent -skew-x-12 group-hover:w-full transform transition-all duration-300 ease-out"></span>
-                  <IoLogInOutline className="h-4 w-4 relative z-10" />
-                  <span className="relative z-10">Login</span>
+                  <IoLogInOutline className="h-4 w-4" />
+                  <span>Login</span>
                 </Link>
-              </div>
+              </m.div>
               
-              <div className="transform transition-transform hover:scale-105 duration-300">
+              <m.div
+                variants={buttonVariants}
+                initial="normal"
+                whileHover="hover"
+              >
                 <Link 
                   href="/register" 
-                  className="relative group px-5 py-2.5 text-sm rounded-md overflow-hidden bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] flex items-center gap-2 font-medium text-black shadow-lg"
+                  className="relative px-5 py-2.5 text-sm rounded-md overflow-hidden group"
                   onClick={(e) => handleNavClick(e)}
                 >
-                  <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300"></span>
-                  <IoPersonAddOutline className="h-4 w-4 relative z-10" />
-                  <span className="relative z-10">Register</span>
-                  <span className="absolute -inset-[1px] bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] rounded-md blur opacity-50 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-x"></span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] animate-gradient-x"></span>
+                  <span className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-20 transition-opacity"></span>
+                  <span className="relative flex items-center gap-2 font-medium">
+                    <IoPersonAddOutline className="h-4 w-4" />
+                    <span>Register</span>
+                  </span>
+                  <span className="absolute -inset-[2px] bg-gradient-to-r from-[#00FFFF] via-[#9D00FF] to-[#FF00E6] rounded-md blur-sm opacity-70 group-hover:opacity-100 transition-opacity"></span>
                 </Link>
-              </div>
+              </m.div>
             </div>
           </nav>
           
@@ -297,10 +307,10 @@ const Header = memo(() => {
               ))}
               
               {/* Auth buttons in mobile menu */}
-              <div className="mt-4 grid grid-cols-2 gap-3 px-4 pb-2">
+              <div className="mt-4 grid grid-cols-2 gap-2 px-4 pb-2">
                 <Link
                   href="/login"
-                  className="py-2.5 text-center rounded-md border border-[#00FFFF]/40 bg-black/30 text-[#00FFFF] flex items-center justify-center gap-2 backdrop-blur-sm"
+                  className="py-2 text-center rounded-md border border-[#0ff]/60 text-[#0ff] flex items-center justify-center gap-2"
                   onClick={(e) => handleNavClick(e, true)}
                 >
                   <IoLogInOutline className="h-4 w-4" />
@@ -308,7 +318,7 @@ const Header = memo(() => {
                 </Link>
                 <Link
                   href="/register"
-                  className="py-2.5 text-center rounded-md bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-black font-medium flex items-center justify-center gap-2 shadow-md"
+                  className="py-2 text-center rounded-md bg-gradient-to-r from-[#0ff] to-[#9D00FF] text-black font-medium flex items-center justify-center gap-2"
                   onClick={(e) => handleNavClick(e, true)}
                 >
                   <IoPersonAddOutline className="h-4 w-4" />

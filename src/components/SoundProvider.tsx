@@ -170,7 +170,7 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-// Sound toggle button component with improved icons
+// Sound toggle button component
 export const SoundToggle: React.FC = () => {
   const { soundsEnabled, setSoundsEnabled } = useSoundContext();
 
@@ -187,20 +187,24 @@ export const SoundToggle: React.FC = () => {
     <div className="relative group">
       <button
         onClick={toggleSound}
-        className="flex items-center justify-center p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/20 hover:border-[#00FFFF]/50 transition-colors hover:bg-[#00FFFF]/10"
+        className="flex items-center justify-center p-2.5 rounded-full bg-black/40 backdrop-blur-md border border-[#00FFFF]/20 hover:border-[#00FFFF]/50 transition-all duration-300 hover:bg-[#00FFFF]/10 shadow-[0_0_10px_rgba(0,255,255,0.1)] hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]"
         aria-label={soundsEnabled ? "Mute sounds" : "Enable sounds"}
       >
         {soundsEnabled ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M18.95 5.05a9 9 0 010 13.9M12 8v8M9 12h6" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#00FFFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 6L8 10H4V14H8L12 18V6Z" fill="none" />
+            <path d="M17.5 12C17.5 10.57 16.83 9.3 15.8 8.5" stroke="currentColor" strokeLinecap="round" />
+            <path d="M21 12C21 8.17 18.52 4.96 15.2 4" stroke="currentColor" strokeLinecap="round" />
           </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#FF00E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15.414a2 2 0 11-2.828-2.828L5.586 15.414zM12 6v12M18 12H6" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#FF00E6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 6L8 10H4V14H8L12 18V6Z" fill="none" />
+            <path d="M16 9L20 13" stroke="currentColor" strokeLinecap="round" />
+            <path d="M20 9L16 13" stroke="currentColor" strokeLinecap="round" />
           </svg>
         )}
       </button>
-      <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-32 p-2 bg-black/80 backdrop-blur-md rounded border border-[#00FFFF]/30 text-xs text-center text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+      <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-32 p-2 bg-black/80 backdrop-blur-md rounded-md border border-[#00FFFF]/30 text-xs text-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50">
         {soundsEnabled ? "Sound On" : "Sound Off"}
       </div>
     </div>

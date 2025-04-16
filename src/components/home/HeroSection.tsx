@@ -8,7 +8,6 @@ import AnimatedTitle from "@/components/AnimatedTitle";
 import NeonGrid from "@/components/NeonGrid";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import soundEffects from "@/utils/soundEffects";
-import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 interface HeroSectionProps {
   onExploreRooms: () => void;
@@ -19,12 +18,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   onExploreRooms,
   onLearnMore
 }) => {
-  const [heroRef, isVisible] = useScrollAnimation<HTMLDivElement>({
-    threshold: 0.1,
-    once: true,
-    rootMargin: "0px",
-    direction: "fade"
-  });
+  const heroRef = useRef<HTMLDivElement>(null);
   
   const headlines = [
     "Connect Globally with NexVox",
@@ -90,7 +84,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       
       <div className="max-w-7xl mx-auto text-center z-10 pt-16 relative">
         {/* Text content - reduce vertical padding to center better */}
-        <div className={`mb-6 sm:mb-8 ${getAnimationClasses(isVisible, 'up')}`}>
+        <div className="mb-6 sm:mb-8" data-aos="fade-up" data-aos-duration="1000">
           <AnimatedTitle 
             titles={headlines} 
             className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-[#00FFFF] font-orbitron glow mb-3 sm:mb-4" 
@@ -104,7 +98,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
         
         {/* Move buttons above waveform */}
-        <div className={`flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center items-center mb-8 ${getAnimationClasses(isVisible, 'up', 100)}`}>
+        <div 
+          className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-center items-center mb-8"
+          data-aos="fade-up"
+          data-aos-duration="800"
+          data-aos-delay="200"
+        >
           <FuturisticButton 
             text="Explore Rooms" 
             type="neon"
@@ -124,7 +123,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
         
         {/* Audio waveform visualization */}
-        <div className={`mt-6 ${getAnimationClasses(isVisible, 'up', 200)}`}>
+        <div 
+          className="mt-6"
+          data-aos="fade-up"
+          data-aos-duration="800"
+          data-aos-delay="400"
+        >
           <p className="text-sm mb-2 opacity-60">Live global audio activity</p>
           <div className="flex justify-center">
             <AudioWaveform 
@@ -138,8 +142,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
           
           {/* Move scroll indicator below waveform */}
-          <div className={`mt-10 flex justify-center items-center ${getAnimationClasses(isVisible, 'fade', 300)}`}>
-            <div className="flex flex-col items-center">
+          <div className="mt-10 flex justify-center items-center">
+            <div 
+              className="flex flex-col items-center"
+              data-aos="fade-up"
+              data-aos-delay="600"
+              data-aos-duration="1000"
+            >
               <p className="mb-3 text-sm font-orbitron tracking-wider text-[#00FFFF]/80">SCROLL TO EXPLORE</p>
               
               {/* Cyberpunk styled scroll indicator */}

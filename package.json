@@ -15,6 +15,7 @@
     "@studio-freight/lenis": "^1.0.42",
     "@uidotdev/usehooks": "^2.4.1",
     "aceternity-ui": "^0.2.2",
+    "aos": "^2.3.4",
     "framer-motion": "^12.6.5",
     "gsap": "^3.12.7",
     "next": "15.3.0",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/aos": "^3.0.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

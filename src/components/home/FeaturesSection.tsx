@@ -1,16 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import GlitchText from "@/components/GlitchText";
 import FeatureCard from "@/components/FeatureCard";
 import { features } from '@/data/features';
-import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 const FeaturesSection: React.FC = () => {
-  const [featuresRef, isVisible] = useScrollAnimation<HTMLElement>({
-    threshold: 0.3,
-    once: true
-  });
+  const featuresRef = useRef<HTMLElement>(null);
 
   return (
     <section 
@@ -32,7 +28,10 @@ const FeaturesSection: React.FC = () => {
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className={getAnimationClasses(isVisible, 'up')}>
+        <div
+          data-aos="fade-up" 
+          data-aos-duration="1000"
+        >
           <GlitchText
             text="Experience the Future of Voice"
             className="text-3xl sm:text-4xl font-orbitron text-center mb-16"
@@ -46,7 +45,9 @@ const FeaturesSection: React.FC = () => {
           {features.map((feature, index) => (
             <div 
               key={feature.title}
-              className={getAnimationClasses(isVisible, 'up', 200, index)}
+              data-aos="fade-up"
+              data-aos-delay={index * 100}
+              data-aos-duration="800"
             >
               <FeatureCard
                 title={feature.title}
@@ -72,4 +73,4 @@ const FeaturesSection: React.FC = () => {
   );
 };
 
-export default FeaturesSection;
+export default FeaturesSection; 

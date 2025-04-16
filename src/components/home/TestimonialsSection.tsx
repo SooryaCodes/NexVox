@@ -1,17 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import ShimmeringText from "@/components/ShimmeringText";
 import HolographicCard from "@/components/HolographicCard";
 import { testimonials } from '@/data/testimonials';
-import { useScrollAnimation, getAnimationClasses } from '@/utils/useScrollAnimation';
 
 const TestimonialsSection: React.FC = () => {
-  const [sectionRef, isVisible] = useScrollAnimation<HTMLElement>({
-    threshold: 0.1,
-    once: true,
-    rootMargin: "0px 0px -10% 0px"
-  });
+  const sectionRef = useRef<HTMLElement>(null);
   
   return (
     <section 
@@ -38,7 +33,10 @@ const TestimonialsSection: React.FC = () => {
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className={getAnimationClasses(isVisible, 'up')}>
+        <div
+          data-aos="fade-up"
+          data-aos-duration="800"
+        >
           <ShimmeringText
             text="What Users Say"
             className="text-3xl sm:text-4xl font-orbitron text-center mb-16"
@@ -51,7 +49,9 @@ const TestimonialsSection: React.FC = () => {
           {testimonials.map((testimonial, index) => (
             <div 
               key={testimonial.name}
-              className={getAnimationClasses(isVisible, 'up', 150, index)}
+              data-aos="fade-up"
+              data-aos-delay={index * 100}
+              data-aos-duration="800"
             >
               <HolographicCard className="p-6 h-full hover:scale-105 transition-transform duration-300">
                 <div className="flex flex-col h-full">
