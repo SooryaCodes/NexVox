@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import useSoundEffects from '@/hooks/useSoundEffects';
+import { forceBackgroundRefresh, multipleLayoutChanges, triggerResizeEvent } from '@/utils/triggerResize';
 
 interface LoadingScreenProps {
   isLoading: boolean;
@@ -24,6 +25,13 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   // Set isClient to true when component mounts in browser
   useEffect(() => {
     setIsClient(true);
+    
+    // Force background refresh immediately to ensure backgrounds are visible
+    forceBackgroundRefresh();
+    
+    // Also schedule a few more refreshes during initial load
+    setTimeout(forceBackgroundRefresh, 100);
+    setTimeout(forceBackgroundRefresh, 500);
   }, []);
 
   // Generate consistent particle data using useMemo
@@ -53,29 +61,33 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
       // Play additional loading sound
       playCustom('loading-process', '/audios/digital-load2.mp3');
       
+      // Schedule background refreshes during loading
+      const refreshTimeouts = [
+        setTimeout(forceBackgroundRefresh, 500),
+        setTimeout(forceBackgroundRefresh, 1500),
+        setTimeout(forceBackgroundRefresh, 2500)
+      ];
+      
       // Simulate loading progress
       const interval = setInterval(() => {
         setProgress(prev => {
           const newProgress = prev + Math.floor(Math.random() * 3) + 1;
+          
+          // Trigger background refresh at specific progress points
+          if (newProgress === 25 || newProgress === 50 || newProgress === 75) {
+            forceBackgroundRefresh();
+          }
           
           if (newProgress >= 100) {
             clearInterval(interval);
             // Play completion sound when reaching 100%
             playCustom('completion', '/audios/accept-loading-resolve.mp3');
             
-            // Apply background styles manually to all sections
-            document.querySelectorAll('.bg-grid').forEach(el => {
-              const element = el as HTMLElement;
-              element.style.backgroundImage = `
-                linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px)`;
-              element.style.backgroundSize = '30px 30px';
-            });
+            // Force background refresh before completion
+            forceBackgroundRefresh();
             
-            // Ensure all animated elements are visible
-            document.querySelectorAll('.animate-pulse, .animate-pulse-slow, .animate-pulse-slower').forEach(el => {
-              (el as HTMLElement).style.opacity = '1';
-            });
+            // More aggressive multiple layout changes to ensure everything is visible
+            multipleLayoutChanges(10, 50);
             
             // Set timeout to hide loading screen after completion effect
             setTimeout(() => {
@@ -83,19 +95,16 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
               
               // Callback to parent when loading is complete
               if (onLoadingComplete) {
-                // Apply styles before letting parent know loading is complete
+                // Final refresh before completing
+                forceBackgroundRefresh();
+                
+                // Delay slightly to ensure everything is ready
                 setTimeout(() => {
-                  // Fix backgrounds directly
-                  const features = document.getElementById('features');
-                  if (features) {
-                    features.style.backgroundImage = `
-                      linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px)`;
-                    features.style.backgroundSize = '30px 30px';
-                  }
-                  
                   onLoadingComplete();
-                }, 0);
+                  
+                  // One final refresh after component is visible
+                  setTimeout(forceBackgroundRefresh, 300);
+                }, 100);
               }
               
               // Stop and cleanup audio
@@ -119,6 +128,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
       
       return () => {
         clearInterval(interval);
+        refreshTimeouts.forEach(clearTimeout);
         if (audioRef.current) {
           audioRef.current.pause();
           audioRef.current = null;
@@ -153,6 +163,10 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
           transition={{ duration: 0.8 }}
           className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
           ref={loadingRef}
+          onAnimationComplete={() => {
+            // Trigger resize when animation completes
+            triggerResizeEvent();
+          }}
         >
           {/* Particle background effect */}
           <div className="absolute inset-0 overflow-hidden">

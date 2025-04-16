@@ -4,45 +4,59 @@ import React, { useRef, useEffect } from 'react';
 import GlitchText from "@/components/GlitchText";
 import FeatureCard from "@/components/FeatureCard";
 import { features } from '@/data/features';
+import { forceBackgroundRefresh, triggerResizeEvent } from '@/utils/triggerResize';
 
 const FeaturesSection: React.FC = () => {
   const featuresRef = useRef<HTMLElement>(null);
-  
-  
+
+  // Ensure background elements are visible
+  useEffect(() => {
+    // Force refresh when the component mounts
+    forceBackgroundRefresh();
+    
+    // Add intersection observer to trigger refresh when section comes into view
+    if (featuresRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // When section comes into view, force background refresh
+              forceBackgroundRefresh();
+              
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      
+      observer.observe(featuresRef.current);
+      
+      return () => {
+        if (featuresRef.current) {
+          observer.unobserve(featuresRef.current);
+        }
+      };
+    }
+  }, []);
+
   return (
     <section 
       ref={featuresRef} 
       id="features" 
       className="py-24 px-4 sm:px-8 relative bg-grid"
-      style={{
-        backgroundImage: `linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-                         linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px)`,
-        backgroundSize: '30px 30px',
-      }}
+      onMouseEnter={() => triggerResizeEvent()} // Trigger resize on mouse enter as fallback
     >
       {/* Background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-[#9D00FF]/10 to-black z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-[#9D00FF]/10 to-black"></div>
       
       {/* Animated accent dots */}
-      <div 
-        className="absolute top-[10%] right-[15%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slow z-1"
-        style={{ opacity: 1 }}
-      ></div>
-      <div 
-        className="absolute bottom-[20%] left-[10%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse-slower z-1"
-        style={{ opacity: 1 }}
-      ></div>
+      <div className="absolute top-[10%] right-[15%] w-2 h-2 rounded-full bg-[#9D00FF] opacity-70 shadow-[0_0_10px_#9D00FF] animate-pulse-slow"></div>
+      <div className="absolute bottom-[20%] left-[10%] w-2 h-2 rounded-full bg-[#00FFFF] opacity-70 shadow-[0_0_10px_#00FFFF] animate-pulse-slower"></div>
       
       {/* Animated vertical lines */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
-        <div 
-          className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#9D00FF]/30 to-transparent left-1/3 animate-pulse-slow"
-          style={{ opacity: 1 }}
-        ></div>
-        <div 
-          className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#00FFFF]/30 to-transparent right-1/3 animate-pulse-slower"
-          style={{ opacity: 1 }}
-        ></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#9D00FF]/30 to-transparent left-1/3 animate-pulse-slow"></div>
+        <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#00FFFF]/30 to-transparent right-1/3 animate-pulse-slower"></div>
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
@@ -78,6 +92,17 @@ const FeaturesSection: React.FC = () => {
           ))}
         </div>
       </div>
+      
+      {/* Style for animations */}
+      <style jsx global>{`
+        .bg-grid {
+          background-image: linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                           linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+          background-size: 30px 30px;
+          opacity: 1 !important; /* Force visibility */
+          visibility: visible !important;
+        }
+      `}</style>
     </section>
   );
 };

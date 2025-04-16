@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import FuturisticButton from "@/components/FuturisticButton";
 import ShimmeringText from "@/components/ShimmeringText";
 import AudioWaveform from "@/components/AudioWaveform";
@@ -8,6 +8,7 @@ import AnimatedTitle from "@/components/AnimatedTitle";
 import NeonGrid from "@/components/NeonGrid";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import soundEffects from "@/utils/soundEffects";
+import { forceBackgroundRefresh, triggerResizeEvent } from "@/utils/triggerResize";
 
 interface HeroSectionProps {
   onExploreRooms: () => void;
@@ -27,8 +28,41 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     "Connect Like Never Before"
   ];
 
+  // Ensure background elements are visible
+  useEffect(() => {
+    // Force refresh when the component mounts
+    forceBackgroundRefresh();
+    
+    // Add intersection observer to trigger refresh when section comes into view
+    if (heroRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // When section comes into view, force background refresh
+              forceBackgroundRefresh();
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      
+      observer.observe(heroRef.current);
+      
+      return () => {
+        if (heroRef.current) {
+          observer.unobserve(heroRef.current);
+        }
+      };
+    }
+  }, []);
+
   return (
-    <section ref={heroRef} className="relative min-h-screen p-4 sm:p-8 pt-16 grid place-items-center overflow-hidden">
+    <section 
+      ref={heroRef} 
+      className="relative min-h-screen p-4 sm:p-8 pt-16 grid place-items-center overflow-hidden"
+      onMouseEnter={() => triggerResizeEvent()} // Trigger resize on mouse enter as fallback
+    >
       {/* Enhanced backgrounds - ensure z-index is proper */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         {/* Particle background with animated dots */}
