@@ -5,182 +5,91 @@ import Link from "next/link";
 import GlitchText from "@/components/GlitchText";
 import NeonGrid from "@/components/NeonGrid";
 import soundEffects from "@/utils/soundEffects";
-import { m } from 'framer-motion';
-import { FaGithub, FaTwitter, FaDiscord, FaEnvelope } from 'react-icons/fa';
 
-interface FooterSectionProps {
-  onNavigate?: (route: string) => boolean;
-}
-
-const FooterSection = ({ onNavigate }: FooterSectionProps) => {
-  // Links with href and label
-  const mainLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/rooms', label: 'Rooms' },
-    { href: '/about', label: 'About' },
-    { href: '/faq', label: 'FAQ' },
-  ];
-  
-  const legalLinks = [
-    { href: '/privacy', label: 'Privacy Policy' },
-    { href: '/terms', label: 'Terms of Service' },
-    { href: '/cookies', label: 'Cookie Policy' },
-  ];
-  
-  const socialLinks = [
-    { href: 'https://github.com', icon: <FaGithub className="w-5 h-5" />, label: 'GitHub' },
-    { href: 'https://twitter.com', icon: <FaTwitter className="w-5 h-5" />, label: 'Twitter' },
-    { href: 'https://discord.com', icon: <FaDiscord className="w-5 h-5" />, label: 'Discord' },
-    { href: 'mailto:contact@nexvox.com', icon: <FaEnvelope className="w-5 h-5" />, label: 'Email' },
-  ];
-
-  // Custom link handler to use the navigation hook
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // Skip for external links
-    if (href.startsWith('http') || href.startsWith('mailto:')) {
-      return;
-    }
-    
-    e.preventDefault();
-    
-    // Use navigation handler if provided
-    if (onNavigate && onNavigate(href)) {
-      return; // Navigation handled by the custom handler
-    }
-    
-    // Otherwise use normal navigation (link's default behavior)
-    window.location.href = href;
-  };
-
+const FooterSection: React.FC = () => {
   return (
-    <footer className="bg-black border-t border-gray-800 mt-20">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-1">
-            <m.div 
-              className="mb-6"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <Link 
-                href="/" 
-                className="font-orbitron text-2xl font-bold text-[#0ff] glow"
-                onClick={(e) => handleLinkClick(e, '/')}
+    <footer className="py-16 px-4 sm:px-8 relative border-t border-white/10">
+      <div className="absolute inset-0 opacity-10">
+        <NeonGrid color="#9D00FF" secondaryColor="#00FFFF" density={40} opacity={0.1} />
+      </div>
+      
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
+        <div>
+          <GlitchText
+            text="NexVox"
+            className="font-orbitron text-xl mb-4"
+            color="cyan"
+            intensity="low"
+            activeOnHover={true}
+          />
+          <p className="opacity-70">Your next-generation voice communication platform.</p>
+          
+          <div className="mt-6 flex gap-4">
+            {['X', 'F', 'I'].map((icon, index) => (
+              <a 
+                key={index}
+                href="#" 
+                className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-[#00FFFF] hover:text-[#00FFFF] transition-all duration-300 hover:scale-110 hover:shadow-[0_0_10px_rgba(0,255,255,0.5)]"
+                onMouseEnter={() => soundEffects.playHover()}
+                onClick={() => soundEffects.playClick()}
               >
-                Nex<span className="text-purple-400">Vox</span>
-              </Link>
-              <p className="mt-2 text-sm text-gray-400">
-                Next-generation voice communication for the modern web.
-              </p>
-            </m.div>
-            
-            <m.div 
-              className="flex space-x-4"
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              {socialLinks.map((link) => (
-                <a 
-                  key={link.label}
-                  href={link.href}
-                  className="text-gray-400 hover:text-[#0ff] transition-colors duration-300"
-                  aria-label={link.label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {link.icon}
-                </a>
-              ))}
-            </m.div>
-          </div>
-          
-          <div className="col-span-1 md:col-span-1">
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <h3 className="text-[#0ff] text-lg font-medium mb-4">Main Links</h3>
-              <ul className="space-y-2">
-                {mainLinks.map((link) => (
-                  <li key={link.label}>
-                    <Link 
-                      href={link.href} 
-                      className="text-gray-400 hover:text-white hover:underline transition-colors duration-300"
-                      onClick={(e) => handleLinkClick(e, link.href)}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </m.div>
-          </div>
-          
-          <div className="col-span-1 md:col-span-1">
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <h3 className="text-[#0ff] text-lg font-medium mb-4">Legal</h3>
-              <ul className="space-y-2">
-                {legalLinks.map((link) => (
-                  <li key={link.label}>
-                    <Link 
-                      href={link.href} 
-                      className="text-gray-400 hover:text-white hover:underline transition-colors duration-300"
-                      onClick={(e) => handleLinkClick(e, link.href)}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </m.div>
-          </div>
-          
-          <div className="col-span-1 md:col-span-1">
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <h3 className="text-[#0ff] text-lg font-medium mb-4">Subscribe</h3>
-              <p className="text-gray-400 text-sm mb-4">Stay updated with our latest features and releases.</p>
-              <form className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="px-4 py-2 bg-gray-900 text-white rounded-l-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#0ff] focus:border-transparent flex-grow"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-black font-medium rounded-r-md hover:opacity-90 transition-opacity duration-300"
-                >
-                  Join
-                </button>
-              </form>
-            </m.div>
+                <span>{icon}</span>
+              </a>
+            ))}
           </div>
         </div>
         
-        <m.div 
-          className="pt-8 mt-8 border-t border-gray-800 text-center text-sm text-gray-400"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <p>© {new Date().getFullYear()} NexVox. All rights reserved.</p>
-        </m.div>
+        {[
+          { title: "Product", items: ["Features", "Rooms", "Community", "Pricing"] },
+          { title: "Company", items: ["About", "Blog", "Careers", "Contact"] }
+        ].map((column, colIndex) => (
+          <div key={colIndex}>
+            <h4 className="font-orbitron mb-4">{column.title}</h4>
+            <ul className="flex flex-col space-y-2 opacity-70">
+              {column.items.map((item, itemIndex) => (
+                <Link 
+                  href={item === "Rooms" ? "/rooms" : 
+                       item === "Features" ? "/#features" :
+                       item === "Community" ? "/#testimonials" :
+                       item === "About" ? "/#how-it-works" : 
+                       "#"}
+                  key={itemIndex}
+                >
+                  <li 
+                    className="cursor-pointer animated-underline hover:text-[#00FFFF] hover:translate-x-2 transition-all duration-300"
+                    onMouseEnter={() => soundEffects.playHover()}
+                    onClick={() => soundEffects.playClick()}
+                  >
+                    {item}
+                  </li>
+                </Link>
+              ))}
+            </ul>
+          </div>
+        ))}
+        
+        <div>
+          <h4 className="font-orbitron mb-4">Stay Updated</h4>
+          <div className="relative mt-2">
+            <input 
+              type="email" 
+              placeholder="Your email" 
+              className="w-full bg-black border border-[#00FFFF]/30 rounded-md px-4 py-2 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF] transition-all"
+              aria-label="Email subscription"
+            />
+            <button 
+              className="mt-2 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF] text-white rounded-md px-4 py-2 w-full hover:opacity-90 font-orbitron transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(0,255,255,0.5)] active:scale-[0.98]" 
+              aria-label="Subscribe"
+              onClick={() => soundEffects.loadAndPlay('subscribe-footer', '/audios/final-accept.mp3')}
+            >
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/10 text-center opacity-60 text-sm">
+        © 2023 NexVox. All rights reserved.
       </div>
     </footer>
   );
