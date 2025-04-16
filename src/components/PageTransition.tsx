@@ -131,7 +131,6 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       // Immediately lock scrolling on page
       document.body.style.overflow = 'hidden';
       
-      let scrollInterval: ReturnType<typeof setInterval> | undefined;
       
       // Play sound effect with slight delay for better timing
       setTimeout(() => playTransitionSound(), 50);
@@ -140,8 +139,8 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
       setTransitionPhase('enter');
       
       // Execute scroll effect during transition
-      scrollInterval = executeScrollSequence();
-      
+      const scrollInterval = executeScrollSequence();
+
       // Phase 2: After delay, navigate and prepare exit animation
       const navigationTimeout = setTimeout(() => {
         // Ensure navigation happens
