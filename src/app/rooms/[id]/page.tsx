@@ -202,7 +202,8 @@ export default function RoomPage() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   
   const addToast = React.useCallback((message: string, type: 'success' | 'error' | 'warning' = 'success') => {
-    const id = Date.now().toString();
+    // Generate a more unique ID by combining timestamp with a random number
+    const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     setToasts(prev => [...prev, { id, message, type }]);
     
     setTimeout(() => {
@@ -926,6 +927,11 @@ export default function RoomPage() {
           {activeTab === TABS.SETTINGS && (
             <SettingsTab
               currentUser={currentUser}
+              addToast={addToast}
+              onSaveSettings={(settings) => {
+                // Handle settings save
+                addToast("Settings updated successfully", 'success');
+              }}
             />
           )}
           
@@ -1131,10 +1137,10 @@ export default function RoomPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-32 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-xl rounded-xl border border-[#00FFFF]/20 p-6 z-40 w-[90%] max-w-md shadow-[0_0_30px_rgba(0,255,255,0.2)]"
+            className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-xl rounded-xl border border-[#00FFFF]/20 p-4 z-40 w-[90%] max-w-md shadow-[0_0_30px_rgba(0,255,255,0.2)]"
           >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-orbitron text-[#00FFFF]">Spatial Audio Settings</h3>
+              <h3 className="text-lg font-orbitron text-[#00FFFF]">Audio Settings</h3>
               <button 
                 onClick={() => setIsAudioSettingsOpen(false)}
                 className="text-white/60 hover:text-white"
@@ -1145,71 +1151,16 @@ export default function RoomPage() {
               </button>
             </div>
             
-            <div className="space-y-6">
-              {/* Spatial Audio Toggle */}
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="text-white font-medium">Spatial Audio</div>
-                  <div className="text-white/60 text-sm">Experience 3D positional audio</div>
-                </div>
-                <m.button
-                  whileTap={{ scale: 0.9 }}
-                  className="w-12 h-6 bg-white/10 rounded-full relative"
-                  onClick={() => addToast("Spatial audio toggled", 'success')}
-                >
-                  <div className="absolute w-5 h-5 rounded-full bg-[#00FFFF] left-0.5 top-0.5 shadow-[0_0_8px_rgba(0,255,255,0.5)]"></div>
-                </m.button>
-              </div>
-              
-              {/* Input Device Selection */}
-              <div>
-                <label className="block text-white font-medium mb-2">Microphone</label>
-                <select className="w-full bg-black/50 border border-white/20 text-white rounded-md p-2 focus:border-[#00FFFF] focus:outline-none">
-                  <option>Default Microphone</option>
-                  <option>Headset Microphone</option>
-                  <option>External Microphone</option>
-                </select>
-              </div>
-              
-              {/* Output Device Selection */}
-              <div>
-                <label className="block text-white font-medium mb-2">Speaker</label>
-                <select className="w-full bg-black/50 border border-white/20 text-white rounded-md p-2 focus:border-[#00FFFF] focus:outline-none">
-                  <option>Default Speakers</option>
-                  <option>Headphones</option>
-                  <option>External Speakers</option>
-                </select>
-              </div>
-              
-              {/* Volume Slider */}
-              <div>
-                <label className="block text-white font-medium mb-2">Input Volume</label>
-                <div className="flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                  <div className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-                    <div className="h-full w-3/4 bg-gradient-to-r from-[#00FFFF] to-[#9D00FF]"></div>
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t border-white/10">
-                <m.button
-                  whileHover={{ scale: 1.03, boxShadow: "0 0 15px rgba(0, 255, 255, 0.3)" }}
-                  whileTap={{ scale: 0.97 }}
-                  className="w-full py-2 bg-gradient-to-r from-[#00FFFF]/20 to-[#9D00FF]/20 hover:from-[#00FFFF]/30 hover:to-[#9D00FF]/30 border border-[#00FFFF]/30 rounded-md text-[#00FFFF] font-medium"
-                  onClick={() => {
-                    setIsAudioSettingsOpen(false);
-                    addToast("Audio settings saved", 'success');
-                  }}
-                >
-                  Apply Settings
-                </m.button>
-              </div>
+            <div className="h-[70vh] overflow-y-auto">
+              <SettingsTab 
+                currentUser={currentUser} 
+                onSaveSettings={(settings) => {
+                  // Apply settings logic here
+                  setIsAudioSettingsOpen(false);
+                  addToast("Audio settings saved", 'success');
+                }}
+                addToast={addToast}
+              />
             </div>
           </m.div>
         )}
