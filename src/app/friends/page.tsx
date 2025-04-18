@@ -454,15 +454,7 @@ export default function FriendsPage() {
         )}
       </m.div>
       
-      {/* Ambient sound effect */}
-      {typeof window !== 'undefined' && (
-        <audio 
-          src="/audios/digital-blip.mp3" 
-          autoPlay 
-          loop
-          style={{ display: 'none' }}
-        />
-      )}
+     
     </div>
   );
 } 

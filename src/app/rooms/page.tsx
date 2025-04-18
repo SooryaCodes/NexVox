@@ -668,10 +668,6 @@ export default function RoomsPage() {
         </div>
       </div>
       
-      {/* Accessibility keyboard shortcuts info */}
-      <div className="fixed bottom-4 left-4 z-20 bg-black/80 backdrop-blur-md p-2 rounded-md text-xs text-white/50">
-        <span>Alt+C: Chat • Alt+S: Sidebar • Alt+N: Notifications</span>
-      </div>
       
       {/* Keyboard Shortcuts Modal */}
       {isShortcutsModalOpen && (

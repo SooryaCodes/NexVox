@@ -448,16 +448,7 @@ export default function FriendRequestsPage() {
           )}
         </AnimatePresence>
       </m.div>
-      
-      {/* Ambient sound effects */}
-      {typeof window !== 'undefined' && (
-        <audio 
-          src="/audios/digital-blip.mp3" 
-          autoPlay={typeof window !== 'undefined'} 
-          loop
-          style={{ display: 'none' }}
-        />
-      )}
+     
     </div>
   );
 } 
