@@ -121,6 +121,7 @@ export default function RoomPage() {
     showStartPrompt,
     isConversationActive,
     startConversation,
+    forceStartConversation,
     stopConversation,
     handleHandRaiseAcknowledgment
   } = useVoiceConversation({
@@ -163,8 +164,16 @@ export default function RoomPage() {
   
   // React to hand raising
   useEffect(() => {
-    handleHandRaiseAcknowledgment(handRaised);
-  }, [handRaised, handleHandRaiseAcknowledgment]);
+    // Only acknowledge hand raising if conversation is already active
+    // This prevents hand raising from automatically starting the conversation
+    if (isConversationActive) {
+      console.log("Hand raised - conversation is active, notifying conversation");
+      handleHandRaiseAcknowledgment(handRaised);
+    } else {
+      console.log("Hand raised - conversation is NOT active, ignoring");
+      // DO NOT call handleHandRaiseAcknowledgment here to avoid starting conversation
+    }
+  }, [handRaised, handleHandRaiseAcknowledgment, isConversationActive]);
 
   // Handle user hover with debouncing to prevent glitching
   const handleUserHoverWrapper = (user: User, mouseX: number, mouseY: number) => {
@@ -460,7 +469,13 @@ export default function RoomPage() {
         {/* Conversation start modal */}
         {showStartPrompt && (
           <ConversationStartModal 
-            onStart={startConversation}
+            onStart={() => {
+              console.log("START CONVERSATION CLICKED FROM MODAL!");
+              forceStartConversation();
+              console.log("forceStartConversation called directly from modal prop");
+              // Force immediate toast for verification
+              addToast("Starting conversation now...", "success");
+            }}
             playSound={playClick}
           />
         )}
