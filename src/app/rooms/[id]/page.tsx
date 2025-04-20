@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 
 // Import types
 import { Room, User, ChatMessage, TABS } from "@/types/room";
@@ -510,7 +510,7 @@ export default function RoomPage() {
         
         {/* Active speaker indicator */}
         {activeSpeakerIndex !== null && users[activeSpeakerIndex] && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -547,7 +547,7 @@ export default function RoomPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {toasts.map((toast) => (
