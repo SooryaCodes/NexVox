@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Import types
 import { Room, User, ChatMessage, TABS } from "@/types/room";
@@ -22,6 +22,7 @@ import MiniUserProfile from "@/components/rooms/voice/MiniUserProfile";
 import CyberToast from "@/components/rooms/voice/CyberToast";
 import RoomAudioSettings from "@/components/rooms/voice/RoomAudioSettings";
 import NeonGrid from "@/components/NeonGrid";
+import ConversationStartModal from "@/components/rooms/voice/ConversationStartModal";
 
 // Import hooks
 import { useRoomData } from "@/hooks/useRoomData";
@@ -30,6 +31,7 @@ import { useRoomToasts } from "@/hooks/useRoomToasts";
 import { useRoomSidebar } from "@/hooks/useRoomSidebar";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useUser } from "@/contexts/UserContext";
+import { useVoiceConversation } from "@/hooks/useVoiceConversation";
 
 // Import utility functions
 import {
@@ -51,7 +53,7 @@ export default function RoomPage() {
   const params = useParams<{ id: string }>();
 
   // Room data and loading state
-  const { room, loading, users, roomId, setRoomId, activeSpeakers } =
+  const { room, loading, users, roomId, setRoomId, activeSpeakers, setUsers } =
     useRoomData(params?.id);
 
   // Room toast notifications
@@ -79,6 +81,9 @@ export default function RoomPage() {
     avatarUrl: contextUser.avatarUrl,
     badges: contextUser.badges,
   });
+
+  // Add a new state for muted users
+  const [mutedUsers, setMutedUsers] = useState<number[]>([]);
 
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -109,9 +114,32 @@ export default function RoomPage() {
   const [selectedParticipant, setSelectedParticipant] = useState<User | null>(
     null
   );
-
-  // Add a new state for muted users
-  const [mutedUsers, setMutedUsers] = useState<number[]>([]);
+  
+  // Use the new voice conversation hook
+  const {
+    activeSpeakerIndex,
+    activeSpeakerPulse,
+    showStartPrompt,
+    isConversationActive,
+    startConversation,
+    stopConversation,
+    handleHandRaiseAcknowledgment
+  } = useVoiceConversation({
+    users,
+    mutedUsers,
+    currentUser,
+    room,
+    addToast
+  });
+  
+  // Enhanced hover stability
+  const [isHoverBlocked, setIsHoverBlocked] = useState(false);
+  
+  // Combine active speakers from AI and real users
+  const allActiveSpeakers = [...activeSpeakers];
+  if (activeSpeakerIndex !== null) {
+    allActiveSpeakers.push(activeSpeakerIndex);
+  }
 
   // Update room ID when params change
   useEffect(() => {
@@ -132,6 +160,22 @@ export default function RoomPage() {
       badges: contextUser.badges,
     });
   }, [contextUser]);
+  
+  // React to hand raising
+  useEffect(() => {
+    handleHandRaiseAcknowledgment(handRaised);
+  }, [handRaised, handleHandRaiseAcknowledgment]);
+
+  // Handle user hover with debouncing to prevent glitching
+  const handleUserHoverWrapper = (user: User, mouseX: number, mouseY: number) => {
+    if (isHoverBlocked) return;
+    
+    // Block hover events briefly to prevent rapid state changes
+    setIsHoverBlocked(true);
+    setTimeout(() => setIsHoverBlocked(false), 50);
+    
+    handleUserHover(user, mouseX, mouseY, setHoveredUser);
+  };
 
   // Wrapped handler functions using utility functions
   const handleSendMessageWrapper = (e: React.FormEvent) => {
@@ -169,10 +213,6 @@ export default function RoomPage() {
     );
   };
 
-  const handleUserHoverWrapper = (user: User, mouseX: number, mouseY: number) => {
-    handleUserHover(user, mouseX, mouseY, setHoveredUser);
-  };
-
   const handleUserHoverEndWrapper = () => {
     handleUserHoverEnd(setHoveredUser);
   };
@@ -203,6 +243,11 @@ export default function RoomPage() {
     } else {
       setMutedUsers([...mutedUsers, user.id]);
       addToast(`Muted ${user.name}`, "warning");
+      
+      // If this user is currently speaking and gets muted, stop their voice
+      if (activeSpeakerIndex !== null && users[activeSpeakerIndex]?.id === user.id) {
+        stopConversation();
+      }
     }
     setSelectedParticipant(null);
   };
@@ -223,8 +268,9 @@ export default function RoomPage() {
     <main className="min-h-screen bg-black text-white overflow-hidden relative">
       {/* Custom cursor */}
       <CustomCursor />
-   {/* NeonGrid background */}
-   <div className="absolute inset-0 z-1">
+      
+      {/* NeonGrid background */}
+      <div className="absolute inset-0 z-1">
         <NeonGrid 
           color="#FF00E6" 
           secondaryColor="#9D00FF" 
@@ -233,6 +279,7 @@ export default function RoomPage() {
           animate={true} 
         />
       </div>
+      
       {/* Background effects */}
       <div className="fixed inset-0 bg-grid opacity-10 z-0"></div>
       <div className="fixed inset-0 bg-gradient-to-br from-[#00FFFF]/5 via-black to-[#FF00E6]/5 z-0"></div>
@@ -241,7 +288,6 @@ export default function RoomPage() {
 
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
-
         {/* Subtle blobs */}
         <div className="absolute w-[450px] h-[450px] rounded-full bg-[#FF00E6]/5 blur-[100px] top-0 right-20"></div>
         <div className="absolute w-[350px] h-[350px] rounded-full bg-[#00FFFF]/5 blur-[80px] -bottom-20 left-10"></div>
@@ -250,6 +296,7 @@ export default function RoomPage() {
         <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#FF00E6]/30 to-transparent left-1/3 animate-pulse-slow"></div>
         <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#FF00E6]/20 to-transparent right-1/3 animate-pulse-slower"></div>
       </div>
+      
       {/* Room header */}
       <RoomHeader
         room={room}
@@ -270,7 +317,7 @@ export default function RoomPage() {
             {/* Room title and stats */}
             <RoomStatsDisplay
               room={room}
-              activeSpeakersCount={activeSpeakers.length}
+              activeSpeakersCount={allActiveSpeakers.length}
             />
 
             {/* Audio activity visualization */}
@@ -279,7 +326,7 @@ export default function RoomPage() {
             {/* 3D User avatars in circle layout */}
             <VoiceRoomContainer
               users={users}
-              activeSpeakers={activeSpeakers}
+              activeSpeakers={allActiveSpeakers}
               handRaised={handRaised}
               onUserHover={handleUserHoverWrapper}
               onUserHoverEnd={handleUserHoverEndWrapper}
@@ -356,7 +403,7 @@ export default function RoomPage() {
         toggleAiAssistant={toggleAiAssistantWrapper}
         users={users.map((user, index) => ({
           ...user,
-          isSpeaking: activeSpeakers.includes(index),
+          isSpeaking: allActiveSpeakers.includes(index),
         }))}
         onUserClick={(user: User) => {
           setSelectedParticipant(user);
@@ -404,6 +451,14 @@ export default function RoomPage() {
 
       {/* Modals and overlays */}
       <AnimatePresence mode="wait">
+        {/* Conversation start modal */}
+        {showStartPrompt && (
+          <ConversationStartModal 
+            onStart={startConversation}
+            playSound={playClick}
+          />
+        )}
+        
         {showUserProfile && (
           <UserProfileCard
             key="user-profile"
@@ -435,6 +490,48 @@ export default function RoomPage() {
             user={hoveredUser.user}
             position={hoveredUser.position}
           />
+        )}
+        
+        {/* Active speaker indicator */}
+        {activeSpeakerIndex !== null && users[activeSpeakerIndex] && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-black/60 backdrop-blur-md border border-[#00FFFF]/30 rounded-lg py-2 px-4 z-30"
+          >
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#00FFFF]/10 to-[#FF00E6]/10 border border-[#00FFFF]/50 flex items-center justify-center">
+                  {users[activeSpeakerIndex].avatarUrl ? (
+                    <img 
+                      src={users[activeSpeakerIndex].avatarUrl} 
+                      alt={users[activeSpeakerIndex].name} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold text-[#00FFFF]">
+                      {users[activeSpeakerIndex].name.charAt(0)}
+                    </span>
+                  )}
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#00FFFF] animate-ping"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#00FFFF] font-medium">{users[activeSpeakerIndex].name}</span>
+                <span className="text-white/70 text-sm">is speaking</span>
+                <div className="flex space-x-1">
+                  {[...Array(3)].map((_, i) => (
+                    <div 
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-[#00FFFF] animate-pulse" 
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    ></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
         )}
 
         {toasts.map((toast) => (

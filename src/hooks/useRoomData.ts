@@ -11,6 +11,7 @@ export function useRoomData(id: string | undefined) {
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeSpeakers, setActiveSpeakers] = useState<number[]>([]);
+  const [users, setUsers] = useState<User[]>(usersData);
   
   // Fetch room data
   useEffect(() => {
@@ -35,7 +36,7 @@ export function useRoomData(id: string | undefined) {
       const newActiveSpeakers: number[] = [];
       
       for (let i = 0; i < speakerCount; i++) {
-        const randomIndex = Math.floor(Math.random() * usersData.length);
+        const randomIndex = Math.floor(Math.random() * users.length);
         if (!newActiveSpeakers.includes(randomIndex)) {
           newActiveSpeakers.push(randomIndex);
         }
@@ -45,12 +46,13 @@ export function useRoomData(id: string | undefined) {
     }, 3000);
     
     return () => clearInterval(intervalId);
-  }, []);
+  }, [users]);
   
   return {
     room,
     loading,
-    users: usersData,
+    users,
+    setUsers,
     roomId,
     setRoomId,
     activeSpeakers
