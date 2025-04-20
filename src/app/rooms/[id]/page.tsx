@@ -31,6 +31,21 @@ import { useRoomSidebar } from "@/hooks/useRoomSidebar";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useUser } from "@/contexts/UserContext";
 
+// Import utility functions
+import {
+  handleSendMessage,
+  simulateResponse,
+  handleQuickReply,
+  simulateQuickReplyResponse,
+  handleAiAssistant,
+  toggleAiAssistant,
+  handleUserHover,
+  handleUserHoverEnd,
+  toggleUserProfile,
+  toggleAudioSettings,
+  toggleShareModal,
+} from "@/lib/singleRoomUtils";
+
 export default function RoomPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
@@ -55,19 +70,15 @@ export default function RoomPage() {
 
   // User contexts and states
   const { user: contextUser } = useUser();
-  const [currentUser, setCurrentUser] = useState(() => ({
-    id: 1,
-    name: contextUser.name || "You",
-    level: contextUser.level || 24,
-    status: contextUser.status || "online",
-    avatarType: contextUser.avatarType || "cyan",
-    avatarUrl: contextUser.avatarUrl || "",
-    badges: contextUser.badges || [
-      "Early Adopter",
-      "Spatial Audio Pro",
-      "Night Owl",
-    ],
-  }));
+  const [currentUser, setCurrentUser] = useState<User>({
+    id: contextUser.id,
+    name: contextUser.name,
+    level: contextUser.level,
+    status: contextUser.status,
+    avatarType: contextUser.avatarType,
+    avatarUrl: contextUser.avatarUrl,
+    badges: contextUser.badges,
+  });
 
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -108,231 +119,76 @@ export default function RoomPage() {
 
   // Update currentUser when contextUser changes
   useEffect(() => {
-    setCurrentUser((prev) => ({
-      ...prev,
-      name: contextUser.name || prev.name,
-      level: contextUser.level || prev.level,
-      status: contextUser.status || prev.status,
-      avatarType: contextUser.avatarType || prev.avatarType,
-      avatarUrl: contextUser.avatarUrl || prev.avatarUrl,
-      badges: contextUser.badges || prev.badges,
-    }));
+    setCurrentUser({
+      id: contextUser.id,
+      name: contextUser.name,
+      level: contextUser.level,
+      status: contextUser.status,
+      avatarType: contextUser.avatarType,
+      avatarUrl: contextUser.avatarUrl,
+      badges: contextUser.badges,
+    });
   }, [contextUser]);
 
-  // Chat handlers
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (chatInput.trim() === "") return;
-
-    const userMessage = chatInput.trim();
-    const newMessage: ChatMessage = {
-      message: userMessage,
-      isUser: true,
-      timestamp: new Date(),
-      userName: currentUser.name,
-    };
-
-    playClick();
-    setMessages((prev) => [...prev, newMessage]);
-    setChatInput("");
-    playSuccess();
-
-    if (isAiAssistantActive) {
-      handleAiAssistant(userMessage);
-    } else {
-      simulateResponse();
-    }
+  // Wrapped handler functions using utility functions
+  const handleSendMessageWrapper = (e: React.FormEvent) => {
+    handleSendMessage(
+      e,
+      chatInput,
+      setMessages,
+      setChatInput,
+      currentUser,
+      playClick,
+      playSuccess,
+      isAiAssistantActive,
+      (message) => handleAiAssistant(message, setIsAiTyping, setMessages),
+      () => simulateResponse(setMessages)
+    );
   };
 
-  const simulateResponse = () => {
-    setTimeout(() => {
-      const responses = [
-        "That's interesting!",
-        "I see what you mean",
-        "Thanks for sharing that",
-        "Good point!",
-        "I'll try that out",
-      ];
-      const randomResponse =
-        responses[Math.floor(Math.random() * responses.length)];
-      const aiMessage: ChatMessage = {
-        message: randomResponse,
-        isUser: false,
-        userName: "Alex",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-    }, 1000 + Math.random() * 2000);
+  const handleQuickReplyWrapper = (reply: string) => {
+    handleQuickReply(
+      reply,
+      setMessages,
+      setShowQuickReplies,
+      isAiAssistantActive,
+      (message) => handleAiAssistant(message, setIsAiTyping, setMessages),
+      (reply) => simulateQuickReplyResponse(reply, setMessages)
+    );
   };
 
-  const handleQuickReply = (reply: string) => {
-    setMessages([...messages, { message: reply, isUser: true }]);
-    setShowQuickReplies(false);
-
-    if (isAiAssistantActive) {
-      handleAiAssistant(reply);
-    } else {
-      simulateQuickReplyResponse(reply);
-    }
+  const toggleAiAssistantWrapper = () => {
+    toggleAiAssistant(
+      isAiAssistantActive,
+      setIsAiAssistantActive,
+      setMessages,
+      addToast
+    );
   };
 
-  const simulateQuickReplyResponse = (reply: string) => {
-    // Implementation from the original file
-    setTimeout(() => {
-      const responses = [
-        "Sure, you can find that in settings -> audio -> spatial",
-        "Let me help you, have you checked your input settings?",
-        "Yeah, it's been great! Looking forward to more sessions like this",
-        "We're discussing AI and the future of voice interfaces",
-        "No problem, take your time",
-        "Yes, this room is always open, 24/7",
-        "Go to your profile and click the avatar section to change it",
-        "You're welcome! Happy to help",
-      ];
-
-      // Logic to select appropriate response
-      const quickReplies = [
-        "How do I configure spatial audio?",
-        "Can someone help me with my microphone?",
-        "Great session today!",
-        "What's the topic?",
-        "Sorry, I'll be right back",
-        "Is this room available 24/7?",
-        "How do I change my avatar?",
-        "Thanks for the help!",
-      ];
-      const responseIndex = quickReplies.indexOf(reply);
-      const response =
-        responseIndex !== -1
-          ? responses[responseIndex]
-          : responses[Math.floor(Math.random() * responses.length)];
-
-      setMessages((prev) => [
-        ...prev,
-        { message: response, isUser: false, userName: "Moderator" },
-      ]);
-    }, 1000 + Math.random() * 2000);
+  const handleUserHoverWrapper = (user: User, mouseX: number, mouseY: number) => {
+    handleUserHover(user, mouseX, mouseY, setHoveredUser);
   };
 
-  const handleAiAssistant = (message: string) => {
-    setIsAiTyping(true);
-
-    // AI response logic moved to a hook or separate component
-    // This is simplified from the original implementation
-    setTimeout(() => {
-      const responses = {
-        spatial: [
-          "To configure spatial audio, go to Settings > Audio > Spatial positioning and adjust the sliders.",
-          "Spatial audio works best with headphones. Make sure they're properly connected and then enable it in audio settings.",
-        ],
-        microphone: [
-          "For microphone issues, check your browser permissions first, then verify your input device in settings.",
-          "Try selecting a different microphone input in your device settings, then refresh NexVox.",
-        ],
-        help: [
-          "I'm here to help! What specific feature are you having trouble with?",
-          "I can assist with room settings, audio configuration, and general NexVox features. Just let me know what you need.",
-        ],
-      };
-
-      let response: string;
-      const lowerMessage = message.toLowerCase();
-
-      if (
-        lowerMessage.includes("spatial") ||
-        lowerMessage.includes("audio position")
-      ) {
-        response =
-          responses.spatial[
-            Math.floor(Math.random() * responses.spatial.length)
-          ];
-      } else if (
-        lowerMessage.includes("mic") ||
-        lowerMessage.includes("microphone")
-      ) {
-        response =
-          responses.microphone[
-            Math.floor(Math.random() * responses.microphone.length)
-          ];
-      } else if (
-        lowerMessage.includes("help") ||
-        lowerMessage.includes("assist")
-      ) {
-        response =
-          responses.help[Math.floor(Math.random() * responses.help.length)];
-      } else {
-        const genericResponses = [
-          "I'm not sure I understand. Could you please rephrase your question?",
-          "I can help with room settings, audio configuration, and general questions about NexVox features.",
-        ];
-        response =
-          genericResponses[Math.floor(Math.random() * genericResponses.length)];
-      }
-
-      setIsAiTyping(false);
-      setMessages((prev) => [
-        ...prev,
-        { message: response, isUser: false, userName: "NexVox AI" },
-      ]);
-    }, 1500 + Math.random() * 1500);
+  const handleUserHoverEndWrapper = () => {
+    handleUserHoverEnd(setHoveredUser);
   };
 
-  const toggleAiAssistant = () => {
-    const newState = !isAiAssistantActive;
-    setIsAiAssistantActive(newState);
-
-    if (newState) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          message:
-            "NexVox AI Assistant is now active. How can I help you with your voice room experience?",
-          isUser: false,
-          userName: "NexVox AI",
-        },
-      ]);
-      addToast("AI Assistant activated", "success");
-    } else {
-      setMessages((prev) => [
-        ...prev,
-        {
-          message:
-            "AI Assistant has been deactivated. Regular chat mode is now active.",
-          isUser: false,
-          userName: "System",
-        },
-      ]);
-      addToast("AI Assistant deactivated", "warning");
-    }
+  const toggleUserProfileWrapper = () => {
+    toggleUserProfile(showUserProfile, setShowUserProfile, playClick);
   };
 
-  // User interaction handlers
-  const handleUserHover = (user: User, mouseX: number, mouseY: number) => {
-    setHoveredUser({ user, position: { x: mouseX, y: mouseY } });
+  const toggleAudioSettingsWrapper = () => {
+    toggleAudioSettings(
+      isAudioSettingsOpen,
+      setIsAudioSettingsOpen,
+      playClick,
+      addToast
+    );
   };
 
-  const handleUserHoverEnd = () => {
-    setHoveredUser({ user: null, position: { x: 0, y: 0 } });
-  };
-
-  // Toggle functions
-  const toggleUserProfile = () => {
-    playClick();
-    setShowUserProfile(!showUserProfile);
-  };
-
-  const toggleAudioSettings = () => {
-    const newSettingsState = !isAudioSettingsOpen;
-    setIsAudioSettingsOpen(newSettingsState);
-    playClick();
-    if (newSettingsState) {
-      addToast("Audio settings opened", "success");
-    }
-  };
-
-  const toggleShareModal = () => {
-    playClick();
-    setIsShareModalOpen(!isShareModalOpen);
+  const toggleShareModalWrapper = () => {
+    toggleShareModal(isShareModalOpen, setIsShareModalOpen, playClick);
   };
 
   if (loading) {
@@ -382,8 +238,8 @@ export default function RoomPage() {
       <RoomHeader
         room={room}
         currentUser={currentUser}
-        toggleAudioSettings={toggleAudioSettings}
-        toggleUserProfile={toggleUserProfile}
+        toggleAudioSettings={toggleAudioSettingsWrapper}
+        toggleUserProfile={toggleUserProfileWrapper}
         isAudioSettingsOpen={isAudioSettingsOpen}
       />
 
@@ -409,8 +265,8 @@ export default function RoomPage() {
               users={users}
               activeSpeakers={activeSpeakers}
               handRaised={handRaised}
-              onUserHover={handleUserHover}
-              onUserHoverEnd={handleUserHoverEnd}
+              onUserHover={handleUserHoverWrapper}
+              onUserHoverEnd={handleUserHoverEndWrapper}
             />
           </div>
         </div>
@@ -472,11 +328,11 @@ export default function RoomPage() {
         isAiTyping={isAiTyping}
         showQuickReplies={showQuickReplies}
         setShowQuickReplies={setShowQuickReplies}
-        handleSendMessage={handleSendMessage}
+        handleSendMessage={handleSendMessageWrapper}
         chatInput={chatInput}
         setChatInput={setChatInput}
-        handleQuickReply={handleQuickReply}
-        toggleAiAssistant={toggleAiAssistant}
+        handleQuickReply={handleQuickReplyWrapper}
+        toggleAiAssistant={toggleAiAssistantWrapper}
         users={users.map((user, index) => ({
           ...user,
           isSpeaking: activeSpeakers.includes(index),
@@ -512,7 +368,7 @@ export default function RoomPage() {
             addToast("Hand raised", "success");
           }
         }}
-        onToggleShare={toggleShareModal}
+        onToggleShare={toggleShareModalWrapper}
         onTabChange={(tab) => {
           playClick();
           setActiveTab(tab);
