@@ -14,6 +14,10 @@ Nexvox is a cutting-edge social platform that reimagines online communication th
 - **Immersive Voice Rooms**: Create and join voice rooms with spatial audio technology that simulates real-world sound positioning.
 - **Live Rooms**: Discover active conversations happening in real-time across different categories and interests.
 - **Ambient Rooms**: Background audio environments to enhance productivity, relaxation, or focus.
+- **Automated Voice Conversations**: Experience AI-powered voice conversations between participants with natural-sounding speech synthesis.
+- **Voice Customization**: Each participant gets a unique voice with customized pitch and rate variations for better identification.
+- **Hand Raise Recognition**: Raise your hand to be acknowledged in ongoing conversations with voice feedback.
+- **Dynamic Speaker Selection**: Intelligent speaker selection algorithm that prevents the same person from speaking twice in a row.
 - **Rich User Profiles**: Customizable profiles with detailed statistics and personalization options.
 - **Friend System**: Connect with others, see who's online, and join rooms together.
 - **Real-time Chat**: Text chat functionality within voice rooms for enhanced communication.
@@ -29,6 +33,7 @@ Nexvox is a cutting-edge social platform that reimagines online communication th
 - **Animations**: Framer Motion, GSAP, AOS (Animate On Scroll)
 - **Visual Effects**: TSParticles, React Parallax Tilt
 - **Audio**: Web Audio API with custom spatial audio implementation
+- **Speech Synthesis**: Web Speech API with custom voice assignment and management
 - **UI Components**: Custom components with MAGIC, ACETERNITY, REACTBITS UI integration
 
 ## 🏗️ Architecture
@@ -84,8 +89,8 @@ nexvox/
 │ │ ├── profile/ # User profiles
 │ │ ├── register/ # User registration
 │ │ ├── rooms/ # Voice room system
-│ │ │ ├── [roomId]/ # Dynamic route for single room page
-│ │ │ │ └── page.tsx # Individual room component
+│ │ │ ├── [id]/ # Dynamic route for single room page
+│ │ │ │ └── page.tsx # Individual room component with voice conversation
 │ │ │ └── page.tsx # Rooms listing component
 │ │ ├── settings/ # User settings
 │ │ ├── data/ # Data API routes
@@ -97,7 +102,16 @@ nexvox/
 │ │ ├── rooms/ # Room-related components
 │ │ │ ├── RoomCard.tsx # Room preview component
 │ │ │ ├── RoomControls.tsx # Audio controls for rooms
+│ │ │ ├── RoomShareModal.tsx # Modal for sharing room invites
 │ │ │ └── voice/ # Voice room components
+│ │ │   ├── RoomAudioVisualizer.tsx # Audio visualization component
+│ │ │   ├── RoomControlBar.tsx # Room control interface
+│ │ │   ├── SidebarPanel.tsx # Chat and participants sidebar
+│ │ │   ├── VoiceRoomContainer.tsx # Main room layout component
+│ │ │   ├── ConversationStartModal.tsx # UI for starting voice conversations
+│ │ │   ├── PublicUserProfileCard.tsx # User profile display in rooms
+│ │ │   ├── CyberToast.tsx # Notification system for room events
+│ │ │   └── ... (more voice room UI components)
 │ │ ├── chat/ # Chat interface components
 │ │ ├── Header.tsx # Navigation header
 │ │ ├── GlowButton.tsx # Custom button with glow effect
@@ -108,13 +122,28 @@ nexvox/
 │ │ ├── PageTransition.tsx # Page transition animations
 │ │ └── ... (35+ more UI components)
 │ ├── contexts/ # React Context providers
+│ │ ├── UserContext.tsx # User authentication and profile context
+│ │ └── ... (more context providers)
 │ ├── hooks/ # Custom React hooks
+│ │ ├── useRoomData.ts # Hook for room data management
+│ │ ├── useRoomControls.ts # Hook for room control state
+│ │ ├── useRoomToasts.ts # Hook for room notifications
+│ │ ├── useSoundEffects.ts # Hook for UI sound effects
+│ │ ├── useSpeechSynthesis.ts # Hook for text-to-speech functionality
+│ │ ├── useVoiceConversation.ts # Hook managing automated voice conversations
+│ │ └── ... (more custom hooks)
 │ ├── lib/ # Library code and utilities
+│ │ ├── singleRoomUtils.ts # Utility functions for room functionality
+│ │ └── ... (more utility libraries)
 │ ├── styles/ # Component-specific styles
 │ ├── types/ # TypeScript type definitions
+│ │ ├── room.ts # Types for room data and components
+│ │ ├── global.d.ts # Global type declarations
+│ │ └── ... (more type definitions)
 │ ├── utils/ # Utility functions
-│ ├── data/ # Data models and fixtures
-│ └── public/ # Static assets (internal)
+│ │ ├── backgroundForcer.ts # Utility for background effects
+│ │ └── ... (more utilities)
+│ └── data/ # Data models and fixtures
 ├── public/ # Public static assets
 │ ├── nexvox_image.png # Main application image
 │ ├── audios/ # Audio files
@@ -130,6 +159,29 @@ nexvox/
 ├── postcss.config.mjs # PostCSS configuration
 └── eslint.config.mjs # ESLint configuration                 
 ```
+
+## 🔊 Voice Conversation Feature
+
+The automated voice conversation feature creates engaging and interactive discussions between participants in a voice room:
+
+### Key Components:
+
+- **Speech Synthesis**: Leverages the Web Speech API to generate natural-sounding voices
+- **Voice Assignment**: Each participant is assigned a unique voice with subtle variations in pitch and rate
+- **Context-Aware Conversations**: Discussions follow natural conversation patterns based on room topics
+- **Hand Raise Integration**: Users can raise their hand to be acknowledged by the conversation system
+- **Fault Tolerance**: Robust error handling ensures conversation continuity even when speech synthesis encounters issues
+- **Dynamic Speaker Selection**: Intelligent algorithm prevents the same speaker from being selected twice in succession
+- **Conversation Threads**: Pre-defined conversation threads about relevant topics that guide the discussion
+
+### How It Works:
+
+1. Users join a voice room and can start an automated conversation
+2. The system assigns unique voices to each participant based on their user ID
+3. Conversations follow natural patterns with appropriate pauses between speakers
+4. The system monitors speech synthesis events to ensure smooth transition between speakers
+5. Users can interrupt by raising their hand, which is acknowledged by the system
+6. Conversations adapt to the room topic and maintain context throughout the session
 
 ## 🎨 Design Principles
 
@@ -147,7 +199,9 @@ Nexvox follows these core design principles:
 - AI-powered background noise cancellation
 - Virtual environment visualizers
 - Integration with external music streaming services
-- Multi-language support
+- Advanced voice modulation features 
+- Multi-language support for voice synthesis
+- Voice-to-text transcription for conversations
 
 ## ❤️ Acknowledgements
 
