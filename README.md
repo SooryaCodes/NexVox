@@ -148,6 +148,8 @@ Nexvox follows these core design principles:
 - Integration with external music streaming services
 - Multi-language support
 
-## 📜 License
+## ❤️ Acknowledgements
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+We extend our heartfelt gratitude to everyone who has explored and supported Nexvox. This project is crafted with passion and dedication by Soorya Krishna. 
+
+Feel free to connect with Soorya on [LinkedIn](https://www.linkedin.com/in/sooryakrishna) for more insights and updates.
