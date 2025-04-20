@@ -8,8 +8,6 @@ A next-generation voice room social media platform with immersive spatial audio 
 
 Nexvox is a cutting-edge social platform that reimagines online communication through voice rooms with spatial audio technology. Designed with a futuristic cyberpunk aesthetic, Nexvox offers users a unique way to connect through immersive audio experiences in virtual spaces.
 
-**Live URL**: [https://nexvox.vercel.app/](https://nexvox.vercel.app/)
-
 ## ✨ Key Features
 
 - **Immersive Voice Rooms**: Create and join voice rooms with spatial audio technology that simulates real-world sound positioning.
@@ -74,3 +72,82 @@ The application follows a modern React architecture with:
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🔍 Project Structure
+
+```
+nexvox/
+├── src/ # Source code directory
+│ ├── app/ # Next.js App Router pages
+│ │ ├── chats/ # Chat system pages
+│ │ ├── friends/ # Friend management pages
+│ │ ├── login/ # Authentication
+│ │ ├── profile/ # User profiles
+│ │ ├── register/ # User registration
+│ │ ├── rooms/ # Voice room system
+│ │ │ ├── [roomId]/ # Dynamic route for single room page
+│ │ │ │ └── page.tsx # Individual room component
+│ │ │ └── page.tsx # Rooms listing component
+│ │ ├── settings/ # User settings
+│ │ ├── data/ # Data API routes
+│ │ ├── globals.css # Global CSS styles
+│ │ ├── layout.tsx # Root layout component
+│ │ └── page.tsx # Homepage component
+│ ├── components/ # Reusable UI components
+│ │ ├── home/ # Homepage-specific components
+│ │ ├── rooms/ # Room-related components
+│ │ │ ├── RoomCard.tsx # Room preview component
+│ │ │ ├── RoomControls.tsx # Audio controls for rooms
+│ │ │ └── voice/ # Voice room components
+│ │ ├── chat/ # Chat interface components
+│ │ ├── Header.tsx # Navigation header
+│ │ ├── GlowButton.tsx # Custom button with glow effect
+│ │ ├── HolographicCard.tsx # Holographic card component
+│ │ ├── ParticlesBackground.tsx # Particle effects background
+│ │ ├── AudioWaveform.tsx # Audio visualization component
+│ │ ├── LoadingScreen.tsx # Loading state component
+│ │ ├── PageTransition.tsx # Page transition animations
+│ │ └── ... (35+ more UI components)
+│ ├── contexts/ # React Context providers
+│ ├── hooks/ # Custom React hooks
+│ ├── lib/ # Library code and utilities
+│ ├── styles/ # Component-specific styles
+│ ├── types/ # TypeScript type definitions
+│ ├── utils/ # Utility functions
+│ ├── data/ # Data models and fixtures
+│ └── public/ # Static assets (internal)
+├── public/ # Public static assets
+│ ├── nexvox_image.png # Main application image
+│ ├── audios/ # Audio files
+│ ├── assets/ # Other static assets
+│ ├── icons/ # Icon assets
+│ └── ... (favicon files and other assets)
+├── .next/ # Next.js build output
+├── node_modules/ # Package dependencies
+├── package.json # Project configuration
+├── package-lock.json # Dependency lock file
+├── tsconfig.json # TypeScript configuration
+├── next.config.ts # Next.js configuration
+├── postcss.config.mjs # PostCSS configuration
+└── eslint.config.mjs # ESLint configuration                 
+```
+
+## 🎨 Design Principles
+
+Nexvox follows these core design principles:
+
+1. **Immersive Experience**: Creating a sense of presence through spatial audio and visual design.
+2. **Intuitive Navigation**: Despite the futuristic aesthetics, the UX remains intuitive and accessible.
+3. **Performance First**: Optimized animations and effects to ensure smooth performance even on lower-end devices.
+4. **Visual Hierarchy**: Clear visual indicators for interactive elements and important information.
+5. **Responsive Design**: Fully functional across all device sizes with tailored experiences.
+
+## 🔮 Future Roadmap
+
+- End-to-end encryption for private rooms
+- AI-powered background noise cancellation
+- Virtual environment visualizers
+- Integration with external music streaming services
+- Multi-language support
+
+## 📜 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
