@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -111,9 +111,8 @@ export default function RoomPage() {
     user: null,
     position: { x: 0, y: 0 },
   });
-  const [selectedParticipant, setSelectedParticipant] = useState<User | null>(
-    null
-  );
+  const [selectedParticipant, setSelectedParticipant] = useState<User | null>(null);
+  const participantModalRef = useRef<HTMLDivElement>(null);
   
   // Use the new voice conversation hook
   const {
@@ -252,6 +251,15 @@ export default function RoomPage() {
     setSelectedParticipant(null);
   };
 
+  // Create a proper handler function that fixes the auto-closing modal issue
+  const handleUserProfileClick = useCallback((user: User) => {
+    // If the user is already selected, don't close the modal
+    if (selectedParticipant?.id === user.id) return;
+    
+    setSelectedParticipant(user);
+    addToast(`Viewing ${user.name}'s profile`, "success");
+  }, [selectedParticipant, addToast]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -331,10 +339,7 @@ export default function RoomPage() {
               onUserHover={handleUserHoverWrapper}
               onUserHoverEnd={handleUserHoverEndWrapper}
               mutedUsers={mutedUsers}
-              onUserClick={(user) => {
-                setSelectedParticipant(user);
-                addToast(`Viewing ${user.name}'s profile`, "success");
-              }}
+              onUserClick={handleUserProfileClick}
             />
           </div>
         </div>
@@ -468,20 +473,30 @@ export default function RoomPage() {
         )}
 
         {selectedParticipant && (
-          <PublicUserProfileCard
-            key={`public-profile-${selectedParticipant.id}`}
-            user={selectedParticipant}
-            onClose={() => setSelectedParticipant(null)}
-            onConnect={() => {
-              addToast(
-                `Connection request sent to ${selectedParticipant.name}`,
-                "success"
-              );
-              setSelectedParticipant(null);
+          <div 
+            ref={participantModalRef}
+            onClick={(e) => {
+              // Only close if clicking on the outer container, not on the modal itself
+              if (e.target === participantModalRef.current) {
+                setSelectedParticipant(null);
+              }
             }}
-            onMute={() => handleMuteUser(selectedParticipant)}
-            isMuted={mutedUsers.includes(selectedParticipant.id)}
-          />
+          >
+            <PublicUserProfileCard
+              key={`public-profile-${selectedParticipant.id}`}
+              user={selectedParticipant}
+              onClose={() => setSelectedParticipant(null)}
+              onConnect={() => {
+                addToast(
+                  `Connection request sent to ${selectedParticipant.name}`,
+                  "success"
+                );
+                setSelectedParticipant(null);
+              }}
+              onMute={() => handleMuteUser(selectedParticipant)}
+              isMuted={mutedUsers.includes(selectedParticipant.id)}
+            />
+          </div>
         )}
 
         {hoveredUser.user && (
