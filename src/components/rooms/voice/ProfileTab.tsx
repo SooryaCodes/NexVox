@@ -173,15 +173,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ currentUser: userProp, toggleUs
               {isEditing ? "Save Profile" : "Edit Profile"}
             </m.button>
           </div>
-          
-          <div className="pt-4 text-center">
-            <m.button 
-              className="text-[#FF00E6] text-sm hover:underline"
-              onClick={toggleUserProfile}
-            >
-              View Full Profile Card
-            </m.button>
-          </div>
+         
         </div>
       </div>
     </div>

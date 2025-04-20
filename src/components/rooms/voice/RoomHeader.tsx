@@ -72,20 +72,31 @@ export default function RoomHeader({
             whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(0, 255, 255, 0.2)" }}
             whileTap={{ scale: 0.95 }}
           >
-            <div className="w-8 h-8 rounded-full overflow-hidden border-2 flex items-center justify-center" 
-              style={{ 
-                borderColor: `${getAvatarStyle(currentUser.avatarType || "cyan")}`,
-                backgroundColor: `${getStatusColor(currentUser.status || "online")}`
+            <div className="w-8 h-8 rounded-full overflow-hidden border-2 flex items-center justify-center"
+              style={{
+                borderColor: getAvatarStyle(currentUser.avatarType || "cyan").borderColor,
+                background: getAvatarStyle(currentUser.avatarType || "cyan").background
               }}
             >
-              <Image
-                src={currentUser.avatarUrl || "/images/default-avatar.png"}
-                alt={currentUser.name}
-                width={32}
-                height={32}
-                className="w-full h-full object-cover"
-              />
+              {currentUser.avatarUrl ? (
+                <Image
+                  src={currentUser.avatarUrl}
+                  alt={currentUser.name || "User"}
+                  width={32}
+                  height={32}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-sm font-bold" style={{ color: getAvatarStyle(currentUser.avatarType || "cyan").color }}>
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
+                </span>
+              )}
             </div>
+            
+            {/* Status indicator */}
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border border-black"
+              style={{ backgroundColor: getStatusColor(currentUser.status || "online") }}
+            ></div>
           </m.button>
         </div>
       </div>
