@@ -110,6 +110,9 @@ export default function RoomPage() {
     null
   );
 
+  // Add a new state for muted users
+  const [mutedUsers, setMutedUsers] = useState<number[]>([]);
+
   // Update room ID when params change
   useEffect(() => {
     if (params?.id) {
@@ -191,6 +194,19 @@ export default function RoomPage() {
     toggleShareModal(isShareModalOpen, setIsShareModalOpen, playClick);
   };
 
+  // Add a handler for muting a user
+  const handleMuteUser = (user: User) => {
+    playClick();
+    if (mutedUsers.includes(user.id)) {
+      setMutedUsers(mutedUsers.filter(id => id !== user.id));
+      addToast(`Unmuted ${user.name}`, "success");
+    } else {
+      setMutedUsers([...mutedUsers, user.id]);
+      addToast(`Muted ${user.name}`, "warning");
+    }
+    setSelectedParticipant(null);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -267,6 +283,11 @@ export default function RoomPage() {
               handRaised={handRaised}
               onUserHover={handleUserHoverWrapper}
               onUserHoverEnd={handleUserHoverEndWrapper}
+              mutedUsers={mutedUsers}
+              onUserClick={(user) => {
+                setSelectedParticipant(user);
+                addToast(`Viewing ${user.name}'s profile`, "success");
+              }}
             />
           </div>
         </div>
@@ -382,9 +403,10 @@ export default function RoomPage() {
       />
 
       {/* Modals and overlays */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showUserProfile && (
           <UserProfileCard
+            key="user-profile"
             user={currentUser}
             onClose={() => setShowUserProfile(false)}
           />
@@ -392,6 +414,7 @@ export default function RoomPage() {
 
         {selectedParticipant && (
           <PublicUserProfileCard
+            key={`public-profile-${selectedParticipant.id}`}
             user={selectedParticipant}
             onClose={() => setSelectedParticipant(null)}
             onConnect={() => {
@@ -401,11 +424,14 @@ export default function RoomPage() {
               );
               setSelectedParticipant(null);
             }}
+            onMute={() => handleMuteUser(selectedParticipant)}
+            isMuted={mutedUsers.includes(selectedParticipant.id)}
           />
         )}
 
         {hoveredUser.user && (
           <MiniUserProfile
+            key={`mini-profile-${hoveredUser.user.id}`}
             user={hoveredUser.user}
             position={hoveredUser.position}
           />
@@ -422,6 +448,7 @@ export default function RoomPage() {
 
         {isAudioSettingsOpen && (
           <RoomAudioSettings
+            key="audio-settings"
             currentUser={currentUser}
             onClose={() => setIsAudioSettingsOpen(false)}
             onSave={() => {

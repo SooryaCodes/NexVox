@@ -11,12 +11,16 @@ interface PublicUserProfileCardProps {
   user: User;
   onClose: () => void;
   onConnect?: () => void;
+  onMute?: () => void;
+  isMuted?: boolean;
 }
 
 const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({ 
   user, 
   onClose,
-  onConnect
+  onConnect,
+  onMute,
+  isMuted = false
 }) => {
   const avatarRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -148,7 +152,14 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
       exit={{ opacity: 0, scale: 0.9 }}
       className="fixed inset-0 flex items-center justify-center z-50 p-4"
     >
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose}></div>
+      <div 
+        className="absolute inset-0 bg-black/70 backdrop-blur-md" 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onClose();
+        }}
+      ></div>
       
       <m.div
         ref={cardRef}
@@ -184,19 +195,17 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             </div>
           </div>
           
-          {/* Digital dots in corners */}
-          <div className="absolute top-4 left-4 w-2 h-2 rounded-full" style={{ backgroundColor: getAvatarColor() }}></div>
-          <div className="absolute top-4 left-8 w-1 h-1 rounded-full bg-white/30"></div>
-          <div className="absolute bottom-4 right-4 w-2 h-2 rounded-full" style={{ backgroundColor: getComplementaryColor() }}></div>
-          <div className="absolute bottom-4 right-8 w-1 h-1 rounded-full bg-white/30"></div>
+       
           
           {/* Close Button */}
           <button 
             className="absolute top-4 right-4 text-white/70 hover:text-white z-20 bg-black/30 rounded-full w-8 h-8 flex items-center justify-center"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onClose();
             }}
+            aria-label="Close profile"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -235,6 +244,16 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                   </div>
                 )}
               </div>
+              
+              {/* Muted status indicator */}
+              {isMuted && (
+                <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-[#FF00E6] flex items-center justify-center shadow-[0_0_10px_rgba(255,0,230,0.5)] z-20">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                  </svg>
+                </div>
+              )}
               
               {/* Animated ring effect around avatar */}
               <div 
@@ -576,47 +595,109 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
           </div>
           
           {/* Action buttons */}
-          <div className="px-6 pb-6 pt-2">
-            <div className="flex gap-2">
-              <m.button
-                className="flex-1 py-2 px-3 bg-gradient-to-r rounded-lg text-sm font-medium"
-                style={{ 
-                  backgroundImage: `linear-gradient(to right, ${getAvatarColor()}20, ${getAvatarColor()}30)`,
-                  color: getAvatarColor(),
-                  borderColor: `${getAvatarColor()}40`
+          <div className="px-6 pb-6 pt-2 space-y-3">
+            {onConnect && (
+              <button 
+                className="w-full relative py-3 rounded-md bg-black/40 group overflow-hidden border border-[#00FFFF]/30 hover:border-[#00FFFF] transition-all duration-300"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onConnect();
                 }}
-                whileHover={{ scale: 1.03, boxShadow: `0 0 15px ${getAvatarColor()}40` }}
-                whileTap={{ scale: 0.97 }}
-                onClick={onConnect}
               >
-                <span className="flex items-center justify-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                  Connect
-                </span>
-              </m.button>
-              
-              <m.button
-                className="py-2 px-3 bg-black/40 border border-white/10 rounded-lg text-white/80 text-sm"
-                whileHover={{ scale: 1.03, backgroundColor: "rgba(255,255,255,0.1)" }}
-                whileTap={{ scale: 0.97 }}
+                {/* Decorative elements */}
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#00FFFF] to-transparent opacity-70"></div>
+                <div className="absolute bottom-0 right-0 w-full h-px bg-gradient-to-r from-transparent via-[#00FFFF] to-transparent opacity-70"></div>
+                <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-[#00FFFF] to-transparent opacity-0 group-hover:opacity-40 transition-opacity"></div>
+                <div className="absolute top-0 right-0 w-2 h-full bg-gradient-to-b from-[#00FFFF] to-transparent opacity-0 group-hover:opacity-40 transition-opacity"></div>
+                
+                {/* Digital particles */}
+                <div className="absolute top-1 left-1 w-1 h-1 rounded-full bg-[#00FFFF] opacity-70"></div>
+                <div className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-[#00FFFF] opacity-70"></div>
+                
+                {/* Scanning line effect */}
+                <div className="absolute top-0 left-0 w-full h-full opacity-30 overflow-hidden pointer-events-none">
+                  <div className="h-[1px] w-full bg-[#00FFFF]/50 absolute top-0 left-0 animate-scan"></div>
+                </div>
+                
+                {/* Corner cuts */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#00FFFF]"></div>
+                <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#00FFFF]"></div>
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#00FFFF]"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#00FFFF]"></div>
+                
+                {/* Button content with glow effect */}
+                <div className="flex items-center justify-center gap-2 relative z-10">
+                  <div className="w-6 h-6 rounded-md border border-[#00FFFF]/50 flex items-center justify-center bg-black/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#00FFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3h6v6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14L21 3" />
+                    </svg>
+                  </div>
+                  <span className="text-[#00FFFF] font-medium tracking-wide text-sm">
+                    CONNECT <span className="opacity-80 font-normal">WITH</span> {user.name.toUpperCase()}
+                  </span>
+                </div>
+                
+                {/* Hover glow effect */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-20 bg-[#00FFFF] blur-xl transition-opacity duration-300"></div>
+              </button>
+            )}
+            
+            {onMute && (
+              <button 
+                className={`w-full relative py-3 rounded-md bg-black/40 group overflow-hidden border ${isMuted ? 'border-[#00FFFF]/30 hover:border-[#00FFFF]' : 'border-[#FF00E6]/30 hover:border-[#FF00E6]'} transition-all duration-300`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onMute();
+                }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-              </m.button>
-              
-              <m.button
-                className="py-2 px-3 bg-black/40 border border-white/10 rounded-lg text-white/80 text-sm"
-                whileHover={{ scale: 1.03, backgroundColor: "rgba(255,255,255,0.1)" }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </m.button>
-            </div>
+                {/* Decorative elements */}
+                <div className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent ${isMuted ? 'via-[#00FFFF]' : 'via-[#FF00E6]'} to-transparent opacity-70`}></div>
+                <div className={`absolute bottom-0 right-0 w-full h-px bg-gradient-to-r from-transparent ${isMuted ? 'via-[#00FFFF]' : 'via-[#FF00E6]'} to-transparent opacity-70`}></div>
+                <div className={`absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${isMuted ? 'from-[#00FFFF]' : 'from-[#FF00E6]'} to-transparent opacity-0 group-hover:opacity-40 transition-opacity`}></div>
+                <div className={`absolute top-0 right-0 w-2 h-full bg-gradient-to-b ${isMuted ? 'from-[#00FFFF]' : 'from-[#FF00E6]'} to-transparent opacity-0 group-hover:opacity-40 transition-opacity`}></div>
+                
+                {/* Digital particles */}
+                <div className={`absolute top-1 left-1 w-1 h-1 rounded-full ${isMuted ? 'bg-[#00FFFF]' : 'bg-[#FF00E6]'} opacity-70`}></div>
+                <div className={`absolute bottom-1 right-1 w-1 h-1 rounded-full ${isMuted ? 'bg-[#00FFFF]' : 'bg-[#FF00E6]'} opacity-70`}></div>
+                
+                {/* Scanning line effect */}
+                <div className="absolute top-0 left-0 w-full h-full opacity-30 overflow-hidden pointer-events-none">
+                  <div className={`h-[1px] w-full ${isMuted ? 'bg-[#00FFFF]/50' : 'bg-[#FF00E6]/50'} absolute top-0 left-0 animate-scan`}></div>
+                </div>
+                
+                {/* Corner cuts */}
+                <div className={`absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 ${isMuted ? 'border-[#00FFFF]' : 'border-[#FF00E6]'}`}></div>
+                <div className={`absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 ${isMuted ? 'border-[#00FFFF]' : 'border-[#FF00E6]'}`}></div>
+                <div className={`absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 ${isMuted ? 'border-[#00FFFF]' : 'border-[#FF00E6]'}`}></div>
+                <div className={`absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 ${isMuted ? 'border-[#00FFFF]' : 'border-[#FF00E6]'}`}></div>
+                
+                {/* Button content with glow effect */}
+                <div className="flex items-center justify-center gap-2 relative z-10">
+                  <div className={`w-6 h-6 rounded-md border ${isMuted ? 'border-[#00FFFF]/50' : 'border-[#FF00E6]/50'} flex items-center justify-center bg-black/50`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${isMuted ? 'text-[#00FFFF]' : 'text-[#FF00E6]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      {isMuted ? (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M12 9.5l0 5.5M12 9.5a3 3 0 013 3M12 9.5V5a7 7 0 017 7m-7-7a7 7 0 00-7 7" />
+                        </>
+                      ) : (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                        </>
+                      )}
+                    </svg>
+                  </div>
+                  <span className={`${isMuted ? 'text-[#00FFFF]' : 'text-[#FF00E6]'} font-medium tracking-wide text-sm`}>
+                    {isMuted ? 'UNMUTE' : 'MUTE'} <span className="opacity-80 font-normal">USER</span> {user.name.toUpperCase()}
+                  </span>
+                </div>
+                
+                {/* Hover glow effect */}
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 ${isMuted ? 'bg-[#00FFFF]' : 'bg-[#FF00E6]'} blur-xl transition-opacity duration-300`}></div>
+              </button>
+            )}
           </div>
         </div>
         
@@ -629,6 +710,19 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             to {
               transform: rotate(360deg);
             }
+          }
+          
+          @keyframes scan {
+            0% {
+              transform: translateY(-100%);
+            }
+            100% {
+              transform: translateY(500%);
+            }
+          }
+          
+          .animate-scan {
+            animation: scan 2s linear infinite;
           }
         `}</style>
       </m.div>

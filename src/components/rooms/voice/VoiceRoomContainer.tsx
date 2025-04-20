@@ -9,6 +9,8 @@ interface VoiceRoomContainerProps {
   handRaised: boolean;
   onUserHover: (user: User, mouseX: number, mouseY: number) => void;
   onUserHoverEnd: () => void;
+  onUserClick: (user: User) => void;
+  mutedUsers?: number[];
 }
 
 export default function VoiceRoomContainer({
@@ -16,7 +18,9 @@ export default function VoiceRoomContainer({
   activeSpeakers,
   handRaised,
   onUserHover,
-  onUserHoverEnd
+  onUserHoverEnd,
+  onUserClick,
+  mutedUsers = []
 }: VoiceRoomContainerProps) {
   const avatarContainerRef = useRef<HTMLDivElement>(null);
   const [avatarPositions, setAvatarPositions] = useState<Array<{x: number; y: number; isSpeaking: boolean}>>([]);
@@ -87,7 +91,7 @@ export default function VoiceRoomContainer({
         users.slice(0, 5).map((user: User, index) => (
           <div
             key={user.id}
-            className="absolute z-10"
+            className="absolute z-10 cursor-pointer"
             style={{ 
               left: avatarPositions[index].x,
               top: avatarPositions[index].y,
@@ -96,6 +100,10 @@ export default function VoiceRoomContainer({
             onMouseEnter={(e) => onUserHover(user, e.clientX, e.clientY)}
             onMouseMove={(e) => onUserHover(user, e.clientX, e.clientY)}
             onMouseLeave={onUserHoverEnd}
+            onClick={() => onUserClick(user)}
+            role="button"
+            aria-label={`View ${user.name}'s profile`}
+            tabIndex={0}
           >
             <m.div
               initial={{ scale: 0, opacity: 0 }}
@@ -127,6 +135,16 @@ export default function VoiceRoomContainer({
                   </div>
                 )}
               </div>
+              
+              {/* Muted indicator */}
+              {mutedUsers.includes(user.id) && (
+                <div className="absolute -top-2 -left-2 bg-[#FF00E6] w-6 h-6 rounded-full shadow-lg flex items-center justify-center z-10">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                  </svg>
+                </div>
+              )}
               
               {/* User badges shown in avatar */}
               <div className="absolute -top-2 -right-2 flex">
