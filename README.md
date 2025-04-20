@@ -2,11 +2,13 @@
 
 A next-generation voice room social media platform with immersive spatial audio and cyberpunk-inspired design.
 
-![Nexvox](https://placeholder-for-nexvox-screenshot.png)
+![Nexvox](public/nexvox_image.png)
 
 ## 🔊 Overview
 
 Nexvox is a cutting-edge social platform that reimagines online communication through voice rooms with spatial audio technology. Designed with a futuristic cyberpunk aesthetic, Nexvox offers users a unique way to connect through immersive audio experiences in virtual spaces.
+
+**Live URL**: [https://nexvox.vercel.app/](https://nexvox.vercel.app/)
 
 ## ✨ Key Features
 
@@ -72,50 +74,3 @@ The application follows a modern React architecture with:
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🔍 Project Structure
-
-```
-nexvox/
-├── src/
-│   ├── app/                  # Next.js App Router pages
-│   │   ├── chats/            # Chat system
-│   │   ├── friends/          # Friend management
-│   │   ├── login/            # Authentication
-│   │   ├── profile/          # User profiles
-│   │   ├── register/         # User registration
-│   │   ├── rooms/            # Voice room system
-│   │   └── settings/         # User settings
-│   ├── components/           # Reusable UI components
-│   │   ├── home/             # Homepage components
-│   │   ├── rooms/            # Room-related components
-│   │   │   └── voice/        # Voice room components
-│   │   └── chat/             # Chat components
-│   ├── contexts/             # React Context providers
-│   ├── hooks/                # Custom React hooks
-│   ├── lib/                  # Library code and utilities
-│   ├── styles/               # Global styles
-│   ├── types/                # TypeScript type definitions
-│   └── utils/                # Utility functions
-└── public/                   # Static assets
-```
-
-## 🎨 Design Principles
-
-Nexvox follows these core design principles:
-
-1. **Immersive Experience**: Creating a sense of presence through spatial audio and visual design.
-2. **Intuitive Navigation**: Despite the futuristic aesthetics, the UX remains intuitive and accessible.
-3. **Performance First**: Optimized animations and effects to ensure smooth performance even on lower-end devices.
-4. **Visual Hierarchy**: Clear visual indicators for interactive elements and important information.
-5. **Responsive Design**: Fully functional across all device sizes with tailored experiences.
-
-## 🔮 Future Roadmap
-
-- End-to-end encryption for private rooms
-- AI-powered background noise cancellation
-- Virtual environment visualizers
-- Integration with external music streaming services
-- Multi-language support
-
-## 📜 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
