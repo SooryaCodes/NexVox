@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { User, ChatMessage } from '@/types/room';
 import { useRoomToasts } from "./useRoomToasts";
+import { useSpeechSynthesis } from "./useSpeechSynthesis";
 
 interface UseVoiceConversationProps {
   users: User[];
@@ -31,6 +32,8 @@ export const useVoiceConversation = ({
   sendMessage
 }: UseVoiceConversationProps) => {
   const { addToast } = useRoomToasts();
+  const { speak, cancel, speaking, supported, voices } = useSpeechSynthesis();
+  
   const [activeSpeakerIndex, setActiveSpeakerIndex] = useState<number | null>(null);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [showStartPrompt, setShowStartPrompt] = useState(true);
@@ -85,59 +88,32 @@ export const useVoiceConversation = ({
     }
   }, []);
   
-  // Initialize speech synthesis
+  // Update availableVoices ref whenever voices from the hook changes
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      console.log("Initializing speech synthesis");
-      
-      // Initialize speech synthesis
-      synth.current = new SpeechSynthesisUtterance();
-      
-      // Force speech synthesis to load voices
-      window.speechSynthesis.cancel();
-      
-      // Load voices with a more robust approach
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          availableVoices.current = voices;
-          console.log(`Loaded ${voices.length} voices`);
-          voices.forEach((voice, i) => {
-            if (i < 10) { // Log first 10 voices for debugging
-              console.log(`Voice ${i}: ${voice.name} (${voice.lang})`);
-            }
-          });
-          setVoicesLoaded(true);
-        } else {
-          console.warn("No voices available yet, will retry");
-          // Try again in a moment
-          setTimeout(loadVoices, 500);
+    if (voices.length > 0) {
+      availableVoices.current = voices;
+      setVoicesLoaded(true);
+      console.log(`Loaded ${voices.length} voices from useSpeechSynthesis hook`);
+      voices.forEach((voice, i) => {
+        if (i < 10) { // Log first 10 voices for debugging
+          console.log(`Voice ${i}: ${voice.name} (${voice.lang})`);
         }
-      };
-      
-      // Try to load voices immediately
-      loadVoices();
-      
-      // Also set up event listener for voices changed
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-      
-      return () => {
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
-        if (speakingTimeoutRef.current) {
-          clearTimeout(speakingTimeoutRef.current);
-        }
-      };
-    } else {
-      console.error("Speech synthesis not supported");
+      });
     }
-  }, []);
+  }, [voices]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (speakingTimeoutRef.current) {
+        clearTimeout(speakingTimeoutRef.current);
+      }
+      cancel(); // Use cancel from useSpeechSynthesis
+    };
+  }, [cancel]);
 
   const stopConversation = useCallback(() => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
+    cancel(); // Use cancel from useSpeechSynthesis
     if (speakingTimeoutRef.current) {
       clearTimeout(speakingTimeoutRef.current);
       speakingTimeoutRef.current = null;
@@ -147,60 +123,33 @@ export const useVoiceConversation = ({
     setIsProcessing(false);
     setCurrentSpeaker(null);
     setEnableWaveform(false);
-  }, []);
+  }, [cancel]);
 
   // Test speech synthesis directly
   const testSpeech = useCallback(() => {
-    if (!window.speechSynthesis) {
+    if (!supported) {
       console.error("Speech synthesis not available");
       return false;
     }
     
     try {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      // Create test utterance
-      const testUtterance = new SpeechSynthesisUtterance("Hello, I am testing the speech synthesis.");
-      testUtterance.volume = 1.0;
-      testUtterance.rate = 1.0;
-      testUtterance.pitch = 1.0;
-      
-      // Try to use a simple voice if available
-      const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        // Try to find an English voice
-        const englishVoice = voices.find(voice => 
+      const testMessage = "Hello, I am testing the speech synthesis.";
+      speak(testMessage, {
+        pitch: 1.0,
+        rate: 1.0,
+        volume: 1.0,
+        voice: voices.find(voice => 
           voice.lang.includes('en-') || voice.lang.includes('en_')
-        );
-        
-        if (englishVoice) {
-          testUtterance.voice = englishVoice;
-        } else {
-          testUtterance.voice = voices[0];
-        }
-      }
+        ) || (voices.length > 0 ? voices[0] : null)
+      });
       
-      // Add event listeners for debugging
-      testUtterance.onstart = () => console.log("Test speech started");
-      testUtterance.onend = () => console.log("Test speech ended");
-      testUtterance.onerror = (e) => console.error("Test speech error:", e);
-      
-      // Log details
-      console.log("Speaking test utterance with voice:", testUtterance.voice?.name || "default");
-      
-      // Force a slight delay to ensure WebSpeech is ready
-      setTimeout(() => {
-        // Speak
-        window.speechSynthesis.speak(testUtterance);
-      }, 100);
-      
+      console.log("Test speech successfully initiated");
       return true;
     } catch (err) {
       console.error("Test speech failed:", err);
       return false;
     }
-  }, []);
+  }, [speak, supported, voices]);
   
   // Generate a message based on current conversation context
   const getNextMessage = useCallback(() => {
@@ -371,128 +320,158 @@ export const useVoiceConversation = ({
     return message;
   }, []);
   
-  // Function to speak a message with a specific voice
+  // Function to speak a message with a specific voice - USING THE SPEECH SYNTHESIS HOOK
   const speakMessage = useCallback((content: string, speaker: User) => {
-    if (!window.speechSynthesis) {
-      console.error("Speech synthesis not available");
+    console.log("Starting speakMessage function using useSpeechSynthesis hook...");
+    
+    // Check speech synthesis availability early
+    if (!supported) {
+      console.error("Speech synthesis not supported in this browser");
       setIsProcessing(false);
+      setCurrentSpeaker(null);
+      setEnableWaveform(false);
+      
+      // Still continue the conversation flow even without speech
+      setTimeout(() => {
+        if (isConversationActive) {
+          scheduleNextSpeakerRef.current(2000);
+        }
+      }, 1000);
       return;
     }
     
     try {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-
-      // Create new utterance for each message (more reliable)
-      const utterance = new SpeechSynthesisUtterance(content);
+      let voiceToUse = null;
+      let voiceAssigned = false;
       
       // Try to assign a voice based on available voices
-      const voices = window.speechSynthesis.getVoices();
-      availableVoices.current = voices.length > 0 ? voices : availableVoices.current;
-      
-      if (availableVoices.current.length > 0) {
-        // Use the speaker's ID to consistently assign the same voice to the same speaker
-        const voiceIndex = speaker.id % availableVoices.current.length;
-        utterance.voice = availableVoices.current[voiceIndex];
-        console.log(`Speaker ${speaker.name} using voice: ${utterance.voice.name}`);
+      if (voices.length > 0) {
+        try {
+          // Use the speaker's ID to consistently assign the same voice to the same speaker
+          const voiceIndex = Math.abs(speaker.id % voices.length);
+          if (voices[voiceIndex]) {
+            voiceToUse = voices[voiceIndex];
+            voiceAssigned = true;
+            console.log(`Voice assigned: ${voiceToUse.name}`);
+          }
+        } catch (voiceError) {
+          console.warn("Failed to assign voice:", voiceError);
+        }
       }
       
-      // Set voice properties with more variation but ensure volume is high
-      utterance.pitch = 0.9 + (speaker.id % 5) * 0.1; // More variation in pitch (0.9-1.3)
-      utterance.rate = 0.8 + (speaker.id % 5) * 0.1; // More variation in rate (0.8-1.2)
-      utterance.volume = 1.0; // Maximum volume
-      
-      // Break content into shorter sentences if too long (improves reliability)
-      if (content.length > 100) {
-        console.log("Long message detected, will split into chunks for better reliability");
+      if (!voiceAssigned) {
+        console.log("No specific voice assigned, using default browser voice");
       }
       
-      // Add event listeners
-      utterance.onstart = () => {
-        console.log(`Started speaking: "${content.substring(0, 20)}..." with voice ${utterance.voice?.name}`);
-        setEnableWaveform(true);
-        
-        // Some browsers need a reminder to keep playing
-        setTimeout(() => {
-          if (window.speechSynthesis.paused) {
-            console.log("Speech synthesis paused, resuming");
-            window.speechSynthesis.resume();
-          }
-        }, 1000);
+      // Set up speech options
+      const speechOptions = {
+        voice: voiceToUse,
+        pitch: 1.0 + ((speaker.id % 3) * 0.1), // Less variation (1.0-1.2)
+        rate: 0.9 + ((speaker.id % 3) * 0.1),  // Less variation (0.9-1.1)
+        volume: 1.0 // Maximum volume
       };
       
-      utterance.onend = () => {
-        console.log("Finished speaking");
-        setIsProcessing(false);
-        setCurrentSpeaker(null);
-        setEnableWaveform(false);
-        
-        // Use setTimeout to defer next speaker scheduling
-        setTimeout(() => {
-          if (isConversationActive) {
-            console.log("Scheduling next speaker after speech ended");
-            scheduleNextSpeakerRef.current(2000);
-          }
-        }, 100);
-      };
+      // Set visual state before speaking
+      setEnableWaveform(true);
       
-      utterance.onerror = (event) => {
-        console.error("Speech synthesis error:", event);
-        setIsProcessing(false);
-        setCurrentSpeaker(null);
-        setEnableWaveform(false);
-      };
+      // Set up speech tracking 
+      const speechStartTime = Date.now();
+      const estimatedDuration = content.length * 50; // Roughly 50ms per character
+      console.log(`Estimated speech duration: ${estimatedDuration}ms for ${content.length} characters`);
       
-      // Force a slight delay to ensure all properties are set
-      setTimeout(() => {
-        // Speak the message
-        console.log(`Actually speaking with voice: ${utterance.voice?.name || "default"}, pitch: ${utterance.pitch}, rate: ${utterance.rate}`);
-        window.speechSynthesis.speak(utterance);
-        
-        // Chrome sometimes pauses after 15 seconds, keep it alive
-        const keepAlive = setInterval(() => {
-          if (!window.speechSynthesis.speaking) {
-            clearInterval(keepAlive);
-            return;
-          }
+      // Set up safety timeout that will move to the next speaker
+      // Even if the speech synthesis fails to fire onend event
+      const safetyTimeout = setTimeout(() => {
+        if (isConversationActive && currentSpeaker) {
+          console.log("Safety timeout triggered - ensuring conversation continues");
+          setIsProcessing(false);
+          setCurrentSpeaker(null);
+          setEnableWaveform(false);
+          scheduleNextSpeakerRef.current(1000);
+        }
+      }, Math.min(10000, estimatedDuration * 1.5)); // Max 10 seconds or 1.5x estimated time
+      
+      // Setup a polling mechanism to detect when speech has ended
+      // This is more reliable than depending on the speaking state from the hook
+      const pollingSpeechEnd = () => {
+        const speechPollInterval = setInterval(() => {
+          const speechElapsedTime = Date.now() - speechStartTime;
           
-          // Force resume if paused
-          if (window.speechSynthesis.paused) {
-            window.speechSynthesis.resume();
+          // Check if enough time has passed based on content length
+          // or if speaking state is false after we've started
+          if (speechElapsedTime > estimatedDuration || !speaking) {
+            clearInterval(speechPollInterval);
+            clearTimeout(safetyTimeout);
+            
+            console.log("Speech ended (detected via polling)");
+            setIsProcessing(false);
+            setCurrentSpeaker(null);
+            setEnableWaveform(false);
+            
+            // Schedule next speaker after a delay
+            setTimeout(() => {
+              if (isConversationActive) {
+                console.log("Scheduling next speaker after speech end");
+                scheduleNextSpeakerRef.current(2000);
+              }
+            }, 500);
           }
-          
-          // Extra insurance - force cancel and respeak if taking too long (over 10 seconds)
-          // This is a fallback for browsers that might freeze
-          /* Uncomment if needed for troubleshooting
-          if (Date.now() - startTime > 10000) {
-            console.log("Speech taking too long, restarting");
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-          }
-          */
-        }, 5000);
-      }, 50);
+        }, 200); // Check every 200ms
+        
+        // Cleanup the interval after maximum possible duration
+        setTimeout(() => {
+          clearInterval(speechPollInterval);
+        }, estimatedDuration * 2); // Double the estimated time as maximum
+      };
+      
+      // Start speech
+      console.log("Attempting to speak using useSpeechSynthesis...");
+      speak(content, speechOptions);
+      
+      // Start polling for speech end after a short delay
+      // to ensure speech has actually started
+      setTimeout(pollingSpeechEnd, 300);
       
     } catch (error) {
-      console.error("Error speaking message:", error);
+      console.error("Error in speakMessage:", error);
       setIsProcessing(false);
       setCurrentSpeaker(null);
+      setEnableWaveform(false);
+      
+      // Try to continue the conversation despite errors
+      setTimeout(() => {
+        if (isConversationActive) {
+          console.log("Attempting to continue conversation after error");
+          scheduleNextSpeakerRef.current(2000);
+        }
+      }, 1000);
     }
-  }, [isConversationActive]);
+  }, [isConversationActive, currentSpeaker, speak, supported, voices, speaking]);
   
   // Create a ref to store the latest version of scheduleNextSpeaker
   const scheduleNextSpeakerRef = useRef<(delay?: number) => void>(() => {});
   
   // Schedule speakers in sequence
   const scheduleNextSpeaker = useCallback((delay = 3000) => {
-    if (!isConversationActive || users.length === 0) return;
-    
-    if (speakingTimeoutRef.current) {
-      clearTimeout(speakingTimeoutRef.current);
+    if (!isConversationActive || users.length === 0) {
+      console.log("Cannot schedule next speaker: conversation inactive or no users");
+      return;
     }
     
+    // Clear any existing timeout to prevent overlapping schedules
+    if (speakingTimeoutRef.current) {
+      clearTimeout(speakingTimeoutRef.current);
+      speakingTimeoutRef.current = null;
+    }
+    
+    console.log(`Scheduling next speaker with delay: ${delay}ms`);
+    
     speakingTimeoutRef.current = setTimeout(() => {
-      if (!isConversationActive) return;
+      // Double check conversation is still active when timeout fires
+      if (!isConversationActive) {
+        console.log("Conversation no longer active, canceling scheduled speaker");
+        return;
+      }
       
       // Debug log
       console.log("Scheduling next speaker, active speakers available:", users.length);
@@ -500,18 +479,36 @@ export const useVoiceConversation = ({
       
       // Select the next speaker that isn't the last one
       let nextSpeakerIndex = 0;
-      if (users.length > 1) {
-        do {
-          nextSpeakerIndex = Math.floor(Math.random() * users.length);
-        } while (
-          users[nextSpeakerIndex].id === conversationStateRef.current.lastSpeakerId &&
-          conversationStateRef.current.messagesExchanged > 0
-        );
+      const validSpeakerIndices = [];
+      
+      // Find valid speakers (not muted and not the last speaker)
+      for (let i = 0; i < users.length; i++) {
+        if (!mutedUsers.includes(users[i].id) && 
+            (users.length <= 1 || users[i].id !== conversationStateRef.current.lastSpeakerId || 
+             conversationStateRef.current.messagesExchanged === 0)) {
+          validSpeakerIndices.push(i);
+        }
+      }
+      
+      console.log(`Valid speaker indices: ${validSpeakerIndices.join(', ')}`);
+      
+      if (validSpeakerIndices.length === 0) {
+        console.log("No valid speakers available, using any speaker");
+        // If all speakers are invalid, just pick a random one
+        nextSpeakerIndex = Math.floor(Math.random() * users.length);
+      } else {
+        // Pick a random valid speaker
+        const randomIndex = Math.floor(Math.random() * validSpeakerIndices.length);
+        nextSpeakerIndex = validSpeakerIndices[randomIndex];
       }
       
       const nextSpeaker = users[nextSpeakerIndex];
+      console.log(`Selected next speaker: ${nextSpeaker.name} (index ${nextSpeakerIndex})`);
+      
+      // Update conversation state
       conversationStateRef.current.lastSpeakerId = nextSpeaker.id;
       
+      // Update UI state
       setCurrentSpeaker(nextSpeaker);
       setActiveSpeakerIndex(nextSpeakerIndex);
       setActiveSpeakerPulse(true);
@@ -540,9 +537,15 @@ export const useVoiceConversation = ({
         sendMessage({
           message: messageContent,
           isUser: false,
+          userName: nextSpeaker.name,
           timestamp: new Date(),
-          userName: nextSpeaker.name
         });
+        
+        // Add to recent messages history
+        conversationStateRef.current.lastFewMessages.push(messageContent);
+        if (conversationStateRef.current.lastFewMessages.length > 5) {
+          conversationStateRef.current.lastFewMessages.shift();
+        }
         
         // Ensure we're speaking the message
         speakMessage(messageContent, nextSpeaker);
@@ -571,7 +574,7 @@ export const useVoiceConversation = ({
       // Reset toast tracker
       setToastShownRef(false);
       
-      if (!window.speechSynthesis || users.length === 0) {
+      if (!supported || users.length === 0) {
         addToast("Cannot start conversation. Please try again later.", "error");
         return;
       }
@@ -592,16 +595,15 @@ export const useVoiceConversation = ({
         detectedTopic = 'music';
       } else if (roomName.includes('game') || roomName.includes('gaming')) {
         detectedTopic = 'gaming';
-      } else if (roomName.includes('movie') || roomName.includes('film') || roomName.includes('cinema')) {
-        detectedTopic = 'movies';
-      } else if (roomName.includes('art') || roomName.includes('design') || roomName.includes('creative')) {
-        detectedTopic = 'art';
+      } else if (roomName.includes('design') || roomName.includes('art')) {
+        detectedTopic = 'design';
       }
       
-      // Generate conversation thread for this topic
+      // Reset conversation state
+      console.log(`Room topic detected: ${detectedTopic}`);
       const thread = generateConversationThread(detectedTopic);
       
-      // Reset conversation state with detected topic and thread
+      // Initialize conversation state
       conversationStateRef.current = {
         lastSpeakerId: -1,
         lastMessageType: '',
@@ -611,7 +613,9 @@ export const useVoiceConversation = ({
         conversationThread: thread
       };
       
-      // IMMEDIATELY set conversation as active - this must happen early
+      console.log(`Generated conversation thread: ${thread}`);
+      
+      // Important - set the active conversation state before scheduling speakers
       setIsConversationActive(true);
       console.log("Conversation state set to ACTIVE");
       
@@ -619,20 +623,21 @@ export const useVoiceConversation = ({
       addToast(`Starting conversation about: ${thread}`, "success");
       
       // Force speech synthesis reset and ensure access
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+      if (supported) {
+        cancel();
         console.log("Cancelled any ongoing speech synthesis");
         
         // Some browsers need user interaction to enable speech synthesis
         // Try to speak a silent utterance to "unlock" the API
-        const unlockUtterance = new SpeechSynthesisUtterance(" ");
-        unlockUtterance.volume = 0.1;
-        unlockUtterance.onend = () => console.log("Speech synthesis unlocked");
-        window.speechSynthesis.speak(unlockUtterance);
+        console.log("Attempting to unlock speech synthesis with a silent utterance");
+        speak(" ", {
+          volume: 0.1
+        });
+        console.log("Speech synthesis unlock attempt complete");
       }
       
       // Force refresh of voices in case they weren't loaded
-      availableVoices.current = window.speechSynthesis.getVoices();
+      availableVoices.current = voices;
       console.log(`Available voices: ${availableVoices.current.length}`);
       
       if (availableVoices.current.length <= 1) {
@@ -642,15 +647,26 @@ export const useVoiceConversation = ({
       
       // DIRECTLY schedule the first speaker without announcement
       console.log("Directly scheduling first speaker");
+      
+      // Make sure we wait a moment before starting to give audio context time to initialize
       setTimeout(() => {
         scheduleNextSpeaker(500);
+        
+        // Ensure the conversation continues by adding another backup check
+        // This helps if the first scheduling attempt fails
+        setTimeout(() => {
+          if (isConversationActive && !currentSpeaker && conversationStateRef.current.messagesExchanged === 0) {
+            console.log("BACKUP: No speaker detected after 3 seconds, forcing reschedule");
+            scheduleNextSpeaker(100);
+          }
+        }, 3000);
       }, 1000);
       
     } catch (error) {
       console.error("Error in handleStartConversation:", error);
       addToast("Error starting conversation. Please try again.", "error");
     }
-  }, [users, scheduleNextSpeaker, room, addToast, initAudioContext]);
+  }, [users, scheduleNextSpeaker, room, addToast, initAudioContext, cancel, speak, supported, voices]);
   
   // Store previous hand raised state to prevent repeated acknowledgments
   const prevHandRaisedRef = useRef(false);
@@ -670,8 +686,8 @@ export const useVoiceConversation = ({
       
       // Only acknowledge hand raising during an active conversation,
       // not use it to start conversations
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+      if (supported) {
+        cancel();
       }
       
       if (speakingTimeoutRef.current) {
@@ -680,36 +696,84 @@ export const useVoiceConversation = ({
       }
       
       try {
-        // Short timeout to ensure previous speech is canceled
-        setTimeout(() => {
-          // Speak acknowledgement
-          const utterance = new SpeechSynthesisUtterance(`${currentUser.name} would like to speak.`);
-          
-          const voices = window.speechSynthesis.getVoices();
-          if (voices.length > 0) {
-            utterance.voice = voices[0];
-          }
-          
-          utterance.volume = 1.0;
-          
-          // Only run once
-          let hasEnded = false;
-          
-          utterance.onend = () => {
-            if (!hasEnded) {
-              hasEnded = true;
-              console.log("Hand raise acknowledgment completed");
-              // Resume conversation after acknowledgement
-              setTimeout(() => {
-                if (isConversationActive) {
-                  scheduleNextSpeakerRef.current(1000);
+        // Need to acknowledge hand raise during conversation
+        console.log("Acknowledging hand raise inside active conversation");
+        
+        // First cancel any ongoing speech to make the acknowledgement immediate
+        if (supported) {
+          cancel();
+        }
+        
+        try {
+          // Pause before acknowledgement to make it sound more natural
+          setTimeout(() => {
+            // Create hand raise acknowledgement message
+            const acknowledgeMessage = `${currentUser.name} would like to speak.`;
+            
+            let voiceToUse = null;
+            let voiceAssigned = false;
+            
+            // Try to assign a voice based on available voices
+            if (voices.length > 0) {
+              try {
+                // Use the speaker's ID to consistently assign the same voice to the same speaker
+                const voiceIndex = Math.abs(currentUser.id % voices.length);
+                if (voices[voiceIndex]) {
+                  voiceToUse = voices[voiceIndex];
+                  voiceAssigned = true;
+                  console.log(`Voice assigned: ${voiceToUse.name}`);
                 }
-              }, 100);
+              } catch (voiceError) {
+                console.warn("Failed to assign voice:", voiceError);
+              }
             }
-          };
-          
-          window.speechSynthesis.speak(utterance);
-        }, 100);
+            
+            if (!voiceAssigned) {
+              console.log("No specific voice assigned, using default browser voice");
+            }
+            
+            // Set up speech options
+            const speechOptions = {
+              voice: voiceToUse,
+              pitch: 1.0,
+              rate: 1.0,
+              volume: 1.0
+            };
+            
+            // Enable waveform for visual feedback
+            setEnableWaveform(true);
+            
+            // Set up callbacks to track when speech ends
+            const checkSpeakingInterval = setInterval(() => {
+              // If speaking has stopped, handle the end of speech
+              if (!speaking) {
+                clearInterval(checkSpeakingInterval);
+                console.log("Hand raise acknowledgment completed");
+                setEnableWaveform(false);
+                
+                // Resume conversation after acknowledgement
+                setTimeout(() => {
+                  if (isConversationActive) {
+                    scheduleNextSpeakerRef.current(2000);
+                  }
+                }, 100);
+              }
+            }, 100);
+            
+            // Speak the message using the hook
+            console.log("Acknowledging hand raise with speech synthesis...");
+            speak(acknowledgeMessage, speechOptions);
+            
+            // Clean up interval after a maximum duration to prevent memory leaks
+            setTimeout(() => {
+              clearInterval(checkSpeakingInterval);
+            }, 5000); // 5 second maximum duration for acknowledgement
+            
+          }, 100);
+        } catch (err) {
+          console.error("Error in hand raise acknowledgment:", err);
+          scheduleNextSpeakerRef.current(1000);
+        }
       } catch (err) {
         console.error("Error in hand raise acknowledgment:", err);
         scheduleNextSpeakerRef.current(1000);
@@ -719,7 +783,7 @@ export const useVoiceConversation = ({
       prevHandRaisedRef.current = false;
     }
     // Don't start a conversation if it's not already active
-  }, [currentUser.name, isConversationActive]);
+  }, [currentUser.name, isConversationActive, scheduleNextSpeaker, room, addToast, initAudioContext, cancel, speak, supported, voices]);
   
   // Force starting the conversation - a more direct approach
   const forceStartConversation = useCallback(() => {
@@ -737,7 +801,7 @@ export const useVoiceConversation = ({
     // Reset toast tracker
     setToastShownRef(false);
     
-    if (!window.speechSynthesis || users.length === 0) {
+    if (!supported || users.length === 0) {
       addToast("Cannot start conversation. Please try again later.", "error");
       return;
     }
@@ -747,8 +811,9 @@ export const useVoiceConversation = ({
     // Unblock audio
     initAudioContext();
     
-    // Generate a thread 
+    // Generate a conversation thread
     const thread = generateConversationThread('default');
+    console.log(`Generated conversation thread: ${thread}`);
     
     // Reset conversation state
     conversationStateRef.current = {
@@ -767,16 +832,32 @@ export const useVoiceConversation = ({
     addToast(`Starting conversation about: ${thread}`, "success");
     
     // Reset speech synthesis
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+    if (supported) {
+      cancel();
+      
+      // Unlock speech synthesis
+      console.log("Attempting to unlock speech synthesis with a silent utterance");
+      speak(" ", {
+        volume: 0.1
+      });
     }
     
-    // Schedule first speaker
+    // First schedule with a delay to allow audio context to initialize
+    console.log("Scheduling first speaker (FORCED)...");
+    
     setTimeout(() => {
       scheduleNextSpeaker(500);
+      
+      // Add a backup to make sure conversation starts
+      setTimeout(() => {
+        if (isConversationActive && !currentSpeaker && conversationStateRef.current.messagesExchanged === 0) {
+          console.log("BACKUP: No speaker detected after 3 seconds, forcing reschedule");
+          scheduleNextSpeaker(100);
+        }
+      }, 3000);
     }, 1000);
     
-  }, [users, scheduleNextSpeaker, addToast, initAudioContext, stopConversation]);
+  }, [users, scheduleNextSpeaker, addToast, initAudioContext, stopConversation, cancel, speak, supported]);
   
   return {
     activeSpeakerIndex,
