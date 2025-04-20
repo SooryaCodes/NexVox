@@ -8,6 +8,7 @@ import { AnimatePresence } from "framer-motion";
 import { Room, User, ChatMessage, TABS } from "@/types/room";
 
 // Import custom components
+import CustomCursor from "@/components/rooms/voice/CustomCursor";
 import RoomHeader from "@/components/rooms/voice/RoomHeader";
 import RoomStatsDisplay from "@/components/rooms/voice/RoomStatsDisplay";
 import RoomAudioVisualizer from "@/components/rooms/voice/RoomAudioVisualizer";
@@ -20,6 +21,7 @@ import RoomShareModal from "@/components/rooms/RoomShareModal";
 import MiniUserProfile from "@/components/rooms/voice/MiniUserProfile";
 import CyberToast from "@/components/rooms/voice/CyberToast";
 import RoomAudioSettings from "@/components/rooms/voice/RoomAudioSettings";
+import RoomNeonGrid from "@/components/rooms/voice/RoomNeonGrid";
 
 // Import hooks
 import { useRoomData } from "@/hooks/useRoomData";
@@ -298,7 +300,7 @@ export default function RoomPage() {
       {/* Background effects */}
       <div className="fixed inset-0 bg-grid opacity-10 z-0"></div>
       <div className="fixed inset-0 bg-gradient-to-br from-[#00FFFF]/5 via-black to-[#FF00E6]/5 z-0"></div>
-      <NeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.05} />
+      <RoomNeonGrid color="#00FFFF" secondaryColor="#9D00FF" opacity={0.05} />
       
       {/* Room header */}
       <RoomHeader 
