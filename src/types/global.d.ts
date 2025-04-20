@@ -8,7 +8,7 @@ declare global {
   }
 
   namespace NodeJS {
-    interface Timeout extends object {}
+    type Timeout = number;
   }
 }
 
