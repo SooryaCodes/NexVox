@@ -128,7 +128,11 @@ export default function VoiceRoomContainer({
           onMouseEnter={(e) => handleHoverStart(user, index, e)}
           onMouseMove={(e) => onUserHover(user, e.clientX, e.clientY)}
           onMouseLeave={handleHoverEnd}
-          onClick={() => onUserClick(user)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onUserClick(user);
+          }}
           role="button"
           aria-label={`View ${user.name}'s profile`}
           tabIndex={0}
@@ -143,6 +147,10 @@ export default function VoiceRoomContainer({
               scale: 1.05, 
               zIndex: 20,
               transition: { duration: 0.2 } 
+            }}
+            onClick={(e) => {
+              // Prevent event from propagating further
+              e.stopPropagation();
             }}
           >
             {/* Avatar container with border */}
@@ -200,7 +208,10 @@ export default function VoiceRoomContainer({
               
             {/* Enhanced Speaking indicator with clear visualization */}
             {avatarPositions[index]?.isSpeaking && (
-              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-[#00FFFF]/20 backdrop-blur-sm rounded-full px-2 py-0.5 border border-[#00FFFF]/40">
+              <div 
+                className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-[#00FFFF]/20 backdrop-blur-sm rounded-full px-2 py-0.5 border border-[#00FFFF]/40"
+                onClick={(e) => e.stopPropagation()} // Stop clicks on the indicator from triggering profile
+              >
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-[#00FFFF] rounded-full animate-pulse"></div>
                   <span className="text-xs text-[#00FFFF] font-medium">Speaking</span>
@@ -217,6 +228,7 @@ export default function VoiceRoomContainer({
                   ? 'bg-black/70 border-[#00FFFF]/30 z-20' 
                   : 'bg-black/40 border-white/10'
               }`}
+              onClick={(e) => e.stopPropagation()} // Stop clicks on the name from triggering profile
             >
               {user.isHost && (
                 <span className="inline-block w-2 h-2 rounded-full bg-[#00FFFF] mr-1"></span>

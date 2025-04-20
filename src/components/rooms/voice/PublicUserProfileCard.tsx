@@ -165,6 +165,10 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
         ref={cardRef}
         className="relative max-w-sm w-full overflow-hidden"
         style={{ transformStyle: "preserve-3d" }}
+        onClick={(e) => {
+          // Prevent clicks inside the modal from closing it
+          e.stopPropagation();
+        }}
       >
         {/* Animated glow background */}
         <div
@@ -601,6 +605,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                 className="w-full relative py-3 rounded-md bg-black/40 group overflow-hidden border border-[#00FFFF]/30 hover:border-[#00FFFF] transition-all duration-300"
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   onConnect();
                 }}
               >
@@ -649,6 +654,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                 className={`w-full relative py-3 rounded-md bg-black/40 group overflow-hidden border ${isMuted ? 'border-[#00FFFF]/30 hover:border-[#00FFFF]' : 'border-[#FF00E6]/30 hover:border-[#FF00E6]'} transition-all duration-300`}
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   onMute();
                 }}
               >
