@@ -128,7 +128,8 @@ export default function RoomPage() {
     mutedUsers,
     currentUser,
     room,
-    addToast
+    messages,
+    sendMessage: (message) => setMessages(prev => [...prev, message])
   });
   
   // Enhanced hover stability

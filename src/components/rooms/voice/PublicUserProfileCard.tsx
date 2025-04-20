@@ -637,11 +637,11 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 3h6v6" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14L21 3" />
-                    </svg>
+                  </svg>
                   </div>
                   <span className="text-[#00FFFF] font-medium tracking-wide text-sm">
                     CONNECT <span className="opacity-80 font-normal">WITH</span> {user.name.toUpperCase()}
-                  </span>
+                </span>
                 </div>
                 
                 {/* Hover glow effect */}
@@ -693,12 +693,12 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
                         </>
                       )}
-                    </svg>
+                </svg>
                   </div>
                   <span className={`${isMuted ? 'text-[#00FFFF]' : 'text-[#FF00E6]'} font-medium tracking-wide text-sm`}>
                     {isMuted ? 'UNMUTE' : 'MUTE'} <span className="opacity-80 font-normal">USER</span> {user.name.toUpperCase()}
                   </span>
-                </div>
+            </div>
                 
                 {/* Hover glow effect */}
                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 ${isMuted ? 'bg-[#00FFFF]' : 'bg-[#FF00E6]'} blur-xl transition-opacity duration-300`}></div>
