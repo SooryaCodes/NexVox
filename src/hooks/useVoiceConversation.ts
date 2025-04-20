@@ -560,6 +560,10 @@ export const useVoiceConversation = ({
     console.log("!! handleStartConversation function called !!");
     
     try {
+      // CRITICAL: Force activation of the conversation - this must happen early
+      setIsConversationActive(true);
+      console.log("CONVERSATION ACTIVATED - now active state =", true);
+      
       // Immediately hide the prompt
       setShowStartPrompt(false);
       setHasUserInteracted(true);

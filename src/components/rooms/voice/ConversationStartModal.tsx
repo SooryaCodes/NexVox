@@ -16,16 +16,22 @@ const ConversationStartModal: React.FC<ConversationStartModalProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
+    // Play sound effect if available
     if (playSound) playSound();
     
-    // Log before starting
-    console.log("Start button clicked, calling onStart...");
+    // Log that the button was clicked
+    console.log("[ConversationStartModal] START button clicked!");
     
-    // Add a small timeout to ensure the click is processed
-    setTimeout(() => {
-      onStart();
-      console.log("onStart called!");
-    }, 50);
+    try {
+      // Call the start function with a slight delay to ensure event propagation is complete
+      setTimeout(() => {
+        console.log("[ConversationStartModal] Calling onStart function");
+        onStart();
+        console.log("[ConversationStartModal] onStart function called");
+      }, 100);
+    } catch (error) {
+      console.error("[ConversationStartModal] Error starting conversation:", error);
+    }
   };
 
   return (
