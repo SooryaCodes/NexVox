@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams, usePathname } from "next/navigation";
 import { AnimatePresence, m } from "framer-motion";
 
 // Import types
@@ -51,6 +51,19 @@ import {
 export default function RoomPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const pathname = usePathname();
+
+  // Add this useEffect to monitor route changes
+  useEffect(() => {
+    // Store the current path to detect changes
+    const currentPath = pathname;
+    
+    // This will run when the component is unmounted or when the route changes
+    return () => {
+      console.log(`Route changed from ${currentPath}, ensuring voice conversation is stopped`);
+      // The cleanup in useVoiceConversation will handle this, but we can add extra logging here
+    };
+  }, [pathname]);
 
   // Room data and loading state
   const { room, loading, users, roomId, setRoomId, activeSpeakers, setUsers } =
