@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { User, ChatMessage } from '@/types/room';
 import { useRoomToasts } from "./useRoomToasts";
 import { useSpeechSynthesis } from "./useSpeechSynthesis";
-import { useEffect as useRouterEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface UseVoiceConversationProps {
   users: User[];
@@ -22,6 +22,25 @@ interface ConversationState {
   currentSubtopic?: string;
   lastFewMessages: string[];
   conversationThread?: string;
+}
+
+// Helper function for stopping speech synthesis
+function stopSpeechSynthesis() {
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    try {
+      console.log("Stopping speech synthesis globally");
+      window.speechSynthesis.cancel();
+      // Additional reset to ensure it's completely stopped
+      const utterance = new SpeechSynthesisUtterance('');
+      utterance.onend = () => {
+        console.log("Empty utterance completed");
+      };
+      window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.cancel();
+    } catch (e) {
+      console.error("Error while trying to force stop speech synthesis:", e);
+    }
+  }
 }
 
 export const useVoiceConversation = ({
@@ -60,6 +79,56 @@ export const useVoiceConversation = ({
     lastFewMessages: [],
     conversationThread: generateConversationThread(room?.name?.toLowerCase() || 'general')
   });
+  
+  // Get router for better navigation handling
+  const router = useRouter();
+  
+  // Get pathname to detect route changes 
+  const pathname = usePathname();
+  const pathnameRef = useRef(pathname);
+  
+  // Add schedulerTimeoutRef early in the hook
+  const schedulerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Create stopConversation function before it's used in effects
+  const stopConversation = useCallback(() => {
+    console.log("stopConversation function called, cleaning up all resources");
+    
+    // Cancel any ongoing speech synthesis via the hook
+    cancel();
+    
+    // Clear all timeouts and intervals
+    if (speakingTimeoutRef.current) {
+      clearTimeout(speakingTimeoutRef.current);
+      speakingTimeoutRef.current = null;
+    }
+    
+    // Clear any other timeouts that might be scheduled
+    if (schedulerTimeoutRef.current) {
+      clearTimeout(schedulerTimeoutRef.current);
+      schedulerTimeoutRef.current = null;
+    }
+    
+    // Reset all states
+    setIsConversationActive(false);
+    setActiveSpeakerIndex(null);
+    setIsProcessing(false);
+    setCurrentSpeaker(null);
+    setEnableWaveform(false);
+    
+    // Use the helper function to force speech synthesis to stop
+    stopSpeechSynthesis();
+    
+    // Reset conversation state
+    conversationStateRef.current = {
+      ...conversationStateRef.current,
+      lastSpeakerId: -1,
+      messagesExchanged: 0,
+      lastFewMessages: []
+    };
+    
+    console.log("Conversation fully stopped and cleaned up");
+  }, [cancel]);
   
   // Initialize audio context
   const initAudioContext = useCallback(() => {
@@ -134,105 +203,60 @@ export const useVoiceConversation = ({
         setEnableWaveform(false);
       }
       
-      // Force speech synthesis to stop
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        console.log("Directly cancelled window.speechSynthesis on unmount");
-      }
+      // Use the helper function to force speech synthesis to stop
+      stopSpeechSynthesis();
     };
   }, [cancel, supported, isConversationActive]);
 
-  // Add router change listener to stop conversation on navigation
+  // Path change handling - simplified to focus on speech synthesis cleanup
   useEffect(() => {
-    // Only add listener if in a browser environment
-    if (typeof window !== 'undefined') {
-      const handleRouteChange = () => {
-        console.log("Route change detected, stopping conversation");
-        
-        // Cancel any ongoing speech synthesis
-        if (supported) {
-          cancel();
-          console.log("Cancelled speech synthesis on route change");
-        }
-        
-        // Clear all timeouts and intervals
-        if (speakingTimeoutRef.current) {
-          clearTimeout(speakingTimeoutRef.current);
-          speakingTimeoutRef.current = null;
-          console.log("Cleared speaking timeout on route change");
-        }
-        
-        // Reset all states
-        setIsConversationActive(false);
-        setActiveSpeakerIndex(null);
-        setIsProcessing(false);
-        setCurrentSpeaker(null);
-        setEnableWaveform(false);
-        
-        // Force speech synthesis to stop
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-          console.log("Directly cancelled window.speechSynthesis on route change");
-        }
-      };
+    if (pathnameRef.current !== pathname) {
+      console.log(`Path changed from ${pathnameRef.current} to ${pathname}`);
       
-      // Listen for popstate event (browser back/forward)
-      window.addEventListener('popstate', handleRouteChange);
+      // If conversation is active, stop it
+      if (isConversationActive) {
+        stopConversation();
+      } else {
+        // Still stop speech synthesis as a safety measure
+        stopSpeechSynthesis();
+      }
       
-      // Listen for clicks on anchor tags
-      const handleAnchorClick = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        const anchor = target.closest('a');
-        
-        if (anchor && anchor.href && !anchor.href.startsWith('#') && !e.ctrlKey && !e.metaKey) {
-          // This is a navigation click, stop the conversation
-          handleRouteChange();
-        }
-      };
-      
-      document.addEventListener('click', handleAnchorClick);
-      
-      return () => {
-        window.removeEventListener('popstate', handleRouteChange);
-        document.removeEventListener('click', handleAnchorClick);
-      };
+      // Update the ref
+      pathnameRef.current = pathname;
     }
-  }, [cancel, supported]);
+  }, [pathname, isConversationActive, stopConversation]);
 
-  const stopConversation = useCallback(() => {
-    console.log("stopConversation function called, cleaning up all resources");
+  // Global navigation detection
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     
-    // Cancel any ongoing speech synthesis via the hook
-    cancel();
-    
-    // Clear all timeouts and intervals
-    if (speakingTimeoutRef.current) {
-      clearTimeout(speakingTimeoutRef.current);
-      speakingTimeoutRef.current = null;
-    }
-    
-    // Reset all states
-    setIsConversationActive(false);
-    setActiveSpeakerIndex(null);
-    setIsProcessing(false);
-    setCurrentSpeaker(null);
-    setEnableWaveform(false);
-    
-    // Force speech synthesis to stop directly
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    
-    // Reset conversation state
-    conversationStateRef.current = {
-      ...conversationStateRef.current,
-      lastSpeakerId: -1,
-      messagesExchanged: 0,
-      lastFewMessages: []
+    // Simplified cleanup function that just stops speech synthesis
+    const ensureSpeechStopped = () => {
+      console.log("Navigation event detected, stopping speech");
+      // Always stop speech synthesis as a safety measure
+      stopSpeechSynthesis();
+      
+      // If conversation is active, properly stop it
+      if (isConversationActive) {
+        stopConversation();
+      }
     };
     
-    console.log("Conversation fully stopped and cleaned up");
-  }, [cancel]);
+    // Add essential event listeners
+    window.addEventListener('beforeunload', ensureSpeechStopped);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        ensureSpeechStopped();
+      }
+    });
+    
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener('beforeunload', ensureSpeechStopped);
+      document.removeEventListener('visibilitychange', ensureSpeechStopped);
+      ensureSpeechStopped();
+    };
+  }, [isConversationActive, stopConversation]);
 
   // Test speech synthesis directly
   const testSpeech = useCallback(() => {
@@ -967,53 +991,6 @@ export const useVoiceConversation = ({
     }, 1000);
     
   }, [users, scheduleNextSpeaker, addToast, initAudioContext, stopConversation, cancel, speak, supported]);
-  
-  // Additional NextJS router integration
-  useRouterEffect(() => {
-    // This only runs in the browser
-    if (typeof window !== 'undefined') {
-      // Function to handle Next.js navigation events
-      const handleNextJSRouteChange = () => {
-        if (isConversationActive) {
-          console.log("Next.js navigation event detected while conversation active, stopping conversation");
-          stopConversation();
-        }
-      };
-
-      // Add event listeners for Next.js route change start
-      // This works because Next.js dispatches these events on navigation
-      window.addEventListener('beforeunload', handleNextJSRouteChange);
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden' && isConversationActive) {
-          console.log("Page visibility changed to hidden, stopping conversation");
-          stopConversation();
-        }
-      });
-
-      // Create a MutationObserver to watch for DOM changes that might indicate navigation
-      const observer = new MutationObserver((mutations) => {
-        // Check if we're seeing significant DOM changes that might indicate navigation
-        const significantChanges = mutations.some(mutation => 
-          mutation.addedNodes.length > 5 || mutation.removedNodes.length > 5
-        );
-
-        if (significantChanges && isConversationActive) {
-          console.log("Significant DOM changes detected, may be navigating away, stopping conversation");
-          stopConversation();
-        }
-      });
-
-      // Start observing the document with the configured parameters
-      observer.observe(document.body, { childList: true, subtree: true });
-
-      // Cleanup function
-      return () => {
-        window.removeEventListener('beforeunload', handleNextJSRouteChange);
-        document.removeEventListener('visibilitychange', handleNextJSRouteChange);
-        observer.disconnect();
-      };
-    }
-  }, [isConversationActive, stopConversation]);
   
   return {
     activeSpeakerIndex,

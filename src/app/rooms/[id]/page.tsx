@@ -58,10 +58,39 @@ export default function RoomPage() {
     // Store the current path to detect changes
     const currentPath = pathname;
     
+    // Global speech synthesis cleanup function
+    const stopAllSpeech = () => {
+      console.log("Global speech cleanup triggered");
+      if (window.speechSynthesis) {
+        try {
+          // Cancel any ongoing speech
+          window.speechSynthesis.cancel();
+          
+          // Reset with an empty utterance
+          const emptyUtterance = new SpeechSynthesisUtterance("");
+          window.speechSynthesis.speak(emptyUtterance);
+          window.speechSynthesis.cancel();
+        } catch (e) {
+          console.error("Error during global speech cleanup:", e);
+        }
+      }
+    };
+    
+    // Handle beforeunload event
+    const handleBeforeUnload = () => {
+      stopAllSpeech();
+    };
+    
+    // Add global event listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
     // This will run when the component is unmounted or when the route changes
     return () => {
       console.log(`Route changed from ${currentPath}, ensuring voice conversation is stopped`);
-      // The cleanup in useVoiceConversation will handle this, but we can add extra logging here
+      // Perform global speech cleanup
+      stopAllSpeech();
+      // Remove event listener
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [pathname]);
 
@@ -472,8 +501,63 @@ export default function RoomPage() {
         }}
         onToggleSidebar={() => setIsSidebarOpen(true)}
         onLeaveRoom={() => {
+          // First notify user they're leaving
           addToast("Leaving room...", "warning");
-          setTimeout(() => router.push("/rooms"), 1000);
+          
+          // Enhanced cleanup process
+          console.log("ROOM EXIT: Starting comprehensive cleanup");
+          
+          // 1. Stop the conversation using the hook's method
+          stopConversation();
+          
+          // 2. Cancel speech synthesis directly (belt and suspenders)
+          if (window.speechSynthesis) {
+            console.log("ROOM EXIT: Directly canceling speech synthesis");
+            window.speechSynthesis.cancel();
+            
+            // 3. Force a reset of the speech synthesis engine with an empty utterance
+            try {
+              const emptyUtterance = new SpeechSynthesisUtterance("");
+              window.speechSynthesis.speak(emptyUtterance);
+              window.speechSynthesis.cancel();
+              console.log("ROOM EXIT: Speech synthesis reset completed");
+            } catch (e) {
+              console.error("ROOM EXIT: Error during speech synthesis reset:", e);
+            }
+          }
+          
+          // 4. Close audio context if possible
+          if (typeof AudioContext !== 'undefined') {
+            try {
+              console.log("ROOM EXIT: Attempting to close any audio contexts");
+              // This is a best effort - we don't have direct access to the context reference
+            } catch (e) {
+              console.error("ROOM EXIT: Error while closing audio context:", e);
+            }
+          }
+          
+          // 5. Wait a short time to ensure cleanup completes before navigation
+          setTimeout(() => {
+            console.log("ROOM EXIT: Final speech synthesis cancellation before navigation");
+            // Final check - directly cancel speech synthesis again
+            if (window.speechSynthesis) {
+              window.speechSynthesis.cancel();
+            }
+            
+            // 6. Navigate away with a state object indicating we're cleaning up
+            router.push("/rooms", { 
+              // This doesn't work with the app router but is a reminder of our intent
+              // shallow: true 
+            });
+            
+            // 7. Add a final cleanup chance after navigation starts
+            setTimeout(() => {
+              if (window.speechSynthesis) {
+                console.log("ROOM EXIT: Post-navigation speech synthesis cancellation");
+                window.speechSynthesis.cancel();
+              }
+            }, 500);
+          }, 300);
         }}
       />
 
