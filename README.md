@@ -3,7 +3,12 @@
 A next-generation voice room social media platform with immersive spatial audio and cyberpunk-inspired design.
 
 ![Nexvox](public/nexvox_image.png)
-[![Watch the video](public/nexvox_image_2.png)](https://vimeo.com/1077218273/1f6b15797a?share=copy)
+## 🔊 Watch Demo Video
+
+
+[Click here to watch the demo video on Vimeo](https://vimeo.com/1077218273/1f6b15797a?share=copy)
+
+[![Watch Demo Video](public/nexvox_image_2.png)](https://vimeo.com/1077218273/1f6b15797a?share=copy)
 
 
 ## 🔊 Overview
